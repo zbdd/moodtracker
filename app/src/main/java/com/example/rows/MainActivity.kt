@@ -1,8 +1,7 @@
 package com.example.rows
 
 import android.os.Bundle
-import android.widget.EditText
-import android.widget.TextView
+import android.widget.ImageButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -32,6 +31,15 @@ class MainActivity : AppCompatActivity() {
         val adaptor = RecyclerViewAdaptor(data)
         recyclerView.adapter = adaptor
 
+        val addNewButton: ImageButton = findViewById(R.id.addNewButton)
+        addNewButton.setOnClickListener {
+            val moodEntry = createNewMoodEntry()
+
+            adaptor.run {
+                data.add(moodEntry)
+                notifyDataSetChanged()
+            }
+        }
     }
 
     fun loadFromJSONAsset(): String {
@@ -48,12 +56,12 @@ class MainActivity : AppCompatActivity() {
         return json
     }
 
-    fun createDefaultRow(moodText: EditText, dateText: TextView) {
-        moodText.setText("5")
+    fun createNewMoodEntry(): MoodEntryModel {
 
         val date = LocalDateTime.now()
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
         val formatted = date.format(formatter)
-        dateText.text = formatted
+
+        return MoodEntryModel(formatted, "5", "New")
     }
 }
