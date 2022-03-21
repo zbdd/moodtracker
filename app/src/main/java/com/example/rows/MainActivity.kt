@@ -6,6 +6,8 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.gson.GsonBuilder
+import java.nio.charset.Charset
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -20,19 +22,31 @@ class MainActivity : AppCompatActivity() {
         recyclerView.layoutManager = LinearLayoutManager(this)
         val data = ArrayList<MoodEntryModel>()
 
-        val entry1: MoodEntryModel = MoodEntryModel("5555-10-20", "5","Nothing")
-        val entry2: MoodEntryModel = MoodEntryModel("1111-10-20", "2","test")
-        val entry3: MoodEntryModel = MoodEntryModel("3333-10-20", "6","asdasd")
-
-        data.add(entry1)
-        data.add(entry2)
-        data.add(entry3)
+        val jsonArray = loadFromJSONAsset()
+        val gson = GsonBuilder().create()
+        val moodEntries = gson.fromJson(jsonArray, Array<MoodEntryModel>::class.java).toList()
+        for(x in moodEntries.indices) {
+            data.add(moodEntries[x])
+        }
 
         val adaptor = RecyclerViewAdaptor(data)
         recyclerView.adapter = adaptor
 
     }
 
+    fun loadFromJSONAsset(): String {
+        var json: String
+        println(assets)
+        val inputStream = assets.open("testData.json")
+        val size = inputStream.available()
+        val buffer = ByteArray(size)
+        val charset: Charset = Charsets.UTF_8
+        inputStream.read(buffer)
+        inputStream.close()
+        json = String(buffer, charset)
+
+        return json
+    }
 
     fun createDefaultRow(moodText: EditText, dateText: TextView) {
         moodText.setText("5")
