@@ -32,7 +32,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
-        val response = result.idpResponse
         if (result.resultCode == RESULT_OK) {
             // Successfully signed in
             val user = FirebaseAuth.getInstance().currentUser
@@ -47,45 +46,52 @@ class MainActivity : AppCompatActivity() {
 
             val database = Firebase.database("https://silent-blend-161710-default-rtdb.asia-southeast1.firebasedatabase.app")
             val myRef = database.reference
+            if (user != null) {
+                if (myRef.child(user.uid).child("moodEntries") == null) myRef.child(user.uid).child("moodEntries").setValue("")
 
-            myRef.addValueEventListener(object: ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    //val jsonArrayList = snapshot.children.first().value as ArrayList<HashMap<String, String>>
-                    for ((key, hashmap) in snapshot.child("moodEntries").value as HashMap<String, HashMap<String, String>>) {
-                        data.add(
-                            MoodEntryModel(
-                                hashmap["date"] .toString(),
-                                hashmap["mood"].toString(),
-                                hashmap["activity"].toString()
-                            )
-                        )
+                myRef.child(user.uid).child("moodEntries").addValueEventListener(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        //val jsonArrayList = snapshot.children.first().value as ArrayList<HashMap<String, String>>
+                        if (snapshot.value!!.javaClass == HashMap<String, Any>().javaClass) {
+                            for ((key, hashmap) in snapshot.value as HashMap<String, HashMap<String, String>>) {
+                                data.add(
+                                    MoodEntryModel(
+                                        hashmap["date"].toString(),
+                                        hashmap["mood"].toString(),
+                                        hashmap["activity"].toString()
+                                    )
+                                )
+                            }
+                            adaptor.run {
+                                tvLoading.visibility = View.INVISIBLE
+                                notifyDataSetChanged()
+                            }
+                        }
                     }
-                    adaptor.run {
+
+                    override fun onCancelled(error: DatabaseError) {
                         tvLoading.visibility = View.INVISIBLE
+                        TODO("Not yet implemented")
+                    }
+                })
+
+                //loadTestingData(data, adaptor)
+
+                val addNewButton: ImageButton = findViewById(R.id.addNewButton)
+                addNewButton.setOnClickListener {
+                    val moodEntry = createNewMoodEntry()
+                    data.clear()
+                    data.add(moodEntry)
+                    //writeEntrytoFile(moodEntry)
+                    val moodHash = moodEntry.toMap()
+                    println("PATH: ${user.uid}/moodEntries")
+                    val key = myRef.child(user.uid).child("moodEntries").push().key
+                    val update = hashMapOf<String, Any>("moodEntries/$key" to moodHash)
+                    myRef.child(user.uid).updateChildren(update)
+
+                    adaptor.run {
                         notifyDataSetChanged()
                     }
-                }
-
-                override fun onCancelled(error: DatabaseError) {
-                    TODO("Not yet implemented")
-                }
-            })
-
-            //loadTestingData(data, adaptor)
-
-            val addNewButton: ImageButton = findViewById(R.id.addNewButton)
-            addNewButton.setOnClickListener {
-                val moodEntry = createNewMoodEntry()
-                data.clear()
-                data.add(moodEntry)
-                //writeEntrytoFile(moodEntry)
-                val moodHash = moodEntry.toMap()
-                val key = myRef.child("moodEntries").push().key
-                val update = hashMapOf<String, Any>("moodEntries/$key" to moodHash)
-                myRef.updateChildren(update)
-
-                adaptor.run {
-                    notifyDataSetChanged()
                 }
             }
         } else {
