@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Rows</string>
+    <string name="add_new_mood_button">Add New Mood Button</string>
 </resources>

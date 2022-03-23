@@ -1,7 +1,9 @@
 package com.example.rows
 
 import android.os.Bundle
+import android.view.View
 import android.widget.ImageButton
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -37,6 +39,7 @@ class MainActivity : AppCompatActivity() {
             val user = FirebaseAuth.getInstance().currentUser
             // ...
             val recyclerView: RecyclerView = findViewById(R.id.recyclerViewMain)
+            val tvLoading: TextView = findViewById(R.id.tv_loading)
             recyclerView.layoutManager = LinearLayoutManager(this)
             val data = ArrayList<MoodEntryModel>()
 
@@ -49,6 +52,7 @@ class MainActivity : AppCompatActivity() {
             myRef.addValueEventListener(object: ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     val jsonArrayList = snapshot.children.first().value as ArrayList<HashMap<String, String>>
+
                     for (hashmap in jsonArrayList) {
                         data.add(
                             MoodEntryModel(
@@ -59,6 +63,7 @@ class MainActivity : AppCompatActivity() {
                         )
                     }
                     adaptor.run {
+                        tvLoading.visibility = View.INVISIBLE
                         notifyDataSetChanged()
                     }
                 }
@@ -74,7 +79,7 @@ class MainActivity : AppCompatActivity() {
             addNewButton.setOnClickListener {
                 val moodEntry = createNewMoodEntry()
                 data.add(moodEntry)
-                writeEntrytoFile(moodEntry)
+                //writeEntrytoFile(moodEntry)
 
                 adaptor.run {
                     notifyDataSetChanged()
