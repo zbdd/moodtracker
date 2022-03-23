@@ -23,8 +23,7 @@ import java.io.FileOutputStream
 import java.io.FileReader
 import java.io.OutputStreamWriter
 import java.nio.charset.Charset
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -51,12 +50,11 @@ class MainActivity : AppCompatActivity() {
 
             myRef.addValueEventListener(object: ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    val jsonArrayList = snapshot.children.first().value as ArrayList<HashMap<String, String>>
-
-                    for (hashmap in jsonArrayList) {
+                    //val jsonArrayList = snapshot.children.first().value as ArrayList<HashMap<String, String>>
+                    for ((key, hashmap) in snapshot.child("moodEntries").value as HashMap<String, HashMap<String, String>>) {
                         data.add(
                             MoodEntryModel(
-                                hashmap["date"].toString(),
+                                hashmap["date"] .toString(),
                                 hashmap["mood"].toString(),
                                 hashmap["activity"].toString()
                             )
@@ -78,8 +76,13 @@ class MainActivity : AppCompatActivity() {
             val addNewButton: ImageButton = findViewById(R.id.addNewButton)
             addNewButton.setOnClickListener {
                 val moodEntry = createNewMoodEntry()
+                data.clear()
                 data.add(moodEntry)
                 //writeEntrytoFile(moodEntry)
+                val moodHash = moodEntry.toMap()
+                val key = myRef.child("moodEntries").push().key
+                val update = hashMapOf<String, Any>("moodEntries/$key" to moodHash)
+                myRef.updateChildren(update)
 
                 adaptor.run {
                     notifyDataSetChanged()
@@ -167,10 +170,13 @@ class MainActivity : AppCompatActivity() {
 
     fun createNewMoodEntry(): MoodEntryModel {
 
-        val date = LocalDateTime.now()
-        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-        val formatted = date.format(formatter)
+        //val date = LocalDateTime.now()
+        //val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+        //val formatted = date.format(formatter)
+        val randMonth = kotlin.random.Random.nextInt(1,12)
+        val randDay = kotlin.random.Random.nextInt(1,28)
+        val randMood = kotlin.random.Random.nextInt(1,9)
 
-        return MoodEntryModel(formatted, "5", "New")
+        return MoodEntryModel("2022-$randMonth-$randDay", "$randMood", "Test Data New")
     }
 }
