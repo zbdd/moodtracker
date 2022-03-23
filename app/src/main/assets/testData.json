@@ -1,32 +1,35 @@
-[
-  {
-    "date": "2022-10-01",
-    "mood": "5",
-    "activity": "gaming"
-  },
-  {
-    "date": "2022-10-02",
-    "mood": "6",
-    "activity": "seeing friends"
-  },
-  {
-    "date": "2022-10-03",
-    "mood": "6",
-    "activity": "socalising"
-  },
-  {
-    "date": "2022-10-04",
-    "mood": "5",
-    "activity": "work"
-  },
-  {
-    "date": "2022-10-05",
-    "mood": "4",
-    "activity": "work"
-  },
-  {
-    "date": "2022-10-06",
-    "mood": "3",
-    "activity": "work"
-  }
-]
+{
+  "moodEntries":
+  [
+    {
+      "date": "2022-10-01",
+      "mood": "5",
+      "activity": "gaming"
+    },
+    {
+      "date": "2022-10-02",
+      "mood": "6",
+      "activity": "seeing friends"
+    },
+    {
+      "date": "2022-10-03",
+      "mood": "6",
+      "activity": "socalising"
+    },
+    {
+      "date": "2022-10-04",
+      "mood": "5",
+      "activity": "work"
+    },
+    {
+      "date": "2022-10-05",
+      "mood": "4",
+      "activity": "work"
+    },
+    {
+      "date": "2022-10-06",
+      "mood": "3",
+      "activity": "work"
+    }
+  ]
+}

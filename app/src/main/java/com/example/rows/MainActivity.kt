@@ -9,9 +9,17 @@ import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import java.io.*
+import java.io.File
+import java.io.FileOutputStream
+import java.io.FileReader
+import java.io.OutputStreamWriter
 import java.nio.charset.Charset
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -32,25 +40,44 @@ class MainActivity : AppCompatActivity() {
             recyclerView.layoutManager = LinearLayoutManager(this)
             val data = ArrayList<MoodEntryModel>()
 
-            val jsonArray = loadFromJSONAsset()
-            val gson = GsonBuilder().create()
-            val moodEntries = gson.fromJson(jsonArray, Array<MoodEntryModel>::class.java).toList()
-            for(x in moodEntries.indices) {
-                data.add(moodEntries[x])
-            }
-
             val adaptor = RecyclerViewAdaptor(data)
             recyclerView.adapter = adaptor
+
+            val database = Firebase.database("https://silent-blend-161710-default-rtdb.asia-southeast1.firebasedatabase.app")
+            val myRef = database.reference
+            var jsonArrayList: ArrayList<String>
+
+            myRef.addValueEventListener(object: ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val jsonArrayList = snapshot.children.first().value as ArrayList<HashMap<String, String>>
+                    for (hashmap in jsonArrayList) {
+                        data.add(
+                            MoodEntryModel(
+                                hashmap["date"].toString(),
+                                hashmap["mood"].toString(),
+                                hashmap["activity"].toString()
+                            )
+                        )
+                    }
+
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    TODO("Not yet implemented")
+                }
+            })
+
+            //loadTestingData(data, adaptor)
 
             val addNewButton: ImageButton = findViewById(R.id.addNewButton)
             addNewButton.setOnClickListener {
                 val moodEntry = createNewMoodEntry()
                 data.add(moodEntry)
-                writeEntrytoFile(moodEntry)
+                //writeEntrytoFile(moodEntry)
 
-                adaptor.run {
-                    notifyDataSetChanged()
-                }
+                //adaptor.run {
+                //    notifyDataSetChanged()
+                //}
             }
         } else {
             // Sign in failed. If response is null the user canceled the
@@ -58,6 +85,21 @@ class MainActivity : AppCompatActivity() {
             // response.getError().getErrorCode() and handle the error.
             // ...
             launchSignInEvent()
+        }
+    }
+
+    fun loadTestingData(data: ArrayList<MoodEntryModel>, adaptor: RecyclerViewAdaptor) {
+        val jsonArray = loadFromJSONAsset()
+
+        if (jsonArray.isNotEmpty()) {
+            val gson = GsonBuilder().create()
+            val moodEntries = gson.fromJson(jsonArray, Array<MoodEntryModel>::class.java).toList()
+            for(x in moodEntries.indices) {
+                data.add(moodEntries[x])
+            }
+        }
+        adaptor.run {
+            notifyDataSetChanged()
         }
     }
 
@@ -77,6 +119,7 @@ class MainActivity : AppCompatActivity() {
         // Create and launch sign-in intent
         val signInIntent = AuthUI.getInstance()
             .createSignInIntentBuilder()
+            .setIsSmartLockEnabled(false)
             .setAvailableProviders(providers)
             .build()
         signInLauncher.launch(signInIntent)
