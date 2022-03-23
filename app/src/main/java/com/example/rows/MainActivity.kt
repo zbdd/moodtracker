@@ -45,7 +45,6 @@ class MainActivity : AppCompatActivity() {
 
             val database = Firebase.database("https://silent-blend-161710-default-rtdb.asia-southeast1.firebasedatabase.app")
             val myRef = database.reference
-            var jsonArrayList: ArrayList<String>
 
             myRef.addValueEventListener(object: ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
@@ -59,7 +58,9 @@ class MainActivity : AppCompatActivity() {
                             )
                         )
                     }
-
+                    adaptor.run {
+                        notifyDataSetChanged()
+                    }
                 }
 
                 override fun onCancelled(error: DatabaseError) {
@@ -73,11 +74,11 @@ class MainActivity : AppCompatActivity() {
             addNewButton.setOnClickListener {
                 val moodEntry = createNewMoodEntry()
                 data.add(moodEntry)
-                //writeEntrytoFile(moodEntry)
+                writeEntrytoFile(moodEntry)
 
-                //adaptor.run {
-                //    notifyDataSetChanged()
-                //}
+                adaptor.run {
+                    notifyDataSetChanged()
+                }
             }
         } else {
             // Sign in failed. If response is null the user canceled the
