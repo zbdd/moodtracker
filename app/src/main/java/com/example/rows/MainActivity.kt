@@ -5,6 +5,7 @@ import android.view.View
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.firebase.ui.auth.AuthUI
@@ -30,9 +31,17 @@ import java.util.*
 class MainActivity : AppCompatActivity() {
 
     lateinit var recyclerViewAdaptor: RecyclerViewAdaptor
+    private var mItemTouchHelper: ItemTouchHelper? = null
 
     private val signInLauncher = registerForActivityResult(FirebaseAuthUIActivityResultContract()) {
         res -> this.onSignInResult(res)
+    }
+
+    fun setupRecycleView() {
+        recyclerViewAdaptor = RecyclerViewAdaptor() {  }
+        val callback: ItemTouchHelper.Callback = SwipeHelperCallback(recyclerViewAdaptor)
+        mItemTouchHelper = ItemTouchHelper(callback)
+        mItemTouchHelper?.attachToRecyclerView(findViewById(R.id.recyclerViewMain))
     }
 
     private fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
@@ -48,13 +57,12 @@ class MainActivity : AppCompatActivity() {
             val database = Firebase.database("https://silent-blend-161710-default-rtdb.asia-southeast1.firebasedatabase.app")
             val myRef = database.reference
 
-            val adaptor = RecyclerViewAdaptor() {}
-            recyclerView.adapter = adaptor
+            recyclerView.adapter = recyclerViewAdaptor
 
             if (user != null) {
                 checkDatabasePathExists(myRef, user)
-                readDatabaseForNewData(myRef, user, data, recyclerView, adaptor)
-                addDataToDatabaseOnClick(myRef, user, data, recyclerView, adaptor)
+                readDatabaseForNewData(myRef, user, data, recyclerView, recyclerViewAdaptor)
+                addDataToDatabaseOnClick(myRef, user, data, recyclerView, recyclerViewAdaptor)
 
                 //loadTestingData(data, adaptor)
             }
@@ -87,7 +95,7 @@ class MainActivity : AppCompatActivity() {
         myRef.child(user.uid).child("moodEntries").addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.value == null) return
-                data.clear()
+
                 if (snapshot.value!!.javaClass == HashMap<String, Any>().javaClass) {
                     for ((key, hashmap) in snapshot.value as HashMap<String, HashMap<String, String>>) {
                         data.add(
@@ -135,8 +143,10 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        launchSignInEvent()
+        setupRecycleView()
+        if (::recyclerViewAdaptor.isInitialized) {
+            launchSignInEvent()
+        }
     }
 
     private fun launchSignInEvent() {

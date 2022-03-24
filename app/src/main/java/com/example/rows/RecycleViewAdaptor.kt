@@ -89,6 +89,8 @@ class RecyclerViewAdaptor(val onSwiped: () -> Unit):
     }
 
     override fun onItemDismiss(position: Int) {
-
+        moodList.removeAt(position)
+        notifyItemRemoved(position)
+        onSwiped()
     }
 }

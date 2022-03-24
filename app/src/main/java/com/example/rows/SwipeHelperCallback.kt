@@ -3,7 +3,7 @@ package com.example.rows
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 
-abstract class SwipeHelperCallback(val adaptor: ItemTouchHelperAdaptor): ItemTouchHelper.Callback() {
+class SwipeHelperCallback(val adaptor: ItemTouchHelperAdaptor): ItemTouchHelper.Callback() {
     interface ItemTouchHelperAdaptor {
         fun onItemMove(fromPosition: Int, toPosition: Int): Boolean
         fun onItemDismiss(position: Int)
