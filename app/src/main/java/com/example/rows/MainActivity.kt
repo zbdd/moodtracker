@@ -11,8 +11,10 @@ import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
@@ -37,65 +39,19 @@ class MainActivity : AppCompatActivity() {
             val user = FirebaseAuth.getInstance().currentUser
             // ...
             val recyclerView: RecyclerView = findViewById(R.id.recyclerViewMain)
-            val tvLoading: TextView = findViewById(R.id.tv_loading)
+
             recyclerView.layoutManager = LinearLayoutManager(this)
             val data = ArrayList<MoodEntryModel>()
 
             val database = Firebase.database("https://silent-blend-161710-default-rtdb.asia-southeast1.firebasedatabase.app")
             val myRef = database.reference
+
             if (user != null) {
-                if (myRef.child(user.uid).child("moodEntries") == null) myRef.child(user.uid).child("moodEntries").setValue("")
-
-                myRef.child(user.uid).child("moodEntries").addValueEventListener(object : ValueEventListener {
-                    override fun onDataChange(snapshot: DataSnapshot) {
-                        if (snapshot.value == null) return
-                        data.clear()
-                        if (snapshot.value!!.javaClass == HashMap<String, Any>().javaClass) {
-                            for ((key, hashmap) in snapshot.value as HashMap<String, HashMap<String, String>>) {
-                                data.add(
-                                    MoodEntryModel(
-                                        hashmap["date"].toString(),
-                                        hashmap["mood"].toString(),
-                                        hashmap["activity"].toString()
-                                    )
-                                )
-                            }
-                            val adaptor = RecyclerViewAdaptor(data)
-                            recyclerView.adapter = adaptor
-
-                            adaptor.run {
-                                tvLoading.visibility = View.INVISIBLE
-                                updateList()
-                            }
-                        }
-                    }
-
-                    override fun onCancelled(error: DatabaseError) {
-                        tvLoading.visibility = View.INVISIBLE
-                        TODO("Not yet implemented")
-                    }
-                })
+                checkDatabasePathExists(myRef, user)
+                readDatabaseForNewData(myRef, user, data, recyclerView)
+                addDataToDatabaseOnClick(myRef, user, data, recyclerView)
 
                 //loadTestingData(data, adaptor)
-
-                val addNewButton: ImageButton = findViewById(R.id.addNewButton)
-                addNewButton.setOnClickListener {
-                    val moodEntry = createNewMoodEntry()
-                    //data.clear()
-                    data.add(moodEntry)
-                    //writeEntrytoFile(moodEntry)
-                    val moodHash = moodEntry.toMap()
-                    val key = myRef.child(user.uid).child("moodEntries").push().key
-                    val update = hashMapOf<String, Any>("moodEntries/$key" to moodHash)
-                    myRef.child(user.uid).updateChildren(update)
-
-                    val adaptor = RecyclerViewAdaptor(data)
-                    recyclerView.adapter = adaptor
-                    adaptor.run {
-                        updateList()
-                    }
-                }
-
             }
         } else {
             // Sign in failed. If response is null the user canceled the
@@ -104,6 +60,64 @@ class MainActivity : AppCompatActivity() {
             // ...
             launchSignInEvent()
         }
+    }
+
+    fun addDataToDatabaseOnClick (myRef: DatabaseReference, user: FirebaseUser, data: ArrayList<MoodEntryModel>, recyclerView: RecyclerView) {
+        val addNewButton: ImageButton = findViewById(R.id.addNewButton)
+        addNewButton.setOnClickListener {
+            val moodEntry = createNewMoodEntry()
+            //data.clear()
+            data.add(moodEntry)
+            //writeEntrytoFile(moodEntry)
+            val moodHash = moodEntry.toMap()
+            val key = myRef.child(user.uid).child("moodEntries").push().key
+            val update = hashMapOf<String, Any>("moodEntries/$key" to moodHash)
+            myRef.child(user.uid).updateChildren(update)
+
+            val adaptor = RecyclerViewAdaptor(data)
+            recyclerView.adapter = adaptor
+            adaptor.run {
+                updateList()
+            }
+        }
+    }
+
+    fun readDatabaseForNewData(myRef: DatabaseReference, user: FirebaseUser, data: ArrayList<MoodEntryModel>, recyclerView: RecyclerView) {
+        val tvLoading: TextView = findViewById(R.id.tv_loading)
+
+        myRef.child(user.uid).child("moodEntries").addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.value == null) return
+                data.clear()
+                if (snapshot.value!!.javaClass == HashMap<String, Any>().javaClass) {
+                    for ((key, hashmap) in snapshot.value as HashMap<String, HashMap<String, String>>) {
+                        data.add(
+                            MoodEntryModel(
+                                hashmap["date"].toString(),
+                                hashmap["mood"].toString(),
+                                hashmap["activity"].toString()
+                            )
+                        )
+                    }
+                    val adaptor = RecyclerViewAdaptor(data)
+                    recyclerView.adapter = adaptor
+
+                    adaptor.run {
+                        tvLoading.visibility = View.INVISIBLE
+                        updateList()
+                    }
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                tvLoading.visibility = View.INVISIBLE
+                TODO("Not yet implemented")
+            }
+        })
+    }
+
+    fun checkDatabasePathExists(myRef: DatabaseReference, user: FirebaseUser) {
+        if (myRef.child(user.uid).child("moodEntries") == null) myRef.child(user.uid).child("moodEntries").setValue("")
     }
 
     fun loadTestingData(data: ArrayList<MoodEntryModel>, adaptor: RecyclerViewAdaptor) {
