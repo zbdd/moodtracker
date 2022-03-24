@@ -9,13 +9,23 @@ import android.widget.ImageButton
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.*
 
-class RecyclerViewAdaptor(private val moodList: List<MoodEntryModel>): RecyclerView.Adapter<RecyclerViewAdaptor.ViewHolder>() {
+class RecyclerViewAdaptor(private var moodList: List<MoodEntryModel>): RecyclerView.Adapter<RecyclerViewAdaptor.ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.mood_entry_layout, parent, false);
 
         return ViewHolder(view)
+    }
+
+    fun updateList() {
+        val dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+
+        val sorted = moodList.sortedByDescending { mood -> LocalDate.parse(mood.date, dateTimeFormatter) }
+        moodList = sorted
+        notifyDataSetChanged()
     }
 
     fun updateDateText(calendar: Calendar, dateText: TextView) {

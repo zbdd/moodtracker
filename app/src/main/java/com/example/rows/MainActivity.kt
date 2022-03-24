@@ -41,9 +41,6 @@ class MainActivity : AppCompatActivity() {
             recyclerView.layoutManager = LinearLayoutManager(this)
             val data = ArrayList<MoodEntryModel>()
 
-            val adaptor = RecyclerViewAdaptor(data)
-            recyclerView.adapter = adaptor
-
             val database = Firebase.database("https://silent-blend-161710-default-rtdb.asia-southeast1.firebasedatabase.app")
             val myRef = database.reference
             if (user != null) {
@@ -51,7 +48,8 @@ class MainActivity : AppCompatActivity() {
 
                 myRef.child(user.uid).child("moodEntries").addValueEventListener(object : ValueEventListener {
                     override fun onDataChange(snapshot: DataSnapshot) {
-                        //val jsonArrayList = snapshot.children.first().value as ArrayList<HashMap<String, String>>
+                        if (snapshot.value == null) return
+                        data.clear()
                         if (snapshot.value!!.javaClass == HashMap<String, Any>().javaClass) {
                             for ((key, hashmap) in snapshot.value as HashMap<String, HashMap<String, String>>) {
                                 data.add(
@@ -62,9 +60,12 @@ class MainActivity : AppCompatActivity() {
                                     )
                                 )
                             }
+                            val adaptor = RecyclerViewAdaptor(data)
+                            recyclerView.adapter = adaptor
+
                             adaptor.run {
                                 tvLoading.visibility = View.INVISIBLE
-                                notifyDataSetChanged()
+                                updateList()
                             }
                         }
                     }
@@ -80,19 +81,21 @@ class MainActivity : AppCompatActivity() {
                 val addNewButton: ImageButton = findViewById(R.id.addNewButton)
                 addNewButton.setOnClickListener {
                     val moodEntry = createNewMoodEntry()
-                    data.clear()
+                    //data.clear()
                     data.add(moodEntry)
                     //writeEntrytoFile(moodEntry)
                     val moodHash = moodEntry.toMap()
-                    println("PATH: ${user.uid}/moodEntries")
                     val key = myRef.child(user.uid).child("moodEntries").push().key
                     val update = hashMapOf<String, Any>("moodEntries/$key" to moodHash)
                     myRef.child(user.uid).updateChildren(update)
 
+                    val adaptor = RecyclerViewAdaptor(data)
+                    recyclerView.adapter = adaptor
                     adaptor.run {
-                        notifyDataSetChanged()
+                        updateList()
                     }
                 }
+
             }
         } else {
             // Sign in failed. If response is null the user canceled the
@@ -179,9 +182,11 @@ class MainActivity : AppCompatActivity() {
         //val date = LocalDateTime.now()
         //val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
         //val formatted = date.format(formatter)
-        val randMonth = kotlin.random.Random.nextInt(1,12)
-        val randDay = kotlin.random.Random.nextInt(1,28)
-        val randMood = kotlin.random.Random.nextInt(1,9)
+        var randMonth = kotlin.random.Random.nextInt(1,12).toString()
+        if (randMonth.toInt() < 10) randMonth = "0$randMonth"
+        var randDay = kotlin.random.Random.nextInt(1,28).toString()
+        if (randDay.toInt() < 10) randDay = "0$randDay"
+        val randMood = kotlin.random.Random.nextInt(1,9).toString()
 
         return MoodEntryModel("2022-$randMonth-$randDay", "$randMood", "Test Data New")
     }
