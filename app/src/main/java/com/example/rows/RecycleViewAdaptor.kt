@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import java.text.SimpleDateFormat
@@ -13,18 +14,28 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.*
 
-class RecyclerViewAdaptor(private var moodList: List<MoodEntryModel>): RecyclerView.Adapter<RecyclerViewAdaptor.ViewHolder>() {
+class RecyclerViewAdaptor(val onSwiped: () -> Unit):
+    RecyclerView.Adapter<RecyclerViewAdaptor.ViewHolder>(), SwipeHelperCallback.ItemTouchHelperAdaptor {
+
+    private var moodList: ArrayList<MoodEntryModel> = ArrayList()
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.mood_entry_layout, parent, false);
 
         return ViewHolder(view)
     }
 
-    fun updateList() {
+    fun updateList(data: ArrayList<MoodEntryModel>) {
+        for(entry in data) {
+            if (!moodList.contains(entry)) moodList.add(entry)
+        }
+        data.clear()
+
         val dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
         val sorted = moodList.sortedByDescending { mood -> LocalDate.parse(mood.date, dateTimeFormatter) }
-        moodList = sorted
+        moodList.clear()
+        moodList.addAll(sorted)
         notifyDataSetChanged()
     }
 
@@ -70,5 +81,14 @@ class RecyclerViewAdaptor(private var moodList: List<MoodEntryModel>): RecyclerV
         val dateText: TextView = itemView.findViewById(R.id.dateText)
         val moodText: EditText = itemView.findViewById(R.id.moodText)
         val activityText: EditText = itemView.findViewById(R.id.activityText)
+        val entry: LinearLayout = itemView.findViewById(R.id.horizLayout)
+    }
+
+    override fun onItemMove(fromPosition: Int, toPosition: Int): Boolean {
+        return false
+    }
+
+    override fun onItemDismiss(position: Int) {
+
     }
 }

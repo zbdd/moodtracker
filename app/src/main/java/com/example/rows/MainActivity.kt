@@ -29,6 +29,8 @@ import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
+    lateinit var recyclerViewAdaptor: RecyclerViewAdaptor
+
     private val signInLauncher = registerForActivityResult(FirebaseAuthUIActivityResultContract()) {
         res -> this.onSignInResult(res)
     }
@@ -46,10 +48,13 @@ class MainActivity : AppCompatActivity() {
             val database = Firebase.database("https://silent-blend-161710-default-rtdb.asia-southeast1.firebasedatabase.app")
             val myRef = database.reference
 
+            val adaptor = RecyclerViewAdaptor() {}
+            recyclerView.adapter = adaptor
+
             if (user != null) {
                 checkDatabasePathExists(myRef, user)
-                readDatabaseForNewData(myRef, user, data, recyclerView)
-                addDataToDatabaseOnClick(myRef, user, data, recyclerView)
+                readDatabaseForNewData(myRef, user, data, recyclerView, adaptor)
+                addDataToDatabaseOnClick(myRef, user, data, recyclerView, adaptor)
 
                 //loadTestingData(data, adaptor)
             }
@@ -62,7 +67,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun addDataToDatabaseOnClick (myRef: DatabaseReference, user: FirebaseUser, data: ArrayList<MoodEntryModel>, recyclerView: RecyclerView) {
+    fun addDataToDatabaseOnClick (myRef: DatabaseReference, user: FirebaseUser, data: ArrayList<MoodEntryModel>, recyclerView: RecyclerView, adaptor: RecyclerViewAdaptor) {
         val addNewButton: ImageButton = findViewById(R.id.addNewButton)
         addNewButton.setOnClickListener {
             val moodEntry = createNewMoodEntry()
@@ -73,16 +78,10 @@ class MainActivity : AppCompatActivity() {
             val key = myRef.child(user.uid).child("moodEntries").push().key
             val update = hashMapOf<String, Any>("moodEntries/$key" to moodHash)
             myRef.child(user.uid).updateChildren(update)
-
-            val adaptor = RecyclerViewAdaptor(data)
-            recyclerView.adapter = adaptor
-            adaptor.run {
-                updateList()
-            }
         }
     }
 
-    fun readDatabaseForNewData(myRef: DatabaseReference, user: FirebaseUser, data: ArrayList<MoodEntryModel>, recyclerView: RecyclerView) {
+    fun readDatabaseForNewData(myRef: DatabaseReference, user: FirebaseUser, data: ArrayList<MoodEntryModel>, recyclerView: RecyclerView, adaptor: RecyclerViewAdaptor) {
         val tvLoading: TextView = findViewById(R.id.tv_loading)
 
         myRef.child(user.uid).child("moodEntries").addValueEventListener(object : ValueEventListener {
@@ -99,12 +98,10 @@ class MainActivity : AppCompatActivity() {
                             )
                         )
                     }
-                    val adaptor = RecyclerViewAdaptor(data)
-                    recyclerView.adapter = adaptor
 
                     adaptor.run {
                         tvLoading.visibility = View.INVISIBLE
-                        updateList()
+                        updateList(data)
                     }
                 }
             }
