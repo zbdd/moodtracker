@@ -59,7 +59,6 @@ class MainActivity : AppCompatActivity() {
             val recyclerView: RecyclerView = findViewById(R.id.recyclerViewMain)
 
             recyclerView.layoutManager = LinearLayoutManager(this)
-            val data = ArrayList<MoodEntryModel>()
 
             val database = Firebase.database("https://silent-blend-161710-default-rtdb.asia-southeast1.firebasedatabase.app")
             myRef = database.reference
@@ -69,8 +68,8 @@ class MainActivity : AppCompatActivity() {
             if (user != null) {
                 uid = user.uid
                 checkDatabasePathExists(user)
-                readDatabaseForNewData(user, data, recyclerView, recyclerViewAdaptor)
-                addDataToDatabaseOnClick(user, data, recyclerView, recyclerViewAdaptor)
+                readDatabaseForNewData(user)
+                addDataToDatabaseOnClick(user)
                 //loadTestingData(data, adaptor)
             }
         } else {
@@ -83,12 +82,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun addDataToDatabaseOnClick (user: FirebaseUser, data: ArrayList<MoodEntryModel>, recyclerView: RecyclerView, adaptor: RecyclerViewAdaptor) {
+    private fun addDataToDatabaseOnClick (user: FirebaseUser) {
         val addNewButton: ImageButton = findViewById(R.id.addNewButton)
         addNewButton.setOnClickListener {
             val moodEntry = createNewMoodEntry()
-            //data.clear()
-            data.add(moodEntry)
+
             //writeEntrytoFile(moodEntry)
             val moodHash = moodEntry.toMap()
             val key = myRef.child(user.uid).child("moodEntries").push().key
@@ -97,8 +95,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun readDatabaseForNewData(user: FirebaseUser, data: ArrayList<MoodEntryModel>, recyclerView: RecyclerView, adaptor: RecyclerViewAdaptor) {
+    private fun readDatabaseForNewData(user: FirebaseUser) {
         val tvLoading: TextView = findViewById(R.id.tv_loading)
+        val data = ArrayList<MoodEntryModel>()
 
         myRef.child(user.uid).child("moodEntries").addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -116,7 +115,7 @@ class MainActivity : AppCompatActivity() {
                         )
                     }
 
-                    adaptor.run {
+                    recyclerViewAdaptor.run {
                         tvLoading.visibility = View.INVISIBLE
                         updateList(data)
                     }
@@ -130,11 +129,11 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    fun checkDatabasePathExists(user: FirebaseUser) {
+    private fun checkDatabasePathExists(user: FirebaseUser) {
         if (myRef.child(user.uid).child("moodEntries") == null) myRef.child(user.uid).child("moodEntries").setValue("")
     }
 
-    fun loadTestingData(data: ArrayList<MoodEntryModel>, adaptor: RecyclerViewAdaptor) {
+    private fun loadTestingData(data: ArrayList<MoodEntryModel>, adaptor: RecyclerViewAdaptor) {
         val jsonArray = loadFromJSONAsset()
 
         if (jsonArray.isNotEmpty()) {
@@ -177,23 +176,23 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun writeEntrytoFile(moodEntryModel: MoodEntryModel) {
-        var gson = Gson()
-        var jsonString: String = gson.toJson(moodEntryModel)
+        val gson = Gson()
+        val jsonString: String = gson.toJson(moodEntryModel)
         val fileout: FileOutputStream = openFileOutput("testData.json", MODE_PRIVATE)
-        val outwrite: OutputStreamWriter = OutputStreamWriter(fileout)
+        val outwrite = OutputStreamWriter(fileout)
         outwrite.append(jsonString)
         outwrite.close()
         fileout.close()
     }
 
-    fun loadFromJSONAsset(): String {
+    private fun loadFromJSONAsset(): String {
         var json = ""
 
         println("File to read: " + this.filesDir.absoluteFile)
 
         val file = File("testData.json")
         if (file.isFile) {
-            val fileReader: FileReader = FileReader("testData.json")
+            val fileReader = FileReader("testData.json")
             json = fileReader.readLines().toString()
 
         }
@@ -210,17 +209,13 @@ class MainActivity : AppCompatActivity() {
         return json
     }
 
-    fun createNewMoodEntry(): MoodEntryModel {
-
-        //val date = LocalDateTime.now()
-        //val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-        //val formatted = date.format(formatter)
+    private fun createNewMoodEntry(): MoodEntryModel {
         var randMonth = kotlin.random.Random.nextInt(1,12).toString()
         if (randMonth.toInt() < 10) randMonth = "0$randMonth"
         var randDay = kotlin.random.Random.nextInt(1,28).toString()
         if (randDay.toInt() < 10) randDay = "0$randDay"
         val randMood = kotlin.random.Random.nextInt(1,9).toString()
 
-        return MoodEntryModel("2022-$randMonth-$randDay", "$randMood", "Test Data New")
+        return MoodEntryModel("2022-$randMonth-$randDay", randMood, "Test Data New")
     }
 }
