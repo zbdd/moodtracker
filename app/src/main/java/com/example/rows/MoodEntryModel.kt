@@ -7,7 +7,8 @@ import com.google.firebase.database.IgnoreExtraProperties
 data class MoodEntryModel (
     val date: String? = null,
     val mood: String? = null,
-    val activity: String? = null
+    val activity: String? = null,
+    val key: String? = null
 ) {
     @Exclude
     fun toMap(): Map<String, Any?> {

@@ -40,8 +40,6 @@ class SwipeHelperCallback(val adaptor: ItemTouchHelperAdaptor): ItemTouchHelper.
         )
         itemView.background.draw(c)
 
-
-
         super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
     }
 

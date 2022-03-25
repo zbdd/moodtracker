@@ -33,38 +33,44 @@ class MainActivity : AppCompatActivity() {
 
     lateinit var recyclerViewAdaptor: RecyclerViewAdaptor
     private var mItemTouchHelper: ItemTouchHelper? = null
+    lateinit var myRef: DatabaseReference
+    var uid: String = ""
 
     private val signInLauncher = registerForActivityResult(FirebaseAuthUIActivityResultContract()) {
         res -> this.onSignInResult(res)
     }
 
     fun setupRecycleView() {
-        recyclerViewAdaptor = RecyclerViewAdaptor() {  }
+        recyclerViewAdaptor = RecyclerViewAdaptor { moodEntry -> onItemDismissed(moodEntry)}
         val callback: ItemTouchHelper.Callback = SwipeHelperCallback(recyclerViewAdaptor)
         mItemTouchHelper = ItemTouchHelper(callback)
         mItemTouchHelper?.attachToRecyclerView(findViewById(R.id.recyclerViewMain))
     }
 
+    private fun onItemDismissed(moodEntry: MoodEntryModel) {
+        myRef.child(uid).child("moodEntries").child("${moodEntry.key}").removeValue()
+    }
+
     private fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
         if (result.resultCode == RESULT_OK) {
             // Successfully signed in
+
             val user = FirebaseAuth.getInstance().currentUser
-            // ...
             val recyclerView: RecyclerView = findViewById(R.id.recyclerViewMain)
 
             recyclerView.layoutManager = LinearLayoutManager(this)
             val data = ArrayList<MoodEntryModel>()
 
             val database = Firebase.database("https://silent-blend-161710-default-rtdb.asia-southeast1.firebasedatabase.app")
-            val myRef = database.reference
+            myRef = database.reference
 
             recyclerView.adapter = recyclerViewAdaptor
 
             if (user != null) {
-                checkDatabasePathExists(myRef, user)
-                readDatabaseForNewData(myRef, user, data, recyclerView, recyclerViewAdaptor)
-                addDataToDatabaseOnClick(myRef, user, data, recyclerView, recyclerViewAdaptor)
-
+                uid = user.uid
+                checkDatabasePathExists(user)
+                readDatabaseForNewData(user, data, recyclerView, recyclerViewAdaptor)
+                addDataToDatabaseOnClick(user, data, recyclerView, recyclerViewAdaptor)
                 //loadTestingData(data, adaptor)
             }
         } else {
@@ -77,7 +83,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun addDataToDatabaseOnClick (myRef: DatabaseReference, user: FirebaseUser, data: ArrayList<MoodEntryModel>, recyclerView: RecyclerView, adaptor: RecyclerViewAdaptor) {
+    fun addDataToDatabaseOnClick (user: FirebaseUser, data: ArrayList<MoodEntryModel>, recyclerView: RecyclerView, adaptor: RecyclerViewAdaptor) {
         val addNewButton: ImageButton = findViewById(R.id.addNewButton)
         addNewButton.setOnClickListener {
             val moodEntry = createNewMoodEntry()
@@ -91,7 +97,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun readDatabaseForNewData(myRef: DatabaseReference, user: FirebaseUser, data: ArrayList<MoodEntryModel>, recyclerView: RecyclerView, adaptor: RecyclerViewAdaptor) {
+    fun readDatabaseForNewData(user: FirebaseUser, data: ArrayList<MoodEntryModel>, recyclerView: RecyclerView, adaptor: RecyclerViewAdaptor) {
         val tvLoading: TextView = findViewById(R.id.tv_loading)
 
         myRef.child(user.uid).child("moodEntries").addValueEventListener(object : ValueEventListener {
@@ -104,7 +110,8 @@ class MainActivity : AppCompatActivity() {
                             MoodEntryModel(
                                 hashmap["date"].toString(),
                                 hashmap["mood"].toString(),
-                                hashmap["activity"].toString()
+                                hashmap["activity"].toString(),
+                                key
                             )
                         )
                     }
@@ -123,7 +130,7 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    fun checkDatabasePathExists(myRef: DatabaseReference, user: FirebaseUser) {
+    fun checkDatabasePathExists(user: FirebaseUser) {
         if (myRef.child(user.uid).child("moodEntries") == null) myRef.child(user.uid).child("moodEntries").setValue("")
     }
 

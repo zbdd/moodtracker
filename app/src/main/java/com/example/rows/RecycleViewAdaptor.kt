@@ -13,7 +13,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.*
 
-class RecyclerViewAdaptor(val onSwiped: () -> Unit):
+class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel) -> Unit):
     RecyclerView.Adapter<RecyclerViewAdaptor.ViewHolder>(), SwipeHelperCallback.ItemTouchHelperAdaptor {
 
     private var moodList: ArrayList<MoodEntryModel> = ArrayList()
@@ -80,7 +80,6 @@ class RecyclerViewAdaptor(val onSwiped: () -> Unit):
         val dateText: TextView = itemView.findViewById(R.id.dateText)
         val moodText: EditText = itemView.findViewById(R.id.moodText)
         val activityText: EditText = itemView.findViewById(R.id.activityText)
-//        var backgroundText: EditText = itemView.findViewById(R.id.tvBackgroundText)
     }
 
     override fun onItemMove(fromPosition: Int, toPosition: Int): Boolean {
@@ -88,8 +87,9 @@ class RecyclerViewAdaptor(val onSwiped: () -> Unit):
     }
 
     override fun onItemDismiss(position: Int) {
+        val moodEntry = moodList[position]
         moodList.removeAt(position)
         notifyItemRemoved(position)
-        onSwiped()
+        onSwiped(moodEntry)
     }
 }
