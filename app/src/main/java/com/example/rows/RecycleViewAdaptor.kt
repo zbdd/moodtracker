@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ImageButton
-import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import java.text.SimpleDateFormat
@@ -81,7 +80,7 @@ class RecyclerViewAdaptor(val onSwiped: () -> Unit):
         val dateText: TextView = itemView.findViewById(R.id.dateText)
         val moodText: EditText = itemView.findViewById(R.id.moodText)
         val activityText: EditText = itemView.findViewById(R.id.activityText)
-        val entry: LinearLayout = itemView.findViewById(R.id.horizLayout)
+//        var backgroundText: EditText = itemView.findViewById(R.id.tvBackgroundText)
     }
 
     override fun onItemMove(fromPosition: Int, toPosition: Int): Boolean {

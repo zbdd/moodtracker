@@ -1,6 +1,7 @@
 package com.example.rows
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.ImageButton
 import android.widget.TextView
@@ -71,6 +72,7 @@ class MainActivity : AppCompatActivity() {
             // sign-in flow using the back button. Otherwise check
             // response.getError().getErrorCode() and handle the error.
             // ...
+                Log.d("Debug", "Failed to authenticate user")
             launchSignInEvent()
         }
     }
@@ -116,7 +118,7 @@ class MainActivity : AppCompatActivity() {
 
             override fun onCancelled(error: DatabaseError) {
                 tvLoading.visibility = View.INVISIBLE
-                TODO("Not yet implemented")
+                Log.d("Debug","Failed to connect to database")
             }
         })
     }
@@ -144,6 +146,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setupRecycleView()
+
+        Log.d("Debug", "Launching app...")
+
         if (::recyclerViewAdaptor.isInitialized) {
             launchSignInEvent()
         }
