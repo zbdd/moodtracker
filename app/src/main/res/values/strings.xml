@@ -4,4 +4,5 @@
     <string name="welcome_text">How are you today?</string>
     <string name="calendar_button_description">Click to see Calendar box</string>
     <string name="click_button_text">Click here to add a new entry</string>
+    <string name="click_to_login">Click to login ***PREMIUM ONLY***</string>
 </resources>

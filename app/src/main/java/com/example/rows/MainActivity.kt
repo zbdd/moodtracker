@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.View
 import android.widget.ImageButton
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -39,6 +40,7 @@ class MainActivity : AppCompatActivity() {
     private var user: FirebaseUser? = null
     private var mItemTouchHelper: ItemTouchHelper? = null
     private val isOnlineEnabled = false
+    private val isPremiumEdition = false
 
     private val signInLauncher = registerForActivityResult(FirebaseAuthUIActivityResultContract()) {
         res -> this.onSignInResult(res)
@@ -85,6 +87,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         addDataOnClick()
+
+        val ibLogin: ImageButton = findViewById(R.id.ibLogin)
+        ibLogin.setOnClickListener {
+            if (!isPremiumEdition) Toast.makeText(applicationContext,"Premium edition feature only", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun addDataOnClick () {
