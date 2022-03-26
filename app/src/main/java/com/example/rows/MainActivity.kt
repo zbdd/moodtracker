@@ -1,5 +1,6 @@
 package com.example.rows
 
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -39,8 +40,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var myRef: DatabaseReference
     private var user: FirebaseUser? = null
     private var mItemTouchHelper: ItemTouchHelper? = null
-    private val isOnlineEnabled = false
-    private val isPremiumEdition = false
+    private var isOnlineEnabled = false
+    private val isPremiumEdition = true
 
     private val signInLauncher = registerForActivityResult(FirebaseAuthUIActivityResultContract()) {
         res -> this.onSignInResult(res)
@@ -89,8 +90,15 @@ class MainActivity : AppCompatActivity() {
         addDataOnClick()
 
         val ibLogin: ImageButton = findViewById(R.id.ibLogin)
+        if (!isOnlineEnabled) ibLogin.background.setTint(Color.LTGRAY)
+        else ibLogin.background.setTint(Color.GREEN)
+
         ibLogin.setOnClickListener {
-            if (!isPremiumEdition) Toast.makeText(applicationContext,"Premium edition feature only", Toast.LENGTH_SHORT).show()
+            if (!isPremiumEdition) {
+                Toast.makeText(applicationContext,"Premium edition feature only", Toast.LENGTH_SHORT).show()
+            }
+            else if(!isOnlineEnabled) { isOnlineEnabled = true; launchSignInEvent() }
+            else { Toast.makeText(applicationContext,"Already signed in", Toast.LENGTH_SHORT).show() }
         }
     }
 
@@ -194,7 +202,7 @@ class MainActivity : AppCompatActivity() {
         // Create and launch sign-in intent
         val signInIntent = AuthUI.getInstance()
             .createSignInIntentBuilder()
-            .setIsSmartLockEnabled(false)
+            .setIsSmartLockEnabled(true)
             .setAvailableProviders(providers)
             .build()
         signInLauncher.launch(signInIntent)
