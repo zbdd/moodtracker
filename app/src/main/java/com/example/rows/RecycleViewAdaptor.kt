@@ -48,7 +48,7 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel) -> Unit):
         moodList.addAll(sorted)
     }
 
-    fun updateDateText(calendar: Calendar, dateText: TextView) {
+    private fun updateDateText(calendar: Calendar, dateText: TextView) {
         val date = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
         dateText.text = date.format(calendar.time)
         sortList()

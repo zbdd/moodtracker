@@ -3,69 +3,66 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="50dp"
-    android:layout_margin="10dp">
-
-    <TextView
-        android:id="@+id/tvBackgroundText"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:background="#F44336"
-        android:text="Delete"
-        android:textAlignment="center"
-        android:textColor="@color/white"
-        android:textSize="34sp"
-        app:layout_constraintStart_toStartOf="@+id/horizLayout"
-        app:layout_constraintTop_toTopOf="parent" />
+    android:layout_height="60dp"
+    android:layout_margin="5dp">
 
     <LinearLayout
         android:id="@+id/horizLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/teal_700"
+        android:layout_marginTop="5dp"
+        android:background="@color/white"
         android:orientation="horizontal"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageButton
             android:id="@+id/calendarButton"
-            android:layout_width="162dp"
+            android:layout_width="148dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            app:srcCompat="@android:drawable/ic_menu_my_calendar" />
+            android:layout_weight="3"
+            android:contentDescription="@string/calendar_button_description"
+            app:srcCompat="@android:drawable/ic_menu_my_calendar"
+            tools:ignore="TouchTargetSizeCheck" />
 
         <TextView
             android:id="@+id/dateText"
-            android:layout_width="wrap_content"
+            android:layout_width="250dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_weight="4"
             android:ems="10"
             android:inputType="date"
             android:text="2022-03-15"
             android:textAlignment="center"
-            android:textColor="@color/white"
-            android:textSize="18dp" />
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textColor="@color/black"
+            android:textSize="18dp"
+            android:translationY="6dp"
+            tools:ignore="TouchTargetSizeCheck" />
 
         <EditText
             android:id="@+id/moodText"
-            android:layout_width="161dp"
+            android:layout_width="150dp"
             android:layout_height="match_parent"
-            android:layout_weight="1"
+            android:layout_weight="2"
             android:ems="10"
             android:inputType="number"
             android:text="Mood"
-            android:textAlignment="center" />
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textColor="@color/black" />
 
         <EditText
             android:id="@+id/activityText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="200dp"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             android:ems="10"
             android:inputType="textPersonName"
             android:text="activity"
-            android:textAlignment="center" />
+            android:textAlignment="inherit"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+            android:textColor="@color/black" />
 
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

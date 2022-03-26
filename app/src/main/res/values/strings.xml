@@ -1,4 +1,7 @@
 <resources>
-    <string name="app_name">Rows</string>
+    <string name="app_name">Zoodle</string>
     <string name="add_new_mood_button">Add New Mood Button</string>
+    <string name="welcome_text">How are you today?</string>
+    <string name="calendar_button_description">Click to see Calendar box</string>
+    <string name="click_button_text">Click here to add a new entry</string>
 </resources>
