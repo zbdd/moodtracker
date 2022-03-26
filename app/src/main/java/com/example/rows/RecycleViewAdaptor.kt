@@ -101,7 +101,9 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel) -> Unit, val onListUpda
     override fun onItemDismiss(position: Int) {
         val moodEntry = moodList[position]
         moodList.removeAt(position)
+
         notifyItemRemoved(position)
+        onListUpdated(moodList)
         onSwiped(moodEntry)
     }
 }

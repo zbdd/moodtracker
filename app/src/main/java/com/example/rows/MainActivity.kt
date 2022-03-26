@@ -61,7 +61,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onItemDismissed(moodEntry: MoodEntryModel) {
-        myRef.child(user!!.uid).child("moodEntries").child("${moodEntry.key}").removeValue()
+        if (user != null && myRef != null) myRef.child(user!!.uid).child("moodEntries").child("${moodEntry.key}").removeValue()
     }
 
     private fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
