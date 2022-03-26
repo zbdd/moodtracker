@@ -22,84 +22,95 @@ import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.google.gson.reflect.TypeToken
 import java.io.File
 import java.io.FileOutputStream
 import java.io.FileReader
 import java.io.OutputStreamWriter
 import java.nio.charset.Charset
 import java.util.*
+import kotlin.collections.ArrayList
 
 class MainActivity : AppCompatActivity() {
 
-    lateinit var recyclerViewAdaptor: RecyclerViewAdaptor
+    private lateinit var recyclerViewAdaptor: RecyclerViewAdaptor
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var myRef: DatabaseReference
+    private var user: FirebaseUser? = null
     private var mItemTouchHelper: ItemTouchHelper? = null
-    lateinit var myRef: DatabaseReference
-    var uid: String = ""
+    private val isOnlineEnabled = false
 
     private val signInLauncher = registerForActivityResult(FirebaseAuthUIActivityResultContract()) {
         res -> this.onSignInResult(res)
     }
 
     fun setupRecycleView() {
-        recyclerViewAdaptor = RecyclerViewAdaptor { moodEntry -> onItemDismissed(moodEntry)}
+        recyclerViewAdaptor = RecyclerViewAdaptor (
+            { moodEntry -> onItemDismissed(moodEntry) },
+            { moodEntries -> writeEntrytoFile(moodEntries) })
+
         val callback: ItemTouchHelper.Callback = SwipeHelperCallback(recyclerViewAdaptor)
         mItemTouchHelper = ItemTouchHelper(callback)
         mItemTouchHelper?.attachToRecyclerView(findViewById(R.id.recyclerViewMain))
+
+        recyclerView = findViewById(R.id.recyclerViewMain)
+        recyclerView.layoutManager = LinearLayoutManager(this)
+
+        val tvLoading: TextView = findViewById(R.id.tv_loading)
+        tvLoading.visibility = View.INVISIBLE
     }
 
     private fun onItemDismissed(moodEntry: MoodEntryModel) {
-        myRef.child(uid).child("moodEntries").child("${moodEntry.key}").removeValue()
+        myRef.child(user!!.uid).child("moodEntries").child("${moodEntry.key}").removeValue()
     }
 
     private fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
+        user = FirebaseAuth.getInstance().currentUser
+
         if (result.resultCode == RESULT_OK) {
-            // Successfully signed in
-
-            val user = FirebaseAuth.getInstance().currentUser
-            val recyclerView: RecyclerView = findViewById(R.id.recyclerViewMain)
-
-            recyclerView.layoutManager = LinearLayoutManager(this)
-
-            val database = Firebase.database("https://silent-blend-161710-default-rtdb.asia-southeast1.firebasedatabase.app")
+            val database =
+                Firebase.database("https://silent-blend-161710-default-rtdb.asia-southeast1.firebasedatabase.app")
             myRef = database.reference
-
-            recyclerView.adapter = recyclerViewAdaptor
-
-            if (user != null) {
-                uid = user.uid
-                checkDatabasePathExists(user)
-                readDatabaseForNewData(user)
-                addDataToDatabaseOnClick(user)
-                //loadTestingData(data, adaptor)
-            }
-        } else {
-            // Sign in failed. If response is null the user canceled the
-            // sign-in flow using the back button. Otherwise check
-            // response.getError().getErrorCode() and handle the error.
-            // ...
-                Log.d("Debug", "Failed to authenticate user")
-            launchSignInEvent()
         }
+
+        runMainLoop()
     }
 
-    private fun addDataToDatabaseOnClick (user: FirebaseUser) {
+    private fun runMainLoop() {
+        if (user != null) {
+            checkDatabasePathExists()
+            readDatabaseForNewData()
+        } else {
+            readFromLocalStore()
+        }
+
+        addDataOnClick()
+    }
+
+    private fun addDataOnClick () {
         val addNewButton: ImageButton = findViewById(R.id.addNewButton)
         addNewButton.setOnClickListener {
             val moodEntry = createNewMoodEntry()
 
-            //writeEntrytoFile(moodEntry)
-            val moodHash = moodEntry.toMap()
-            val key = myRef.child(user.uid).child("moodEntries").push().key
-            val update = hashMapOf<String, Any>("moodEntries/$key" to moodHash)
-            myRef.child(user.uid).updateChildren(update)
+            if (user != null) {
+                val moodHash = moodEntry.toMap()
+                val key = myRef.child(user!!.uid).child("moodEntries").push().key
+                val update = hashMapOf<String, Any>("moodEntries/$key" to moodHash)
+                myRef.child(user!!.uid).updateChildren(update)
+            } else {
+                var data: ArrayList<MoodEntryModel> = ArrayList()
+                data.add(moodEntry)
+                recyclerViewAdaptor.run {
+                    updateList(data)
+                }
+            }
         }
     }
 
-    private fun readDatabaseForNewData(user: FirebaseUser) {
-        val tvLoading: TextView = findViewById(R.id.tv_loading)
+    private fun readDatabaseForNewData() {
         val data = ArrayList<MoodEntryModel>()
 
-        myRef.child(user.uid).child("moodEntries").addValueEventListener(object : ValueEventListener {
+        myRef.child(user!!.uid).child("moodEntries").addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.value == null) return
 
@@ -116,35 +127,35 @@ class MainActivity : AppCompatActivity() {
                     }
 
                     recyclerViewAdaptor.run {
-                        tvLoading.visibility = View.INVISIBLE
                         updateList(data)
                     }
                 }
             }
 
             override fun onCancelled(error: DatabaseError) {
-                tvLoading.visibility = View.INVISIBLE
                 Log.d("Debug","Failed to connect to database")
             }
         })
     }
 
-    private fun checkDatabasePathExists(user: FirebaseUser) {
-        if (myRef.child(user.uid).child("moodEntries") == null) myRef.child(user.uid).child("moodEntries").setValue("")
+    private fun checkDatabasePathExists() {
+        if (myRef.child(user!!.uid).child("moodEntries") == null) myRef.child(user!!.uid).child("moodEntries").setValue("")
     }
 
-    private fun loadTestingData(data: ArrayList<MoodEntryModel>, adaptor: RecyclerViewAdaptor) {
+    private fun readFromLocalStore() {
         val jsonArray = loadFromJSONAsset()
+        val data = ArrayList<MoodEntryModel>()
 
         if (jsonArray.isNotEmpty()) {
             val gson = GsonBuilder().create()
-            val moodEntries = gson.fromJson(jsonArray, Array<MoodEntryModel>::class.java).toList()
-            for(x in moodEntries.indices) {
-                data.add(moodEntries[x])
+            val type = object: TypeToken<Array<Array<MoodEntryModel>>>() {}.type
+            val moodEntries = gson.fromJson<Array<Array<MoodEntryModel>>>(jsonArray, type)
+            for(x in moodEntries[0].indices) {
+                data.add(moodEntries[0][x])
             }
         }
-        adaptor.run {
-            notifyDataSetChanged()
+        recyclerViewAdaptor.run {
+            updateList(data)
         }
     }
 
@@ -156,7 +167,14 @@ class MainActivity : AppCompatActivity() {
         Log.d("Debug", "Launching app...")
 
         if (::recyclerViewAdaptor.isInitialized) {
-            launchSignInEvent()
+            recyclerView.adapter = recyclerViewAdaptor
+
+            if (isOnlineEnabled) {
+                launchSignInEvent()
+            } else {
+                user = null
+                runMainLoop()
+            }
         }
     }
 
@@ -175,12 +193,12 @@ class MainActivity : AppCompatActivity() {
         signInLauncher.launch(signInIntent)
     }
 
-    fun writeEntrytoFile(moodEntryModel: MoodEntryModel) {
+    fun writeEntrytoFile(data: ArrayList<MoodEntryModel>) {
         val gson = Gson()
-        val jsonString: String = gson.toJson(moodEntryModel)
+        val jsonString: String = gson.toJson(data)
         val fileout: FileOutputStream = openFileOutput("testData.json", MODE_PRIVATE)
         val outwrite = OutputStreamWriter(fileout)
-        outwrite.append(jsonString)
+        outwrite.write(jsonString)
         outwrite.close()
         fileout.close()
     }
@@ -189,10 +207,11 @@ class MainActivity : AppCompatActivity() {
         var json = ""
 
         println("File to read: " + this.filesDir.absoluteFile)
+        val path = this.filesDir.absoluteFile
 
-        val file = File("testData.json")
+        val file = File("$path/testData.json")
         if (file.isFile) {
-            val fileReader = FileReader("testData.json")
+            val fileReader = FileReader("$path/testData.json")
             json = fileReader.readLines().toString()
 
         }

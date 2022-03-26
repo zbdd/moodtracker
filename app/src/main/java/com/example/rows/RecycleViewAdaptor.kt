@@ -13,7 +13,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.*
 
-class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel) -> Unit):
+class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel) -> Unit, val onListUpdated: (ArrayList<MoodEntryModel>) -> Unit):
     RecyclerView.Adapter<RecyclerViewAdaptor.ViewHolder>(), SwipeHelperCallback.ItemTouchHelperAdaptor {
 
     private var moodList: ArrayList<MoodEntryModel> = ArrayList()
@@ -31,6 +31,7 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel) -> Unit):
         }
         data.clear()
         sortList()
+        if (moodList.size > 0) onListUpdated(moodList)
         notifyDataSetChanged()
     }
 
