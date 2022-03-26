@@ -17,6 +17,7 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel) -> Unit):
     RecyclerView.Adapter<RecyclerViewAdaptor.ViewHolder>(), SwipeHelperCallback.ItemTouchHelperAdaptor {
 
     private var moodList: ArrayList<MoodEntryModel> = ArrayList()
+    private var sortBy = "date"
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.mood_entry_layout, parent, false);
@@ -29,25 +30,35 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel) -> Unit):
             if (!moodList.contains(entry)) moodList.add(entry)
         }
         data.clear()
+        sortList()
+        notifyDataSetChanged()
+    }
 
+    private fun sortList() {
         val dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
-        val sorted = moodList.sortedByDescending { mood -> LocalDate.parse(mood.date, dateTimeFormatter) }
+        val sorted = when (sortBy) {
+            "date" -> moodList.sortedByDescending { moodEntry -> LocalDate.parse(moodEntry.date, dateTimeFormatter)}
+            "mood" -> moodList.sortedByDescending { moodEntry -> moodEntry.mood}
+            "activity" -> moodList.sortedByDescending { moodEntry -> moodEntry.activity}
+            else -> moodList
+        }
+
         moodList.clear()
         moodList.addAll(sorted)
-        notifyDataSetChanged()
     }
 
     fun updateDateText(calendar: Calendar, dateText: TextView) {
         val date = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
         dateText.text = date.format(calendar.time)
+        sortList()
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val MoodViewHolder = moodList[position]
-        holder.dateText.text = MoodViewHolder.date
-        holder.moodText.setText(MoodViewHolder.mood)
-        holder.activityText.setText(MoodViewHolder.activity)
+        val moodViewHolder = moodList[position]
+        holder.dateText.text = moodViewHolder.date
+        holder.moodText.setText(moodViewHolder.mood)
+        holder.activityText.setText(moodViewHolder.activity)
 
         val calendar: Calendar = Calendar.getInstance(TimeZone.getDefault())
 

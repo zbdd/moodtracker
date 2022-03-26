@@ -15,7 +15,8 @@ data class MoodEntryModel (
         return mapOf(
             "date" to date,
             "mood" to mood,
-            "activity" to activity
+            "activity" to activity,
+            "key" to key
         )
     }
 }
