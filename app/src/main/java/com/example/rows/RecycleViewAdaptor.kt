@@ -31,12 +31,14 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
 
     fun updateList(data: ArrayList<MoodEntryModel> = ArrayList(0)) {
         for(entry in data) {
-            if (!moodList.contains(entry)) moodList.add(entry)
+            if (!moodList.contains(entry)) {
+                moodList.add(entry)
+                notifyItemInserted(moodList.size-1)
+            }
         }
         data.clear()
         sortList()
         if (moodList.size > 0) onListUpdated(moodList)
-        notifyDataSetChanged()
     }
 
     private fun sortList() {
@@ -46,13 +48,21 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
 
         val sorted = when (sortBy) {
             "date" -> { moodList.sortedWith(comparator) }
-            "mood" -> moodList.sortedByDescending { moodEntry -> moodEntry.mood}
+            "mood" -> moodList.sortedByDescending { moodEntry -> moodEntry.mood }
             "activity" -> moodList.sortedByDescending { moodEntry -> moodEntry.activity}
             else -> moodList
         }
 
         moodList.clear()
         moodList.addAll(sorted)
+
+        for (x in moodList.indices) {
+            if (sorted.contains(moodList[x])) {
+                if (sorted.indexOf(moodList[x]) != x) {
+                    notifyItemChanged(x)
+                }
+            }
+        }
     }
 
     private fun updateDateText(calendar: Calendar, holder: ViewHolder) {
@@ -75,7 +85,7 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
         val calendar: Calendar = Calendar.getInstance(TimeZone.getDefault())
 
         val timeSetListener = TimePickerDialog.OnTimeSetListener {_, hour, minute ->
-            calendar.set(Calendar.HOUR, hour)
+            calendar.set(Calendar.HOUR_OF_DAY, hour)
             calendar.set(Calendar.MINUTE, minute)
             updateDateText(calendar, holder)
         }
@@ -89,7 +99,7 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
                 TimePickerDialog(
                     holder.itemView.context,
                     timeSetListener,
-                    calendar.get(Calendar.HOUR),
+                    calendar.get(Calendar.HOUR_OF_DAY),
                     calendar.get(Calendar.MINUTE),
                     true
                 ).show()
