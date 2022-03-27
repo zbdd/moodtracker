@@ -30,8 +30,8 @@ import java.io.FileOutputStream
 import java.io.FileReader
 import java.io.OutputStreamWriter
 import java.nio.charset.Charset
-import java.util.*
-import kotlin.collections.ArrayList
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 class MainActivity : AppCompatActivity() {
 
@@ -41,7 +41,9 @@ class MainActivity : AppCompatActivity() {
     private var user: FirebaseUser? = null
     private var mItemTouchHelper: ItemTouchHelper? = null
     private var isOnlineEnabled = false
-    private val isPremiumEdition = true
+    private var isPremiumEdition = false
+
+    private val isDebugMode = true
 
     private val signInLauncher = registerForActivityResult(FirebaseAuthUIActivityResultContract()) {
         res -> this.onSignInResult(res)
@@ -87,7 +89,7 @@ class MainActivity : AppCompatActivity() {
             readFromLocalStore()
         }
 
-        addDataOnClick()
+        initButtons()
 
         val ibLogin: ImageButton = findViewById(R.id.ibLogin)
         if (!isOnlineEnabled) ibLogin.background.setTint(Color.LTGRAY)
@@ -102,22 +104,34 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun addDataOnClick () {
+    private fun initButtons () {
         val addNewButton: ImageButton = findViewById(R.id.addNewButton)
-        addNewButton.setOnClickListener {
-            val moodEntry = createNewMoodEntry()
 
-            if (user != null) {
-                val moodHash = moodEntry.toMap()
-                val key = myRef.child(user!!.uid).child("moodEntries").push().key
-                val update = hashMapOf<String, Any>("moodEntries/$key" to moodHash)
-                myRef.child(user!!.uid).updateChildren(update)
-            } else {
-                var data: ArrayList<MoodEntryModel> = ArrayList()
-                data.add(moodEntry)
-                recyclerViewAdaptor.run {
-                    updateList(data)
-                }
+        addNewButton.setOnClickListener {
+            addNewMoodEntry(false)
+        }
+
+        if (isDebugMode) {
+            val ibAddNewDebug: ImageButton = findViewById(R.id.ibAddNewDebug)
+            ibAddNewDebug.setOnClickListener {
+                addNewMoodEntry(isDebugMode)
+            }
+        }
+    }
+
+    private fun addNewMoodEntry(isDebug: Boolean) {
+        val moodEntry = createNewMoodEntry(isDebug)
+
+        if (user != null) {
+            val moodHash = moodEntry.toMap()
+            val key = myRef.child(user!!.uid).child("moodEntries").push().key
+            val update = hashMapOf<String, Any>("moodEntries/$key" to moodHash)
+            myRef.child(user!!.uid).updateChildren(update)
+        } else {
+            var data: ArrayList<MoodEntryModel> = ArrayList()
+            data.add(moodEntry)
+            recyclerViewAdaptor.run {
+                updateList(data)
             }
         }
     }
@@ -179,7 +193,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         setupRecycleView()
 
-        Log.d("Debug", "Launching app...")
+        if (isDebugMode) isPremiumEdition = true
 
         if (::recyclerViewAdaptor.isInitialized) {
             recyclerView.adapter = recyclerViewAdaptor
@@ -243,13 +257,21 @@ class MainActivity : AppCompatActivity() {
         return json
     }
 
-    private fun createNewMoodEntry(): MoodEntryModel {
-        var randMonth = kotlin.random.Random.nextInt(1,12).toString()
-        if (randMonth.toInt() < 10) randMonth = "0$randMonth"
-        var randDay = kotlin.random.Random.nextInt(1,28).toString()
-        if (randDay.toInt() < 10) randDay = "0$randDay"
-        val randMood = kotlin.random.Random.nextInt(1,9).toString()
+    private fun createNewMoodEntry(isDebug: Boolean): MoodEntryModel {
+        return if (isDebug) {
+            var randMonth = kotlin.random.Random.nextInt(1,12).toString()
+            if (randMonth.toInt() < 10) randMonth = "0$randMonth"
+            var randDay = kotlin.random.Random.nextInt(1,28).toString()
+            if (randDay.toInt() < 10) randDay = "0$randDay"
+            val randMood = kotlin.random.Random.nextInt(1,9).toString()
 
-        return MoodEntryModel("2022-$randMonth-$randDay", randMood, "Test Data New")
+            MoodEntryModel("2022-$randMonth-$randDay", randMood, "Test Data New")
+        } else {
+            val dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+            val dateTimeNow = LocalDateTime.now()
+            val formatted = dateTimeNow.format(dateTimeFormatter)
+
+            MoodEntryModel(formatted,"5","")
+        }
     }
 }
