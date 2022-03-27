@@ -36,10 +36,12 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
     }
 
     private fun sortList() {
-        val dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+        val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+        val timeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+        val comparator = compareBy({ mood: MoodEntryModel -> LocalDate.parse(mood.date, dateFormatter) }, { mood: MoodEntryModel -> LocalDate.parse(mood.time, timeFormatter) })
 
         val sorted = when (sortBy) {
-            "date" -> moodList.sortedByDescending { moodEntry -> LocalDate.parse(moodEntry.date, dateTimeFormatter)}
+            "date" -> { moodList.sortedWith(comparator) }
             "mood" -> moodList.sortedByDescending { moodEntry -> moodEntry.mood}
             "activity" -> moodList.sortedByDescending { moodEntry -> moodEntry.activity}
             else -> moodList
@@ -58,12 +60,11 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val moodViewHolder = moodList[position]
         holder.dateText.text = moodViewHolder.date
+        holder.timeText.text = moodViewHolder.time
         holder.moodText.setText(moodViewHolder.mood)
         holder.activityText.setText(moodViewHolder.activity)
 
         val calendar: Calendar = Calendar.getInstance(TimeZone.getDefault())
-
-        val calendarButton: ImageButton = holder.itemView.findViewById(R.id.calendarButton)
 
         val dateSetListener =
             DatePickerDialog.OnDateSetListener { view, year, month, day ->
@@ -73,15 +74,23 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
                 updateDateText(calendar, holder.dateText)
             }
 
-        calendarButton.setOnClickListener(object: View.OnClickListener {
-            override fun onClick(view: View) {
-                DatePickerDialog(holder.itemView.context, dateSetListener,
-                    calendar.get(Calendar.YEAR),
-                    calendar.get(Calendar.MONTH),
-                    calendar.get(Calendar.DAY_OF_MONTH)
-                ).show()
-            }
-        })
+        holder.dateText.setOnClickListener {
+            DatePickerDialog(
+                holder.itemView.context, dateSetListener,
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+            ).show()
+        }
+
+        holder.timeText.setOnClickListener {
+            DatePickerDialog(
+                holder.itemView.context, dateSetListener,
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+            ).show()
+        }
     }
 
     override fun getItemCount(): Int {
@@ -89,9 +98,10 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
     }
 
     class ViewHolder(ItemView: View): RecyclerView.ViewHolder(ItemView) {
-        val dateText: TextView = itemView.findViewById(R.id.dateText)
-        val moodText: EditText = itemView.findViewById(R.id.moodText)
-        val activityText: EditText = itemView.findViewById(R.id.activityText)
+        val dateText: TextView = itemView.findViewById(R.id.tvMoodDate)
+        val timeText: TextView = itemView.findViewById(R.id.tvMoodTime)
+        val moodText: EditText = itemView.findViewById(R.id.etMoodRating)
+        val activityText: EditText = itemView.findViewById(R.id.etActivityText)
     }
 
     override fun onItemMove(fromPosition: Int, toPosition: Int): Boolean {

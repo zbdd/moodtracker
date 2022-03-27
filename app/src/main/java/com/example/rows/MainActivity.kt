@@ -149,6 +149,7 @@ class MainActivity : AppCompatActivity() {
                         data.add(
                             MoodEntryModel(
                                 hashmap["date"].toString(),
+                                hashmap["time"].toString(),
                                 hashmap["mood"].toString(),
                                 hashmap["activity"].toString(),
                                 key
@@ -266,13 +267,16 @@ class MainActivity : AppCompatActivity() {
             if (randDay.toInt() < 10) randDay = "0$randDay"
             val randMood = kotlin.random.Random.nextInt(1,9).toString()
 
-            MoodEntryModel("2022-$randMonth-$randDay", randMood, "Test Data New")
+            MoodEntryModel("2022-$randMonth-$randDay", "12:34", randMood, "Test Data New")
         } else {
-            val dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+            var dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
             val dateTimeNow = LocalDateTime.now()
-            val formatted = dateTimeNow.format(dateTimeFormatter)
+            val date = dateTimeNow.format(dateTimeFormatter)
 
-            MoodEntryModel(formatted,"5","")
+            dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+            val time = dateTimeNow.format(dateTimeFormatter)
+
+            MoodEntryModel(date, time,"5","")
         }
     }
 }
