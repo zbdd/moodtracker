@@ -33,10 +33,10 @@ class SwipeHelperCallback(val adaptor: ItemTouchHelperAdaptor): ItemTouchHelper.
 
         itemView.setBackgroundColor(Color.RED)
         itemView.background.setBounds(
-            itemView.right + dX.toInt(),
-            itemView.top,
-            itemView.right,
-            itemView.bottom
+            itemView.left,
+            itemView.top + 11,
+            itemView.left + dX.toInt(),
+            itemView.bottom - 11
         )
         itemView.background.draw(c)
 
@@ -64,7 +64,7 @@ class SwipeHelperCallback(val adaptor: ItemTouchHelperAdaptor): ItemTouchHelper.
         viewHolder: RecyclerView.ViewHolder
     ): Int {
         val dragFlags = ItemTouchHelper.UP or ItemTouchHelper.DOWN
-        val swipeFlags = ItemTouchHelper.LEFT
+        val swipeFlags = ItemTouchHelper.RIGHT
         return makeMovementFlags(dragFlags, swipeFlags)
     }
 }

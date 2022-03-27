@@ -51,7 +51,7 @@ class MainActivity : AppCompatActivity() {
 
     fun setupRecycleView() {
         recyclerViewAdaptor = RecyclerViewAdaptor (
-            { moodEntry -> onItemDismissed(moodEntry) },
+            { moodEntry, moodList -> onItemDismissed(moodEntry, moodList) },
             { moodEntries -> writeEntrytoFile(moodEntries) })
 
         val callback: ItemTouchHelper.Callback = SwipeHelperCallback(recyclerViewAdaptor)
@@ -65,8 +65,9 @@ class MainActivity : AppCompatActivity() {
         tvLoading.visibility = View.INVISIBLE
     }
 
-    private fun onItemDismissed(moodEntry: MoodEntryModel) {
+    private fun onItemDismissed(moodEntry: MoodEntryModel, moodList: ArrayList<MoodEntryModel>) {
         if (user != null && myRef != null) myRef.child(user!!.uid).child("moodEntries").child("${moodEntry.key}").removeValue()
+        writeEntrytoFile(moodList)
     }
 
     private fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
