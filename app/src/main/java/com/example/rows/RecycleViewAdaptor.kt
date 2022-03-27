@@ -1,9 +1,11 @@
 package com.example.rows
 
 import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.DatePicker
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.TextView
@@ -12,6 +14,7 @@ import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.*
+import kotlin.collections.ArrayList
 
 class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryModel>) -> Unit, val onListUpdated: (ArrayList<MoodEntryModel>) -> Unit):
     RecyclerView.Adapter<RecyclerViewAdaptor.ViewHolder>(), SwipeHelperCallback.ItemTouchHelperAdaptor {
@@ -25,7 +28,7 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
         return ViewHolder(view)
     }
 
-    fun updateList(data: ArrayList<MoodEntryModel>) {
+    fun updateList(data: ArrayList<MoodEntryModel> = ArrayList(0)) {
         for(entry in data) {
             if (!moodList.contains(entry)) moodList.add(entry)
         }
@@ -51,10 +54,14 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
         moodList.addAll(sorted)
     }
 
-    private fun updateDateText(calendar: Calendar, dateText: TextView) {
-        val date = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
-        dateText.text = date.format(calendar.time)
-        sortList()
+    private fun updateDateText(calendar: Calendar, holder: ViewHolder) {
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
+        holder.dateText.text = dateFormat.format(calendar.time)
+
+        val timeFormat = SimpleDateFormat("HH:mm", Locale.ENGLISH)
+        holder.timeText.text = timeFormat.format(calendar.time)
+
+        updateList()
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -66,12 +73,26 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
 
         val calendar: Calendar = Calendar.getInstance(TimeZone.getDefault())
 
+        val timeSetListener = TimePickerDialog.OnTimeSetListener {_, hour, minute ->
+            calendar.set(Calendar.HOUR, hour)
+            calendar.set(Calendar.MINUTE, minute)
+            updateDateText(calendar, holder)
+        }
+
         val dateSetListener =
-            DatePickerDialog.OnDateSetListener { view, year, month, day ->
+            DatePickerDialog.OnDateSetListener { _, year, month, day ->
                 calendar.set(Calendar.YEAR, year)
                 calendar.set(Calendar.MONTH, month)
                 calendar.set(Calendar.DAY_OF_MONTH, day)
-                updateDateText(calendar, holder.dateText)
+
+                TimePickerDialog(
+                    holder.itemView.context,
+                    timeSetListener,
+                    calendar.get(Calendar.HOUR),
+                    calendar.get(Calendar.MINUTE),
+                    true
+                ).show()
+
             }
 
         holder.dateText.setOnClickListener {
