@@ -6,4 +6,5 @@
     <string name="click_button_text">Click here to add a new entry</string>
     <string name="click_to_login">Click to login ***PREMIUM ONLY***</string>
     <string name="login_content_description">Login icon to click to establish online connectivity</string>
+    <string name="return_to_main">Return</string>
 </resources>

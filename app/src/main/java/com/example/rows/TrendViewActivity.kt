@@ -1,9 +1,11 @@
 package com.example.rows
 
+import android.content.Intent
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.widget.Button
 import com.example.rows.databinding.ActivityMainBinding
 import com.example.rows.databinding.ActivityTrendViewBinding
 import com.firebase.ui.auth.AuthUI
@@ -32,17 +34,20 @@ class TrendViewActivity() : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_trend_view)
-        binding = ActivityTrendViewBinding.inflate(layoutInflater)
         readFromLocalStore()
         setLineChartData()
+
+        val bViewData: Button = findViewById(R.id.bViewData)
+        bViewData.setOnClickListener {
+            finish()
+        }
     }
 
     private fun setLineChartData() {
         var entryList: ArrayList<Entry> = ArrayList()
-        var xx = 0.0f
         for (moods in moodData) {
-            //SimpleDateFormat("yyyy-MM-dd").parse(moods.date).time.toFloat()
-            entryList.add(Entry(xx++,
+            //
+            entryList.add(Entry(SimpleDateFormat("yyyy-MM-dd").parse(moods.date).time.toFloat(),
                 (moods.mood?.toFloat() ?: 0.0) as Float)
             )
         }
