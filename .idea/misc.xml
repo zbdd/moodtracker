@@ -3,7 +3,8 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
-        <entry key="..\:/Users/zdurb/AndroidStudioProjects/Rows/app/src/main/res/layout/activity_main.xml" value="0.45754119138149557" />
+        <entry key="..\:/Users/zdurb/AndroidStudioProjects/Rows/app/src/main/res/layout/activity_main.xml" value="0.33" />
+        <entry key="..\:/Users/zdurb/AndroidStudioProjects/Rows/app/src/main/res/layout/activity_trend_view.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/zdurb/AndroidStudioProjects/Rows/app/src/main/res/layout/mood_entry_layout.xml" value="0.33" />
       </map>
     </option>

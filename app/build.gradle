@@ -9,6 +9,10 @@ apply plugin: 'com.google.gms.google-services'
 android {
     compileSdk 32
 
+    buildFeatures {
+        viewBinding true
+    }
+
     defaultConfig {
         applicationId "com.example.rows"
         minSdk 26
@@ -50,6 +54,6 @@ dependencies {
     implementation 'com.firebaseui:firebase-ui-auth:7.2.0'
     implementation 'com.google.firebase:firebase-database-ktx'
 
-    //implementation 'com.facebook.android:facebook-android-sdk:8.x'
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
 
 }

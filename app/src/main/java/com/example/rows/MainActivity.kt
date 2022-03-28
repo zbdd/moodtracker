@@ -1,9 +1,11 @@
 package com.example.rows
 
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
@@ -110,6 +112,12 @@ class MainActivity : AppCompatActivity() {
 
         addNewButton.setOnClickListener {
             addNewMoodEntry(false)
+        }
+
+        val bViewTrend: Button = findViewById(R.id.bViewTrend)
+        bViewTrend.setOnClickListener {
+            val intent = Intent(this, TrendViewActivity::class.java).apply {}
+            startActivity(intent)
         }
 
         if (isDebugMode) {
