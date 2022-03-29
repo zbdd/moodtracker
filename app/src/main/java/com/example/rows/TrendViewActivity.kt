@@ -1,27 +1,23 @@
 package com.example.rows
 
-import android.content.Intent
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.widget.Button
-import com.example.rows.databinding.ActivityMainBinding
 import com.example.rows.databinding.ActivityTrendViewBinding
-import com.firebase.ui.auth.AuthUI
 import com.github.mikephil.charting.animation.Easing
 import com.github.mikephil.charting.charts.LineChart
+import com.github.mikephil.charting.components.AxisBase
+import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
-import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import java.io.File
-import java.io.FileOutputStream
 import java.io.FileReader
-import java.io.OutputStreamWriter
 import java.nio.charset.Charset
 import com.github.mikephil.charting.data.LineDataSet
+import com.github.mikephil.charting.formatter.ValueFormatter
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
@@ -30,6 +26,17 @@ class TrendViewActivity() : AppCompatActivity() {
 
     private var moodData = ArrayList<MoodEntryModel>()
     private lateinit var binding: ActivityTrendViewBinding
+
+    class ChartValueFormatter: ValueFormatter() {
+        override fun getAxisLabel(value: Float, axis: AxisBase?): String {
+            val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
+            return formatter.format(Date(value.toLong()))
+        }
+
+        override fun getFormattedValue(value: Float): String {
+            return value.toInt().toString()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,23 +58,38 @@ class TrendViewActivity() : AppCompatActivity() {
                 (moods.mood?.toFloat() ?: 0.0) as Float)
             )
         }
-        val lineDataSet = LineDataSet(entryList, "First")
-        lineDataSet.setColor(Color.RED)
+
+        val lineDataSet = LineDataSet(entryList, "Mood")
+        lineDataSet.color = Color.WHITE
         lineDataSet.circleRadius = 10f
-        //lineDataSet.setDrawFilled(true)
         lineDataSet.valueTextSize = 20F
-        //lineDataSet.fillColor = resources.getColor(R.color.)
-        lineDataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+        lineDataSet.lineWidth = 4f
+        lineDataSet.fillColor = Color.WHITE
+        lineDataSet.valueTextColor = Color.WHITE
+        lineDataSet.mode = LineDataSet.Mode.HORIZONTAL_BEZIER;
 
         val data = LineData(lineDataSet)
-        data.setValueTextColor(Color.BLUE)
+        data.setValueTextColor(Color.WHITE)
+        data.setValueFormatter(ChartValueFormatter())
 
         val chart: LineChart = findViewById(R.id.getTheGraph)
 
         chart.data = data
-        chart.setBackgroundColor(Color.WHITE)
+        chart.setBackgroundColor(Color.BLACK)
         chart.animateXY(2000, 2000, Easing.EaseInCubic)
-       // chart.notifyDataSetChanged()
+
+        var xAxis = chart.xAxis
+        xAxis.position = XAxis.XAxisPosition.BOTTOM
+        xAxis.textColor = Color.WHITE
+        xAxis.valueFormatter = ChartValueFormatter()
+        xAxis.labelRotationAngle = 90f
+        xAxis.setDrawGridLines(false)
+
+        var yAxis = chart.axisLeft
+        yAxis.textColor = Color.WHITE
+        yAxis.axisMaximum = 10f
+        yAxis.axisMinimum = 0f
+        yAxis.setDrawGridLines(false)
     }
 
     private fun readFromLocalStore() {
