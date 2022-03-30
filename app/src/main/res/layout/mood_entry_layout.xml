@@ -47,20 +47,23 @@
                 android:text="12:00"
                 android:textAlignment="center"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                android:textColor="@color/black" />
+                android:textColor="@color/black"
+                tools:ignore="TouchTargetSizeCheck" />
         </LinearLayout>
 
-        <EditText
-            android:id="@+id/etMoodRating"
+        <TextView
+            android:id="@+id/tvMoodRating"
             android:layout_width="150dp"
             android:layout_height="match_parent"
             android:layout_weight="2"
             android:ems="10"
             android:inputType="number"
-            android:text="Mood"
+            android:text="5"
             android:textAlignment="center"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:textColor="@color/black" />
+            android:textColor="@color/black"
+            android:textSize="24sp"
+            tools:ignore="TouchTargetSizeCheck" />
 
         <EditText
             android:id="@+id/etActivityText"
@@ -72,7 +75,8 @@
             android:text="activity"
             android:textAlignment="inherit"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:textColor="@color/black" />
+            android:textColor="@color/black"
+            tools:ignore="TouchTargetSizeCheck" />
 
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

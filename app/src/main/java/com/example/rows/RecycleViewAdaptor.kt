@@ -5,9 +5,7 @@ import android.app.TimePickerDialog
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.DatePicker
 import android.widget.EditText
-import android.widget.ImageButton
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import java.text.SimpleDateFormat
@@ -17,15 +15,15 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.collections.ArrayList
 
-class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryModel>) -> Unit, val onListUpdated: (ArrayList<MoodEntryModel>) -> Unit):
+class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryModel>) -> Unit, val onListUpdated: (ArrayList<MoodEntryModel>) -> Unit, val onMoodValueClicked: (TextView) -> Unit):
     RecyclerView.Adapter<RecyclerViewAdaptor.ViewHolder>(), SwipeHelperCallback.ItemTouchHelperAdaptor {
 
     private var moodList: ArrayList<MoodEntryModel> = ArrayList()
     private var sortBy = "date"
+    private lateinit var view: View
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.mood_entry_layout, parent, false);
-
+        view = LayoutInflater.from(parent.context).inflate(R.layout.mood_entry_layout, parent, false);
         return ViewHolder(view)
     }
 
@@ -79,10 +77,14 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
         val moodViewHolder = moodList[position]
         holder.dateText.text = moodViewHolder.date
         holder.timeText.text = moodViewHolder.time
-        holder.moodText.setText(moodViewHolder.mood)
+        holder.moodText.text = moodViewHolder.mood
         holder.activityText.setText(moodViewHolder.activity)
 
         val calendar: Calendar = Calendar.getInstance(TimeZone.getDefault())
+
+        holder.moodText.setOnClickListener {
+            onMoodValueClicked(holder.moodText)
+        }
 
         val timeSetListener = TimePickerDialog.OnTimeSetListener {_, hour, minute ->
             calendar.set(Calendar.HOUR_OF_DAY, hour)
@@ -132,7 +134,7 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
     class ViewHolder(ItemView: View): RecyclerView.ViewHolder(ItemView) {
         val dateText: TextView = itemView.findViewById(R.id.tvMoodDate)
         val timeText: TextView = itemView.findViewById(R.id.tvMoodTime)
-        val moodText: EditText = itemView.findViewById(R.id.etMoodRating)
+        val moodText: TextView = itemView.findViewById(R.id.tvMoodRating)
         val activityText: EditText = itemView.findViewById(R.id.etActivityText)
     }
 

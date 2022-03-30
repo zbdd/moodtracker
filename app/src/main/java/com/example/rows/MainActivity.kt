@@ -5,11 +5,9 @@ import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.Button
-import android.widget.ImageButton
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -54,7 +52,8 @@ class MainActivity : AppCompatActivity() {
     fun setupRecycleView() {
         recyclerViewAdaptor = RecyclerViewAdaptor (
             { moodEntry, moodList -> onItemDismissed(moodEntry, moodList) },
-            { moodEntries -> writeEntrytoFile(moodEntries) })
+            { moodEntries -> writeEntrytoFile(moodEntries) },
+            { moodText -> setupNumberPicker(moodText) })
 
         val callback: ItemTouchHelper.Callback = SwipeHelperCallback(recyclerViewAdaptor)
         mItemTouchHelper = ItemTouchHelper(callback)
@@ -68,8 +67,29 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onItemDismissed(moodEntry: MoodEntryModel, moodList: ArrayList<MoodEntryModel>) {
-        if (user != null && myRef != null) myRef.child(user!!.uid).child("moodEntries").child("${moodEntry.key}").removeValue()
+        if (user != null && myRef != null) myRef.child(user?.uid ?: "").child("moodEntries").child("${moodEntry.key}").removeValue()
         writeEntrytoFile(moodList)
+    }
+
+    private fun setupNumberPicker(moodText: TextView) {
+        var numberPicker: NumberPicker = findViewById(R.id.npNumberPicker)
+        //Array<String>(10) { i -> i.toString() }
+        //val array: Array<String> = arrayListOf("1")
+        //numberPicker.displayedValues = array
+        numberPicker.maxValue = 10
+        numberPicker.minValue = 1
+        numberPicker.wrapSelectorWheel = true
+        numberPicker.value = moodText.text.toString().toInt()
+
+        val clNumberPicker: ConstraintLayout = findViewById(R.id.clNumberPicker)
+        clNumberPicker.visibility = View.VISIBLE
+
+        val bNpConfirm: Button = findViewById(R.id.bNpConfirm)
+        bNpConfirm.setOnClickListener {
+            moodText.text = numberPicker.value.toString()
+            clNumberPicker.visibility = View.INVISIBLE
+
+        }
     }
 
     private fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
@@ -133,9 +153,9 @@ class MainActivity : AppCompatActivity() {
 
         if (user != null) {
             val moodHash = moodEntry.toMap()
-            val key = myRef.child(user!!.uid).child("moodEntries").push().key
+            val key = myRef.child(user?.uid ?: "").child("moodEntries").push().key
             val update = hashMapOf<String, Any>("moodEntries/$key" to moodHash)
-            myRef.child(user!!.uid).updateChildren(update)
+            myRef.child(user?.uid ?: "").updateChildren(update)
         } else {
             var data: ArrayList<MoodEntryModel> = ArrayList()
             data.add(moodEntry)
@@ -148,11 +168,11 @@ class MainActivity : AppCompatActivity() {
     private fun readDatabaseForNewData() {
         val data = ArrayList<MoodEntryModel>()
 
-        myRef.child(user!!.uid).child("moodEntries").addValueEventListener(object : ValueEventListener {
+        myRef.child(user?.uid ?: "").child("moodEntries").addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 if (snapshot.value == null) return
 
-                if (snapshot.value!!.javaClass == HashMap<String, Any>().javaClass) {
+                if (snapshot.value?.javaClass == HashMap<String, Any>().javaClass) {
                     for ((key, hashmap) in snapshot.value as HashMap<String, HashMap<String, String>>) {
                         data.add(
                             MoodEntryModel(
@@ -178,7 +198,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkDatabasePathExists() {
-        if (myRef.child(user!!.uid).child("moodEntries") == null) myRef.child(user!!.uid).child("moodEntries").setValue("")
+        if (myRef.child(user?.uid ?: "").child("moodEntries") == null) myRef.child(user?.uid ?: "").child("moodEntries").setValue("")
     }
 
     private fun readFromLocalStore() {
@@ -243,9 +263,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun loadFromJSONAsset(): String {
-        var json = ""
+        var json: String
 
-        println("File to read: " + this.filesDir.absoluteFile)
         val path = this.filesDir.absoluteFile
 
         val file = File("$path/testData.json")

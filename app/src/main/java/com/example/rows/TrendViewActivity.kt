@@ -25,7 +25,6 @@ import kotlin.collections.ArrayList
 class TrendViewActivity() : AppCompatActivity() {
 
     private var moodData = ArrayList<MoodEntryModel>()
-    private lateinit var binding: ActivityTrendViewBinding
 
     class ChartValueFormatter: ValueFormatter() {
         override fun getAxisLabel(value: Float, axis: AxisBase?): String {
@@ -53,8 +52,7 @@ class TrendViewActivity() : AppCompatActivity() {
     private fun setLineChartData() {
         var entryList: ArrayList<Entry> = ArrayList()
         for (moods in moodData) {
-            //
-            entryList.add(Entry(SimpleDateFormat("yyyy-MM-dd").parse(moods.date).time.toFloat(),
+            entryList.add(Entry(SimpleDateFormat("yyyy-MM-dd").parse(moods.date ?: "2000-00-01").time.toFloat(),
                 (moods.mood?.toFloat() ?: 0.0) as Float)
             )
         }
@@ -106,9 +104,8 @@ class TrendViewActivity() : AppCompatActivity() {
     }
 
     private fun loadFromJSONAsset(): String {
-        var json = ""
+        var json: String
 
-        println("File to read: " + this.filesDir.absoluteFile)
         val path = this.filesDir.absoluteFile
 
         val file = File("$path/testData.json")
