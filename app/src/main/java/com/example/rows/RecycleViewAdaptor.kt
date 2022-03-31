@@ -15,7 +15,7 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.collections.ArrayList
 
-class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryModel>) -> Unit, val onListUpdated: (ArrayList<MoodEntryModel>) -> Unit, val onMoodValueClicked: (TextView) -> Unit):
+class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryModel>) -> Unit, val onListUpdated: (ArrayList<MoodEntryModel>) -> Unit, val onMoodValueClicked: (MoodEntryModel) -> Unit):
     RecyclerView.Adapter<RecyclerViewAdaptor.ViewHolder>(), SwipeHelperCallback.ItemTouchHelperAdaptor {
 
     private var moodList: ArrayList<MoodEntryModel> = ArrayList()
@@ -37,6 +37,16 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
         data.clear()
         sortList()
         if (moodList.size > 0) onListUpdated(moodList)
+    }
+
+    fun updateMoodEntry(mood: MoodEntryModel) {
+        val position = moodList.indexOfFirst { it.key == mood.key }
+        if (position != -1) {
+            moodList[position] = mood
+            notifyItemChanged(position)
+            sortList()
+            onListUpdated(moodList)
+        }
     }
 
     private fun sortList() {
@@ -83,7 +93,7 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
         val calendar: Calendar = Calendar.getInstance(TimeZone.getDefault())
 
         holder.moodText.setOnClickListener {
-            onMoodValueClicked(holder.moodText)
+            onMoodValueClicked(moodList[position])
         }
 
         val timeSetListener = TimePickerDialog.OnTimeSetListener {_, hour, minute ->

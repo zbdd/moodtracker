@@ -32,6 +32,9 @@ import java.io.OutputStreamWriter
 import java.nio.charset.Charset
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 
 class MainActivity : AppCompatActivity() {
 
@@ -53,7 +56,7 @@ class MainActivity : AppCompatActivity() {
         recyclerViewAdaptor = RecyclerViewAdaptor (
             { moodEntry, moodList -> onItemDismissed(moodEntry, moodList) },
             { moodEntries -> writeEntrytoFile(moodEntries) },
-            { moodText -> setupNumberPicker(moodText) })
+            { mood -> setupNumberPicker(mood) })
 
         val callback: ItemTouchHelper.Callback = SwipeHelperCallback(recyclerViewAdaptor)
         mItemTouchHelper = ItemTouchHelper(callback)
@@ -71,7 +74,7 @@ class MainActivity : AppCompatActivity() {
         writeEntrytoFile(moodList)
     }
 
-    private fun setupNumberPicker(moodText: TextView) {
+    private fun setupNumberPicker(mood: MoodEntryModel) {
         var numberPicker: NumberPicker = findViewById(R.id.npNumberPicker)
         //Array<String>(10) { i -> i.toString() }
         //val array: Array<String> = arrayListOf("1")
@@ -79,16 +82,18 @@ class MainActivity : AppCompatActivity() {
         numberPicker.maxValue = 10
         numberPicker.minValue = 1
         numberPicker.wrapSelectorWheel = true
-        numberPicker.value = moodText.text.toString().toInt()
+        numberPicker.value = mood.mood?.toInt() ?: 0
 
         val clNumberPicker: ConstraintLayout = findViewById(R.id.clNumberPicker)
         clNumberPicker.visibility = View.VISIBLE
 
         val bNpConfirm: Button = findViewById(R.id.bNpConfirm)
         bNpConfirm.setOnClickListener {
-            moodText.text = numberPicker.value.toString()
+            val newMood = MoodEntryModel(mood.date, mood.time, numberPicker.value.toString(), mood.activity, mood.key)
             clNumberPicker.visibility = View.INVISIBLE
-
+            recyclerViewAdaptor.run {
+                updateMoodEntry(newMood)
+            }
         }
     }
 
@@ -294,7 +299,7 @@ class MainActivity : AppCompatActivity() {
             if (randDay.toInt() < 10) randDay = "0$randDay"
             val randMood = kotlin.random.Random.nextInt(1,9).toString()
 
-            MoodEntryModel("2022-$randMonth-$randDay", "12:34", randMood, "Test Data New")
+            MoodEntryModel("2022-$randMonth-$randDay", "12:34", randMood, "Test Data New", UUID.randomUUID().toString())
         } else {
             var dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
             val dateTimeNow = LocalDateTime.now()
@@ -303,7 +308,7 @@ class MainActivity : AppCompatActivity() {
             dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
             val time = dateTimeNow.format(dateTimeFormatter)
 
-            MoodEntryModel(date, time,"5","")
+            MoodEntryModel(date, time,"5","", UUID.randomUUID().toString())
         }
     }
 }
