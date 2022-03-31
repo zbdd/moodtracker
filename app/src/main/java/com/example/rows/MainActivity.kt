@@ -44,7 +44,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var myRef: DatabaseReference
     private var user: FirebaseUser? = null
     private var mItemTouchHelper: ItemTouchHelper? = null
-    private var isOnlineEnabled = false
     private var isPremiumEdition = false
 
     private val isDebugMode = true
@@ -56,7 +55,7 @@ class MainActivity : AppCompatActivity() {
     fun setupRecycleView() {
         recyclerViewAdaptor = RecyclerViewAdaptor (
             { moodEntry, moodList -> onItemDismissed(moodEntry, moodList) },
-            { moodEntries -> writeEntrytoFile(moodEntries) },
+            { moodEntries -> writeEntrytoFile(moodEntries); updateDatabaseEntry(moodEntries) },
             { mood -> setupNumberPicker(mood) })
 
         val callback: ItemTouchHelper.Callback = SwipeHelperCallback(recyclerViewAdaptor)
@@ -105,6 +104,9 @@ class MainActivity : AppCompatActivity() {
             val database =
                 Firebase.database("https://silent-blend-161710-default-rtdb.asia-southeast1.firebasedatabase.app")
             myRef = database.reference
+
+            checkDatabasePathExists()
+            readDatabaseForNewData()
         } else {
             user= null
             Toast.makeText(applicationContext,"Unable to sign-in at this time",Toast.LENGTH_SHORT)
@@ -122,7 +124,7 @@ class MainActivity : AppCompatActivity() {
         initButtons()
 
         val ibLogin: ImageButton = findViewById(R.id.ibLogin)
-        if (!isOnlineEnabled) ibLogin.background.setTint(Color.LTGRAY)
+        if (user == null) ibLogin.background.setTint(Color.LTGRAY)
         else ibLogin.background.setTint(Color.GREEN)
 
         ibLogin.setOnClickListener {
@@ -155,20 +157,23 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun updateDatabaseEntry(moods: ArrayList<MoodEntryModel>) {
+        if (user != null) {
+            for(moodEntry in moods) {
+                val moodHash = moodEntry.toMap()
+                val update = hashMapOf<String, Any>("moodEntries/${moodEntry.key}" to moodHash)
+                myRef.child(user?.uid ?: "").updateChildren(update)
+            }
+        }
+    }
+
     private fun addNewMoodEntry(isDebug: Boolean) {
         val moodEntry = createNewMoodEntry(isDebug)
 
-        if (user != null) {
-            val moodHash = moodEntry.toMap()
-            val key = myRef.child(user?.uid ?: "").child("moodEntries").push().key
-            val update = hashMapOf<String, Any>("moodEntries/$key" to moodHash)
-            myRef.child(user?.uid ?: "").updateChildren(update)
-        } else {
-            var data: ArrayList<MoodEntryModel> = ArrayList()
-            data.add(moodEntry)
-            recyclerViewAdaptor.run {
-                updateList(data)
-            }
+        var data: ArrayList<MoodEntryModel> = ArrayList()
+        data.add(moodEntry)
+        recyclerViewAdaptor.run {
+            updateList(data)
         }
     }
 
@@ -235,12 +240,8 @@ class MainActivity : AppCompatActivity() {
         if (::recyclerViewAdaptor.isInitialized) {
             recyclerView.adapter = recyclerViewAdaptor
 
-            if (isOnlineEnabled) {
-                launchSignInEvent()
-            } else {
-                user = null
-                runMainLoop()
-            }
+            user = null
+            runMainLoop()
         }
     }
 

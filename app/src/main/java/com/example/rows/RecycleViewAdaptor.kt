@@ -28,15 +28,15 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
     }
 
     fun updateList(data: ArrayList<MoodEntryModel> = ArrayList(0)) {
-        var removeList: MutableList<Int> = ArrayList()
+        var removeList: MutableList<MoodEntryModel> = ArrayList()
 
         if (data.isNotEmpty()) {
             for (entry in data) {
                 val position = moodList.indexOfFirst { it.key == entry.key }
                 if (position != -1) {
                     if (moodList[position].compare(entry)) {
+                        removeList.add(moodList[position])
                         moodList[position] = entry
-                        removeList.add(position)
                         notifyItemChanged(position)
                     }
                 } else {
@@ -48,8 +48,8 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
                     }
                 }
             }
-            for (x in removeList.indices) {
-                data.removeAt(removeList[x])
+            for (entry in removeList) {
+                data.remove(entry)
             }
             for (entry in data) {
                 moodList.add(entry)
