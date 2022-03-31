@@ -35,6 +35,7 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
+import kotlin.random.Random
 
 class MainActivity : AppCompatActivity() {
 
@@ -104,9 +105,10 @@ class MainActivity : AppCompatActivity() {
             val database =
                 Firebase.database("https://silent-blend-161710-default-rtdb.asia-southeast1.firebasedatabase.app")
             myRef = database.reference
+        } else {
+            user= null
+            Toast.makeText(applicationContext,"Unable to sign-in at this time",Toast.LENGTH_SHORT)
         }
-
-        runMainLoop()
     }
 
     private fun runMainLoop() {
@@ -127,7 +129,7 @@ class MainActivity : AppCompatActivity() {
             if (!isPremiumEdition) {
                 Toast.makeText(applicationContext,"Premium edition feature only", Toast.LENGTH_SHORT).show()
             }
-            else if(!isOnlineEnabled) { isOnlineEnabled = true; launchSignInEvent() }
+            else if(user == null) { launchSignInEvent() }
             else { Toast.makeText(applicationContext,"Already signed in", Toast.LENGTH_SHORT).show() }
         }
     }
@@ -293,11 +295,13 @@ class MainActivity : AppCompatActivity() {
 
     private fun createNewMoodEntry(isDebug: Boolean): MoodEntryModel {
         return if (isDebug) {
-            var randMonth = kotlin.random.Random.nextInt(1,12).toString()
+            val random: kotlin.random.Random = Random(System.currentTimeMillis())
+
+            var randMonth = random.nextInt(1,12).toString()
             if (randMonth.toInt() < 10) randMonth = "0$randMonth"
-            var randDay = kotlin.random.Random.nextInt(1,28).toString()
+            var randDay = random.nextInt(1,28).toString()
             if (randDay.toInt() < 10) randDay = "0$randDay"
-            val randMood = kotlin.random.Random.nextInt(1,9).toString()
+            val randMood = random.nextInt(1,9).toString()
 
             MoodEntryModel("2022-$randMonth-$randDay", "12:34", randMood, "Test Data New", UUID.randomUUID().toString())
         } else {

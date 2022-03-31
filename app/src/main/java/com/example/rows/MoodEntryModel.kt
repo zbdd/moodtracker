@@ -21,4 +21,15 @@ data class MoodEntryModel (
             "key" to key
         )
     }
+
+    fun compare(moodEntry: MoodEntryModel): Boolean {
+        var isTheSame = true
+
+        if (!date.equals(moodEntry.date)) isTheSame = false
+        if (!time.equals(moodEntry.time)) isTheSame = false
+        if (!mood.equals(moodEntry.mood)) isTheSame = false
+        if (!activity.equals(moodEntry.activity)) isTheSame = false
+
+        return isTheSame
+    }
 }
