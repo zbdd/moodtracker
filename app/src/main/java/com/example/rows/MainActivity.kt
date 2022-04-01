@@ -99,6 +99,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
         user = FirebaseAuth.getInstance().currentUser
+        val ibLogin: ImageButton = findViewById(R.id.ibLogin)
 
         if (result.resultCode == RESULT_OK) {
             val database =
@@ -107,8 +108,11 @@ class MainActivity : AppCompatActivity() {
 
             checkDatabasePathExists()
             readDatabaseForNewData()
+
+            ibLogin.background.setTint(Color.GREEN)
         } else {
             user= null
+            ibLogin.background.setTint(Color.LTGRAY)
             Toast.makeText(applicationContext,"Unable to sign-in at this time",Toast.LENGTH_SHORT)
         }
     }
