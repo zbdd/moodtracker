@@ -8,4 +8,20 @@
     <string name="login_content_description">Login icon to click to establish online connectivity</string>
     <string name="return_to_main">Return</string>
     <string name="confirm_change">Confirm</string>
+    <string name="remove">Remove</string>
+    <string name="add">Add</string>
+
+    <string-array name="available_activities">
+        <item>Guitar</item>
+        <item>Programming</item>
+        <item>Gaming</item>
+        <item>Browsing internet</item>
+        <item>Singing</item>
+        <item>School</item>
+        <item>Rugby</item>
+        <item>Cooking</item>
+        <item>Cleaning</item>
+    </string-array>
 </resources>
+
+
