@@ -8,7 +8,7 @@ data class MoodEntryModel (
     val date: String? = null,
     val time: String? = null,
     val mood: String? = null,
-    val activity: String? = null,
+    val activities: MutableList<String> = ArrayList<String>(),
     val key: String? = null
 ) {
     @Exclude
@@ -17,7 +17,7 @@ data class MoodEntryModel (
             "date" to date,
             "time" to time,
             "mood" to mood,
-            "activity" to activity,
+            "activities" to activities,
             "key" to key
         )
     }
@@ -28,7 +28,7 @@ data class MoodEntryModel (
         if (!date.equals(moodEntry.date)) isTheSame = false
         if (!time.equals(moodEntry.time)) isTheSame = false
         if (!mood.equals(moodEntry.mood)) isTheSame = false
-        if (!activity.equals(moodEntry.activity)) isTheSame = false
+        if (activities != moodEntry.activities) isTheSame = false
 
         return isTheSame
     }

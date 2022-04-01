@@ -80,7 +80,6 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
         val sorted = when (sortBy) {
             "date" -> { moodList.sortedWith(comparator) }
             "mood" -> moodList.sortedByDescending { moodEntry -> moodEntry.mood }
-            "activity" -> moodList.sortedByDescending { moodEntry -> moodEntry.activity}
             else -> moodList
         }
 
@@ -111,7 +110,7 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
         holder.dateText.text = moodViewHolder.date
         holder.timeText.text = moodViewHolder.time
         holder.moodText.text = moodViewHolder.mood
-        holder.activityText.setText(moodViewHolder.activity)
+        holder.activityText.setText(moodViewHolder.activities.toString())
 
         val calendar: Calendar = Calendar.getInstance(TimeZone.getDefault())
 

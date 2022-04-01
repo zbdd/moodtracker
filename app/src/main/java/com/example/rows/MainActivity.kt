@@ -89,7 +89,7 @@ class MainActivity : AppCompatActivity() {
 
         val bNpConfirm: Button = findViewById(R.id.bNpConfirm)
         bNpConfirm.setOnClickListener {
-            val newMood = MoodEntryModel(mood.date, mood.time, numberPicker.value.toString(), mood.activity, mood.key)
+            val newMood = MoodEntryModel(mood.date, mood.time, numberPicker.value.toString(), mood.activities, mood.key)
             clNumberPicker.visibility = View.INVISIBLE
             recyclerViewAdaptor.run {
                 updateMoodEntry(newMood)
@@ -195,7 +195,7 @@ class MainActivity : AppCompatActivity() {
                                 hashmap["date"].toString(),
                                 hashmap["time"].toString(),
                                 hashmap["mood"].toString(),
-                                hashmap["activity"].toString(),
+                                hashmap["activities"] as MutableList<String>,
                                 key
                             )
                         )
@@ -299,16 +299,31 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun createNewMoodEntry(isDebug: Boolean): MoodEntryModel {
-        return if (isDebug) {
-            val random: kotlin.random.Random = Random(System.currentTimeMillis())
+        val random: kotlin.random.Random = Random(System.currentTimeMillis())
 
+        var choices: MutableList<String> = ArrayList<String>()
+        choices.add("Programming")
+        choices.add("Gaming")
+        choices.add("Reading")
+        choices.add("Going out")
+        choices.add("School")
+        choices.add("Rugby")
+        choices.add("DnD")
+        choices.add("Hanging out")
+
+        var list: MutableList<String> = ArrayList<String>()
+        for(i in 1..2) {
+            list.add(choices[random.nextInt(0,choices.size-1)])
+        }
+
+        return if (isDebug) {
             var randMonth = random.nextInt(1,12).toString()
             if (randMonth.toInt() < 10) randMonth = "0$randMonth"
             var randDay = random.nextInt(1,28).toString()
             if (randDay.toInt() < 10) randDay = "0$randDay"
             val randMood = random.nextInt(1,9).toString()
 
-            MoodEntryModel("2022-$randMonth-$randDay", "12:34", randMood, "Test Data New", UUID.randomUUID().toString())
+            MoodEntryModel("2022-$randMonth-$randDay", "12:34", randMood, list, UUID.randomUUID().toString())
         } else {
             var dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
             val dateTimeNow = LocalDateTime.now()
@@ -317,7 +332,7 @@ class MainActivity : AppCompatActivity() {
             dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
             val time = dateTimeNow.format(dateTimeFormatter)
 
-            MoodEntryModel(date, time,"5","", UUID.randomUUID().toString())
+            MoodEntryModel(date, time,"5",list, UUID.randomUUID().toString())
         }
     }
 }
