@@ -2,6 +2,7 @@ package com.example.rows
 
 import com.google.firebase.database.Exclude
 import com.google.firebase.database.IgnoreExtraProperties
+import java.io.Serializable
 
 @IgnoreExtraProperties
 data class MoodEntryModel (
@@ -10,7 +11,7 @@ data class MoodEntryModel (
     val mood: String? = null,
     val activities: MutableList<String> = ArrayList<String>(),
     val key: String? = null
-) {
+): Serializable {
     @Exclude
     fun toMap(): Map<String, Any?> {
         return mapOf(

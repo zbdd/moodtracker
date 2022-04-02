@@ -45,8 +45,8 @@ class ActivitiesRecycleViewAdaptor(context: Context, data: MutableList<String>, 
     }
 
     private fun sortList() {
-        val sorted = mData?.sort()
-        if (sorted?.equals(mData) != true) notifyDataSetChanged()
+        mData?.sort()
+        notifyDataSetChanged()
     }
 
     override fun getItemCount(): Int {

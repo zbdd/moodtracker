@@ -6,6 +6,8 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.*
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -42,6 +44,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var recyclerViewAdaptor: RecyclerViewAdaptor
     private lateinit var recyclerView: RecyclerView
     private lateinit var myRef: DatabaseReference
+    private lateinit var getActivitiesActivityResult: ActivityResultLauncher<Intent>
+
     private var user: FirebaseUser? = null
     private var mItemTouchHelper: ItemTouchHelper? = null
     private var isPremiumEdition = false
@@ -57,7 +61,7 @@ class MainActivity : AppCompatActivity() {
             { moodEntry, moodList -> onItemDismissed(moodEntry, moodList) },
             { moodEntries -> writeEntrytoFile(moodEntries); updateDatabaseEntry(moodEntries) },
             { mood -> setupNumberPicker(mood) },
-            { activities -> startActivityActivities(activities)})
+            { moodEntry -> startActivityActivities(moodEntry)})
 
         val callback: ItemTouchHelper.Callback = SwipeHelperCallback(recyclerViewAdaptor)
         mItemTouchHelper = ItemTouchHelper(callback)
@@ -70,11 +74,11 @@ class MainActivity : AppCompatActivity() {
         tvLoading.visibility = View.INVISIBLE
     }
 
-    private fun startActivityActivities(activities: MutableList<String>) {
+    private fun startActivityActivities(moodEntry: MoodEntryModel) {
         val intent = Intent(this, ActivitiesActivity::class.java)
-        val stringArray = activities as ArrayList<String>
-        intent.putExtra("Activities", stringArray)
-        startActivity(intent)
+        intent.putExtra("MoodEntry", moodEntry)
+
+        getActivitiesActivityResult.launch(intent)
     }
 
     private fun onItemDismissed(moodEntry: MoodEntryModel, moodList: ArrayList<MoodEntryModel>) {
@@ -145,6 +149,12 @@ class MainActivity : AppCompatActivity() {
             }
             else if(user == null) { launchSignInEvent() }
             else { Toast.makeText(applicationContext,"Already signed in", Toast.LENGTH_SHORT).show() }
+        }
+
+        getActivitiesActivityResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            recyclerViewAdaptor.run {
+                updateMoodEntry(it.data?.getSerializableExtra("MoodEntry") as MoodEntryModel)
+            }
         }
     }
 

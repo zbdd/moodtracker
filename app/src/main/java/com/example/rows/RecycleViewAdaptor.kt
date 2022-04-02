@@ -17,7 +17,7 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryModel>) -> Unit, val onListUpdated: (ArrayList<MoodEntryModel>) -> Unit, val onMoodValueClicked: (MoodEntryModel) -> Unit,
-    val onStartActivitiesActivity: (MutableList<String>) -> Unit):
+    val onStartActivitiesActivity: (MoodEntryModel) -> Unit):
     RecyclerView.Adapter<RecyclerViewAdaptor.ViewHolder>(), SwipeHelperCallback.ItemTouchHelperAdaptor {
 
     private var moodList: ArrayList<MoodEntryModel> = ArrayList()
@@ -162,7 +162,7 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
         }
 
         holder.activityText.setOnClickListener {
-            onStartActivitiesActivity(moodList[position].activities)
+            onStartActivitiesActivity(moodList[position])
         }
     }
 
