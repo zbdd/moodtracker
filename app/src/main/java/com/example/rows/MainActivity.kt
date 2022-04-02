@@ -56,7 +56,8 @@ class MainActivity : AppCompatActivity() {
         recyclerViewAdaptor = RecyclerViewAdaptor (
             { moodEntry, moodList -> onItemDismissed(moodEntry, moodList) },
             { moodEntries -> writeEntrytoFile(moodEntries); updateDatabaseEntry(moodEntries) },
-            { mood -> setupNumberPicker(mood) })
+            { mood -> setupNumberPicker(mood) },
+            { activities -> startActivityActivities(activities)})
 
         val callback: ItemTouchHelper.Callback = SwipeHelperCallback(recyclerViewAdaptor)
         mItemTouchHelper = ItemTouchHelper(callback)
@@ -67,6 +68,13 @@ class MainActivity : AppCompatActivity() {
 
         val tvLoading: TextView = findViewById(R.id.tv_loading)
         tvLoading.visibility = View.INVISIBLE
+    }
+
+    private fun startActivityActivities(activities: MutableList<String>) {
+        val intent = Intent(this, ActivitiesActivity::class.java)
+        val stringArray = activities as ArrayList<String>
+        intent.putExtra("Activities", stringArray)
+        startActivity(intent)
     }
 
     private fun onItemDismissed(moodEntry: MoodEntryModel, moodList: ArrayList<MoodEntryModel>) {
@@ -283,7 +291,8 @@ class MainActivity : AppCompatActivity() {
         if (file.isFile) {
             val fileReader = FileReader("$path/testData.json")
             json = fileReader.readLines().toString()
-
+            fileReader.close()
+            return json
         }
         else {
             val inputStream = assets.open("testData.json")
@@ -293,9 +302,8 @@ class MainActivity : AppCompatActivity() {
             inputStream.read(buffer)
             inputStream.close()
             json = String(buffer, charset)
+            return json
         }
-
-        return json
     }
 
     private fun createNewMoodEntry(isDebug: Boolean): MoodEntryModel {

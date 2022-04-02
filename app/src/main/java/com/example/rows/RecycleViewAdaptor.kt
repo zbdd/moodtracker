@@ -2,6 +2,7 @@ package com.example.rows
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,7 +16,8 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.collections.ArrayList
 
-class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryModel>) -> Unit, val onListUpdated: (ArrayList<MoodEntryModel>) -> Unit, val onMoodValueClicked: (MoodEntryModel) -> Unit):
+class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryModel>) -> Unit, val onListUpdated: (ArrayList<MoodEntryModel>) -> Unit, val onMoodValueClicked: (MoodEntryModel) -> Unit,
+    val onStartActivitiesActivity: (MutableList<String>) -> Unit):
     RecyclerView.Adapter<RecyclerViewAdaptor.ViewHolder>(), SwipeHelperCallback.ItemTouchHelperAdaptor {
 
     private var moodList: ArrayList<MoodEntryModel> = ArrayList()
@@ -24,6 +26,7 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         view = LayoutInflater.from(parent.context).inflate(R.layout.mood_entry_layout, parent, false);
+
         return ViewHolder(view)
     }
 
@@ -157,6 +160,10 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
                 calendar.get(Calendar.DAY_OF_MONTH)
             ).show()
         }
+
+        holder.activityText.setOnClickListener {
+            onStartActivitiesActivity(moodList[position].activities)
+        }
     }
 
     override fun getItemCount(): Int {
@@ -167,7 +174,7 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
         val dateText: TextView = itemView.findViewById(R.id.tvMoodDate)
         val timeText: TextView = itemView.findViewById(R.id.tvMoodTime)
         val moodText: TextView = itemView.findViewById(R.id.tvMoodRating)
-        val activityText: EditText = itemView.findViewById(R.id.etActivityText)
+        val activityText: TextView = itemView.findViewById(R.id.etActivityText)
     }
 
     override fun onItemMove(fromPosition: Int, toPosition: Int): Boolean {
