@@ -6,6 +6,29 @@
     android:background="@color/black">
 
     <TextView
+        android:id="@+id/tvActivityAddNew"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="5dp"
+        android:text="@string/activities_add_new"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toStartOf="@+id/bActivityAddNew"
+        app:layout_constraintTop_toTopOf="@+id/bActivityAddNew" />
+
+    <ImageButton
+        android:id="@+id/bActivityAddNew"
+        tools:ignore="RedundantDescriptionCheck"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="10dp"
+        android:contentDescription="@string/activities_add_new_description"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@android:drawable/ic_input_add" />
+
+    <TextView
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

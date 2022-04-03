@@ -1,7 +1,8 @@
 <resources>
     <string name="app_name">Zoodle</string>
-    <string name="add_new_mood_button">Add New Mood Button</string>
+    <string name="add_new_mood_description">Add New Mood Button</string>
     <string name="welcome_text">How are you?</string>
+    <string name="main_view_trend">View trend</string>
     <string name="calendar_button_description">Click to see Calendar box</string>
     <string name="click_button_text">Click here to add a new entry</string>
     <string name="click_to_login">Click to login ***PREMIUM ONLY***</string>
@@ -19,6 +20,8 @@
     <string name="activities_name">Activity</string>
     <string name="activities_delete">Press to delete</string>
     <string name="activities_cross">X</string>
+    <string name="activities_add_new">Click here to add a new activity</string>
+    <string name="activities_add_new_description">Clickable button to add new activity</string>
 
     <string-array name="available_activities">
         <item>Guitar</item>
