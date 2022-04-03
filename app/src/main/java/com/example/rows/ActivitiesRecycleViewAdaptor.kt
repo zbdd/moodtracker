@@ -9,7 +9,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
 
-class ActivitiesRecycleViewAdaptor(context: Context, data: MutableList<String>, val onClick: (String) -> Unit): RecyclerView.Adapter<ActivitiesRecycleViewAdaptor.ViewHolder>() {
+class ActivitiesRecycleViewAdaptor(context: Context, data: MutableList<String>, val onClick: (String) -> Unit, val onClickDelete: (String) -> Unit): RecyclerView.Adapter<ActivitiesRecycleViewAdaptor.ViewHolder>() {
     class ViewHolder(ItemView: View): RecyclerView.ViewHolder(ItemView) {
         val tvName: TextView = itemView.findViewById(R.id.tvName)
         val tvCancel: TextView = itemView.findViewById(R.id.tvCancel)
@@ -41,6 +41,7 @@ class ActivitiesRecycleViewAdaptor(context: Context, data: MutableList<String>, 
 
         holder.tvCancel.setOnClickListener {
             mData?.removeAt(position)
+            onClickDelete(holder.tvName.text.toString())
             notifyItemRemoved(position)
             sortList()
         }

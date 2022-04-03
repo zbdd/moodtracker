@@ -78,6 +78,7 @@ class MainActivity : AppCompatActivity() {
         val intent = Intent(this, ActivitiesActivity::class.java)
         val jsonArray = loadFromJSONAsset("available.json")
 
+        // Get activities that are stored in local json file
         if (jsonArray.isNotEmpty()) {
             val gson = GsonBuilder().create()
             val activities = gson.fromJson(jsonArray, ArrayList::class.java)
@@ -168,6 +169,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         getActivitiesActivityResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            val data = it.data?.getStringArrayListExtra("AvailableActivities")
+            writeEntrytoFile(data as ArrayList<*>,"available.json")
+
             recyclerViewAdaptor.run {
                 updateMoodEntry(it.data?.getSerializableExtra("MoodEntry") as MoodEntryModel)
             }

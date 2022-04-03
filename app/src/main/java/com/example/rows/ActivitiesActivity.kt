@@ -14,13 +14,13 @@ class ActivitiesActivity: AppCompatActivity()  {
     private lateinit var availableRecycleView: RecyclerView
     private lateinit var availableAdaptor: ActivitiesRecycleViewAdaptor
     private lateinit var moodEntry: MoodEntryModel
+    private var availableActivities: ArrayList<String> = ArrayList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activities_recycle_view)
 
         moodEntry = intent.getSerializableExtra("MoodEntry") as MoodEntryModel
-        var availableActivities = ArrayList<String>()
 
         val arrayData = intent.getStringArrayListExtra("AvailableActivities")
         if (arrayData != null) {
@@ -39,15 +39,17 @@ class ActivitiesActivity: AppCompatActivity()  {
 
         activitiesRecycleView = findViewById(R.id.rvSelected)
         activitiesRecycleView.layoutManager = LinearLayoutManager(this)
-        selectedAdaptor = ActivitiesRecycleViewAdaptor(applicationContext, moodEntry.activities)
-        { activity -> moveToAvailable(activity) }
+        selectedAdaptor = ActivitiesRecycleViewAdaptor(applicationContext, moodEntry.activities,
+        { activity -> moveToAvailable(activity) },
+        { activity -> removeFromAvailable(activity)})
 
         activitiesRecycleView.adapter = selectedAdaptor
 
         availableRecycleView = findViewById(R.id.rvAvailable)
         availableRecycleView.layoutManager = LinearLayoutManager(this)
-        availableAdaptor = ActivitiesRecycleViewAdaptor(applicationContext, availableActivities.toMutableList())
-            { activity -> moveToSelected(activity) }
+        availableAdaptor = ActivitiesRecycleViewAdaptor(applicationContext, availableActivities.toMutableList(),
+            { activity -> moveToSelected(activity) },
+            { activity -> removeFromAvailable(activity)})
 
         availableRecycleView.adapter = availableAdaptor
 
@@ -55,10 +57,14 @@ class ActivitiesActivity: AppCompatActivity()  {
         bConfirm.setOnClickListener {
             val finishIntent = Intent()
             finishIntent.putExtra("MoodEntry", moodEntry)
-            finishIntent.putExtra("AvailableActivities", availableActivities.toTypedArray())
+            finishIntent.putStringArrayListExtra("AvailableActivities", availableActivities)
             setResult(RESULT_OK, finishIntent)
             finish()
         }
+    }
+
+    private fun removeFromAvailable(activity: String) {
+        availableActivities.remove(activity)
     }
 
     private fun moveToSelected(activity: String) {
