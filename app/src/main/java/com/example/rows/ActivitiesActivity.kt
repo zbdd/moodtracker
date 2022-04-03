@@ -2,7 +2,8 @@ package com.example.rows
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
+import android.view.View
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -20,9 +21,16 @@ class ActivitiesActivity: AppCompatActivity()  {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activities_recycle_view)
 
+        val bConfirm: Button = findViewById(R.id.bConfirm)
+        val bActivityAddNew: ImageButton = findViewById(R.id.bActivityAddNew)
+        val arrayData = intent.getStringArrayListExtra("AvailableActivities")
+        val bActivityAdd: Button = findViewById(R.id.bActivityAdd)
+        val bActivityCancel: Button = findViewById(R.id.bActivityCancel)
+        val llAddActivity: LinearLayout = findViewById(R.id.llAddNewActivity)
+        val etAddActivity: EditText = findViewById(R.id.etNewActivityName)
+
         moodEntry = intent.getSerializableExtra("MoodEntry") as MoodEntryModel
 
-        val arrayData = intent.getStringArrayListExtra("AvailableActivities")
         if (arrayData != null) {
             availableActivities.addAll(arrayData)
         }
@@ -53,13 +61,28 @@ class ActivitiesActivity: AppCompatActivity()  {
 
         availableRecycleView.adapter = availableAdaptor
 
-        val bConfirm: Button = findViewById(R.id.bConfirm)
         bConfirm.setOnClickListener {
             val finishIntent = Intent()
             finishIntent.putExtra("MoodEntry", moodEntry)
             finishIntent.putStringArrayListExtra("AvailableActivities", availableActivities)
             setResult(RESULT_OK, finishIntent)
             finish()
+        }
+
+        bActivityAddNew.setOnClickListener {
+            llAddActivity.visibility = View.VISIBLE
+        }
+
+        bActivityCancel.setOnClickListener {
+            llAddActivity.visibility = View.INVISIBLE
+            etAddActivity.setText(applicationContext.resources.getString(R.string.activities_add_new_activity_name))
+        }
+
+        bActivityAdd.setOnClickListener {
+            selectedAdaptor.addItem(etAddActivity.text.toString())
+
+            llAddActivity.visibility = View.INVISIBLE
+            etAddActivity.setText(applicationContext.resources.getString(R.string.activities_add_new_activity_name))
         }
     }
 
