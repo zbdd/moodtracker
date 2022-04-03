@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.TextView
+import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.RecyclerView
 import java.text.SimpleDateFormat
 import java.time.LocalDate
@@ -119,6 +120,14 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
 
         holder.moodText.setOnClickListener {
             onMoodValueClicked(moodList[position])
+        }
+
+        holder.moodText.addTextChangedListener {
+            when {
+                holder.moodText.text.toString().toInt() > 5 -> holder.moodText.setBackgroundResource(R.drawable.mood_rating_colour_high)
+                holder.moodText.text.toString().toInt() < 5 -> holder.moodText.setBackgroundResource(R.drawable.mood_rating_colour_low)
+                holder.moodText.text.toString().toInt() == 5 -> holder.moodText.setBackgroundResource(0)
+            }
         }
 
         val timeSetListener = TimePickerDialog.OnTimeSetListener {_, hour, minute ->

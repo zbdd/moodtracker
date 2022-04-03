@@ -88,9 +88,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupNumberPicker(mood: MoodEntryModel) {
         var numberPicker: NumberPicker = findViewById(R.id.npNumberPicker)
-        //Array<String>(10) { i -> i.toString() }
-        //val array: Array<String> = arrayListOf("1")
-        //numberPicker.displayedValues = array
+
         numberPicker.maxValue = 10
         numberPicker.minValue = 1
         numberPicker.wrapSelectorWheel = true
