@@ -113,7 +113,7 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
         holder.dateText.text = moodViewHolder.date
         holder.timeText.text = moodViewHolder.time
         holder.moodText.text = moodViewHolder.mood
-        holder.activityText.setText(moodViewHolder.activities.toString())
+        holder.activityText.text = moodViewHolder.activities.toString().removeSurrounding("[","]")
 
         val calendar: Calendar = Calendar.getInstance(TimeZone.getDefault())
 
