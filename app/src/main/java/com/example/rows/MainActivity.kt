@@ -56,7 +56,7 @@ class MainActivity : AppCompatActivity() {
         res -> this.onSignInResult(res)
     }
 
-    fun setupRecycleView() {
+    private fun setupRecycleView() {
         recyclerViewAdaptor = RecyclerViewAdaptor (
             { moodEntry, moodList -> onItemDismissed(moodEntry, moodList) },
             { moodEntries -> writeEntrytoFile(moodEntries); updateDatabaseEntry(moodEntries) },
@@ -82,12 +82,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onItemDismissed(moodEntry: MoodEntryModel, moodList: ArrayList<MoodEntryModel>) {
-        if (user != null && myRef != null) myRef.child(user?.uid ?: "").child("moodEntries").child("${moodEntry.key}").removeValue()
+        if (user != null) myRef.child(user?.uid ?: "").child("moodEntries").child("${moodEntry.key}").removeValue()
         writeEntrytoFile(moodList)
     }
 
     private fun setupNumberPicker(mood: MoodEntryModel) {
-        var numberPicker: NumberPicker = findViewById(R.id.npNumberPicker)
+        val numberPicker: NumberPicker = findViewById(R.id.npNumberPicker)
 
         numberPicker.maxValue = 10
         numberPicker.minValue = 1
@@ -123,7 +123,7 @@ class MainActivity : AppCompatActivity() {
         } else {
             user= null
             ibLogin.background.setTint(Color.LTGRAY)
-            Toast.makeText(applicationContext,"Unable to sign-in at this time",Toast.LENGTH_SHORT)
+            Toast.makeText(applicationContext,"Unable to sign-in at this time",Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -190,7 +190,7 @@ class MainActivity : AppCompatActivity() {
     private fun addNewMoodEntry(isDebug: Boolean) {
         val moodEntry = createNewMoodEntry(isDebug)
 
-        var data: ArrayList<MoodEntryModel> = ArrayList()
+        val data: ArrayList<MoodEntryModel> = ArrayList()
         data.add(moodEntry)
         recyclerViewAdaptor.run {
             updateList(data)
@@ -280,7 +280,7 @@ class MainActivity : AppCompatActivity() {
         signInLauncher.launch(signInIntent)
     }
 
-    fun writeEntrytoFile(data: ArrayList<MoodEntryModel>) {
+    private fun writeEntrytoFile(data: ArrayList<MoodEntryModel>) {
         val gson = Gson()
         val jsonString: String = gson.toJson(data)
         val fileout: FileOutputStream = openFileOutput("testData.json", MODE_PRIVATE)
@@ -291,7 +291,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun loadFromJSONAsset(): String {
-        var json: String
+        val json: String
 
         val path = this.filesDir.absoluteFile
 
@@ -315,9 +315,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun createNewMoodEntry(isDebug: Boolean): MoodEntryModel {
-        val random: kotlin.random.Random = Random(System.currentTimeMillis())
+        val random = Random(System.currentTimeMillis())
 
-        var choices: MutableList<String> = ArrayList<String>()
+        val choices: MutableList<String> = ArrayList()
         choices.add("Programming")
         choices.add("Gaming")
         choices.add("Reading")
@@ -327,7 +327,7 @@ class MainActivity : AppCompatActivity() {
         choices.add("DnD")
         choices.add("Hanging out")
 
-        var list: MutableList<String> = ArrayList<String>()
+        val list: MutableList<String> = ArrayList()
         for(i in 1..2) {
             list.add(choices[random.nextInt(0,choices.size-1)])
         }

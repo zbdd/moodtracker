@@ -6,17 +6,14 @@ import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.firebase.ui.auth.data.model.Resource
 
-class ActivitiesActivity(): AppCompatActivity()  {
+class ActivitiesActivity: AppCompatActivity()  {
 
     private lateinit var activitiesRecycleView: RecyclerView
     private lateinit var selectedAdaptor: ActivitiesRecycleViewAdaptor
     private lateinit var availableRecycleView: RecyclerView
     private lateinit var availableAdaptor: ActivitiesRecycleViewAdaptor
     private lateinit var moodEntry: MoodEntryModel
-
-   // private var selectedActivities: ArrayList<String> = ArrayList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,11 +23,10 @@ class ActivitiesActivity(): AppCompatActivity()  {
         moodEntry = intent.getSerializableExtra("MoodEntry") as MoodEntryModel
 
         val stringArray = applicationContext.resources.getStringArray(R.array.available_activities)
-        var availableActivities = stringArray.toMutableList()
-        if (moodEntry.activities != null) {
-            for (item in moodEntry.activities) {
-                availableActivities.remove(item)
-            }
+        val availableActivities = stringArray.toMutableList()
+
+        for (item in moodEntry.activities) {
+            availableActivities.remove(item)
         }
 
         activitiesRecycleView = findViewById(R.id.rvSelected)

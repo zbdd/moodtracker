@@ -1,5 +1,6 @@
 package com.example.rows
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
@@ -44,6 +45,7 @@ class ActivitiesRecycleViewAdaptor(context: Context, data: MutableList<String>, 
         sortList()
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun sortList() {
         mData?.sort()
         notifyDataSetChanged()

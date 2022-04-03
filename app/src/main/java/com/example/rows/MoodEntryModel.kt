@@ -9,7 +9,7 @@ data class MoodEntryModel (
     val date: String? = null,
     val time: String? = null,
     val mood: String? = null,
-    val activities: MutableList<String> = ArrayList<String>(),
+    val activities: MutableList<String> = ArrayList(),
     val key: String? = null
 ): Serializable {
     @Exclude
