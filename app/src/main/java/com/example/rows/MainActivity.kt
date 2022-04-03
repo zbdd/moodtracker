@@ -76,6 +76,15 @@ class MainActivity : AppCompatActivity() {
 
     private fun startActivityActivities(moodEntry: MoodEntryModel) {
         val intent = Intent(this, ActivitiesActivity::class.java)
+        val jsonArray = loadFromJSONAsset("available.json")
+
+        if (jsonArray.isNotEmpty()) {
+            val gson = GsonBuilder().create()
+            val activities = gson.fromJson(jsonArray, ArrayList::class.java)
+            var data = activities[0] as ArrayList<String>
+            intent.putStringArrayListExtra("AvailableActivities", data)
+        }
+
         intent.putExtra("MoodEntry", moodEntry)
 
         getActivitiesActivityResult.launch(intent)
@@ -134,6 +143,15 @@ class MainActivity : AppCompatActivity() {
         } else {
             readFromLocalStore()
         }
+
+        /* Please ignore this horror
+        var stringArray = ArrayList<String>()
+        stringArray.add("Boxing")
+        stringArray.add("Dancing")
+        stringArray.add("Gaming")
+
+        writeEntrytoFile(stringArray,"available.json")
+         */
 
         initButtons()
 
@@ -280,30 +298,32 @@ class MainActivity : AppCompatActivity() {
         signInLauncher.launch(signInIntent)
     }
 
-    private fun writeEntrytoFile(data: ArrayList<MoodEntryModel>) {
+    private fun writeEntrytoFile(data: ArrayList<*>, filename: String = "testData.json") {
         val gson = Gson()
         val jsonString: String = gson.toJson(data)
-        val fileout: FileOutputStream = openFileOutput("testData.json", MODE_PRIVATE)
+        val fileout: FileOutputStream = openFileOutput(filename, MODE_PRIVATE)
         val outwrite = OutputStreamWriter(fileout)
         outwrite.write(jsonString)
         outwrite.close()
         fileout.close()
     }
 
-    private fun loadFromJSONAsset(): String {
+    private fun loadFromJSONAsset(filename: String = "testData.json"): String {
         val json: String
 
         val path = this.filesDir.absoluteFile
 
-        val file = File("$path/testData.json")
+        val file = File("$path/$filename")
+        if (!file.isFile) file.createNewFile()
+
         if (file.isFile) {
-            val fileReader = FileReader("$path/testData.json")
+            val fileReader = FileReader("$path/$filename")
             json = fileReader.readLines().toString()
             fileReader.close()
             return json
         }
         else {
-            val inputStream = assets.open("testData.json")
+            val inputStream = assets.open(filename)
             val size = inputStream.available()
             val buffer = ByteArray(size)
             val charset: Charset = Charsets.UTF_8

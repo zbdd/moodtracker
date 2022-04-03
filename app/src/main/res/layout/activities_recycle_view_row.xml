@@ -6,7 +6,7 @@
     android:layout_height="40dp"
     android:minWidth="100dp">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:id="@+id/clBorder"
         android:layout_width="match_parent"
         android:layout_height="30dp"
@@ -20,19 +20,30 @@
         <TextView
             android:id="@+id/tvName"
             android:layout_width="wrap_content"
-            android:layout_height="0dp"
+            android:layout_height="match_parent"
             android:layout_marginStart="5dp"
             android:layout_marginTop="5dp"
             android:layout_marginEnd="5dp"
             android:layout_marginBottom="4dp"
             android:gravity="center_vertical"
-            android:text="TextView"
+            android:text="@string/activities_name"
             android:textAlignment="center"
             android:textColor="@color/black"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            tools:ignore="RtlCompat" />
+
+        <TextView
+            android:id="@+id/tvCancel"
+            android:layout_width="24dp"
+            android:layout_height="match_parent"
+            android:layout_margin="5dp"
+            android:layout_weight="0"
+            android:background="@drawable/activities_recycle_view_row_cross"
+            android:contentDescription="@string/activities_delete"
+            android:gravity="center_vertical"
+            android:text="@string/activities_cross"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            tools:ignore="InefficientWeight,RtlCompat" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

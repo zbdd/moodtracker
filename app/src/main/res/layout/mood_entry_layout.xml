@@ -59,7 +59,7 @@
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
             android:textColor="@color/black"
             android:textSize="24sp"
-            tools:ignore="TouchTargetSizeCheck" />
+            tools:ignore="RtlCompat,TouchTargetSizeCheck" />
 
         <TextView
             android:id="@+id/etActivityText"
@@ -73,7 +73,8 @@
             android:gravity="center_vertical"
             android:textAlignment="center"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:textColor="@color/black" />
+            android:textColor="@color/black"
+            tools:ignore="RtlCompat" />
 
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

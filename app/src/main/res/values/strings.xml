@@ -16,6 +16,9 @@
     <string name="activities_choose">Choose your activity…</string>
     <string name="activities_selected">Selected</string>
     <string name="activities_available">Available</string>
+    <string name="activities_name">Activity</string>
+    <string name="activities_delete">Press to delete</string>
+    <string name="activities_cross">X</string>
 
     <string-array name="available_activities">
         <item>Guitar</item>

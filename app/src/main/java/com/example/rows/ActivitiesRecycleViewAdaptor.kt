@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 class ActivitiesRecycleViewAdaptor(context: Context, data: MutableList<String>, val onClick: (String) -> Unit): RecyclerView.Adapter<ActivitiesRecycleViewAdaptor.ViewHolder>() {
     class ViewHolder(ItemView: View): RecyclerView.ViewHolder(ItemView) {
         val tvName: TextView = itemView.findViewById(R.id.tvName)
+        val tvCancel: TextView = itemView.findViewById(R.id.tvCancel)
     }
 
     private var mData: MutableList<String>? = null
@@ -33,6 +34,12 @@ class ActivitiesRecycleViewAdaptor(context: Context, data: MutableList<String>, 
 
         holder.tvName.setOnClickListener {
             onClick(holder.tvName.text.toString())
+            mData?.removeAt(position)
+            notifyItemRemoved(position)
+            sortList()
+        }
+
+        holder.tvCancel.setOnClickListener {
             mData?.removeAt(position)
             notifyItemRemoved(position)
             sortList()
