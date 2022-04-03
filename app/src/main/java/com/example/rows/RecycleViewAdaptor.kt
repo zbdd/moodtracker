@@ -2,11 +2,9 @@ package com.example.rows
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
-import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
 import android.widget.TextView
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.RecyclerView
@@ -26,13 +24,13 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
     private lateinit var view: View
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        view = LayoutInflater.from(parent.context).inflate(R.layout.mood_entry_layout, parent, false);
+        view = LayoutInflater.from(parent.context).inflate(R.layout.mood_entry_layout, parent, false)
 
         return ViewHolder(view)
     }
 
     fun updateList(data: ArrayList<MoodEntryModel> = ArrayList(0)) {
-        var removeList: MutableList<MoodEntryModel> = ArrayList()
+        val removeList: MutableList<MoodEntryModel> = ArrayList()
 
         if (data.isNotEmpty()) {
             for (entry in data) {
@@ -115,6 +113,12 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
         holder.timeText.text = moodViewHolder.time
         holder.moodText.text = moodViewHolder.mood
         holder.activityText.text = moodViewHolder.activities.toString().removeSurrounding("[","]")
+
+        when {
+            holder.moodText.text.toString().toInt() > 5 -> holder.moodText.setBackgroundResource(R.drawable.mood_rating_colour_high)
+            holder.moodText.text.toString().toInt() < 5 -> holder.moodText.setBackgroundResource(R.drawable.mood_rating_colour_low)
+            holder.moodText.text.toString().toInt() == 5 -> holder.moodText.setBackgroundResource(0)
+        }
 
         val calendar: Calendar = Calendar.getInstance(TimeZone.getDefault())
 
