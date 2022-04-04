@@ -5,7 +5,9 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.TextView
+import androidx.core.view.get
 import androidx.recyclerview.widget.RecyclerView
 
 
@@ -17,6 +19,7 @@ class ActivitiesRecycleViewAdaptor(context: Context, data: MutableList<String>, 
 
     private var mData: MutableList<String>? = null
     private var mInflater: LayoutInflater? = null
+    private lateinit var mGroup: ViewGroup
 
     init {
         mInflater = LayoutInflater.from(context)
@@ -24,8 +27,17 @@ class ActivitiesRecycleViewAdaptor(context: Context, data: MutableList<String>, 
         sortList()
     }
 
+    fun toggleDeleteButton() {
+        for(row in mData!!.indices) {
+            val item = mGroup[row].findViewById<TextView>(R.id.tvCancel)
+            if (item.visibility == View.INVISIBLE) item.visibility = View.VISIBLE
+            else item.visibility = View.INVISIBLE
+        }
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view: View = mInflater?.inflate(R.layout.activities_recycle_view_row, parent,false) ?: View(parent.context)
+        mGroup = parent
         return ViewHolder(view)
     }
 

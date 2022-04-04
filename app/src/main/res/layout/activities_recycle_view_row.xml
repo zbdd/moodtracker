@@ -38,8 +38,8 @@
 
         <TextView
             android:id="@+id/tvCancel"
-            android:layout_width="24dp"
-            android:layout_height="match_parent"
+            android:layout_width="32dp"
+            android:layout_height="wrap_content"
             android:layout_margin="5dp"
             android:layout_weight="1"
             android:background="@drawable/activities_recycle_view_row_cross"
@@ -48,6 +48,7 @@
             android:text="@string/activities_cross"
             android:textAlignment="center"
             android:textColor="@color/white"
+            android:visibility="invisible"
             tools:ignore="InefficientWeight,RtlCompat" />
     </LinearLayout>
 

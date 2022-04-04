@@ -28,6 +28,7 @@ class ActivitiesActivity: AppCompatActivity()  {
         val bActivityCancel: Button = findViewById(R.id.bActivityCancel)
         val llAddActivity: LinearLayout = findViewById(R.id.llAddNewActivity)
         val etAddActivity: EditText = findViewById(R.id.etNewActivityName)
+        val bDeleteActivity: Button = findViewById(R.id.bDelete)
 
         moodEntry = intent.getSerializableExtra("MoodEntry") as MoodEntryModel
 
@@ -83,6 +84,11 @@ class ActivitiesActivity: AppCompatActivity()  {
 
             llAddActivity.visibility = View.INVISIBLE
             etAddActivity.setText(applicationContext.resources.getString(R.string.activities_add_new_activity_name))
+        }
+
+        bDeleteActivity.setOnClickListener {
+            selectedAdaptor.toggleDeleteButton()
+            availableAdaptor.toggleDeleteButton()
         }
     }
 

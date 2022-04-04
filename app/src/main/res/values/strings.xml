@@ -24,6 +24,7 @@
     <string name="activities_add_new">Click here to add a new activity</string>
     <string name="activities_add_new_description">Clickable button to add new activity</string>
     <string name="activities_add_new_activity_name">New activity</string>
+    <string name="activities_enable_delete">Delete Activity</string>
 
     <string-array name="available_activities">
         <item>Guitar</item>
