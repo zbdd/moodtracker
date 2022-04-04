@@ -215,7 +215,7 @@ class MainActivity : AppCompatActivity() {
         val data: ArrayList<MoodEntryModel> = ArrayList()
         data.add(moodEntry)
         recyclerViewAdaptor.run {
-            updateList(data)
+            addNewMoodEntry(moodEntry)
         }
     }
 

@@ -25,8 +25,15 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         view = LayoutInflater.from(parent.context).inflate(R.layout.mood_entry_layout, parent, false)
-
         return ViewHolder(view)
+    }
+
+    fun addNewMoodEntry(moodEntry: MoodEntryModel) {
+        moodList.add(moodEntry)
+        notifyItemInserted(moodList.size - 1)
+        sortList()
+        val pos = moodList.indexOf(moodEntry)
+        if (pos != moodList.size -1) notifyItemMoved(moodList.size - 1, pos)
     }
 
     fun updateList(data: ArrayList<MoodEntryModel> = ArrayList(0)) {
