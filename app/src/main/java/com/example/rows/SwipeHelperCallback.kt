@@ -29,15 +29,21 @@ class SwipeHelperCallback(val adaptor: ItemTouchHelperAdaptor): ItemTouchHelper.
         isCurrentlyActive: Boolean
     ) {
         val itemView = viewHolder.itemView
+
+
         val itemHeight = itemView.bottom - itemView.top
 
-        itemView.setBackgroundColor(Color.RED)
+        if (itemView.left + dX.toInt() >= itemView.right - 5) {
+            itemView.setBackgroundColor(0)
+        }
+        else itemView.setBackgroundColor(Color.RED)
         itemView.background.setBounds(
             itemView.left,
             itemView.top + 11,
             itemView.left + dX.toInt(),
             itemView.bottom - 11
         )
+
         itemView.background.draw(c)
 
         super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive)
