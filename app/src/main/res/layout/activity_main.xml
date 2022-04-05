@@ -13,7 +13,7 @@
         android:layout_width="0dp"
         android:layout_height="500dp"
         android:layout_marginStart="10dp"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="10dp"
         android:layout_marginEnd="10dp"
         android:background="#4E4E4E"
         app:layout_constraintEnd_toEndOf="parent"
@@ -77,6 +77,7 @@
         android:id="@+id/ibLogin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
         android:layout_marginEnd="10dp"
         android:contentDescription="@string/login_content_description"
         android:tooltipText="@string/click_to_login"
@@ -89,8 +90,8 @@
         android:id="@+id/ibAddNewDebug"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginBottom="10dp"
+        android:layout_marginStart="344dp"
+        android:layout_marginBottom="72dp"
         android:backgroundTint="#F31010"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -158,5 +159,16 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/npNumberPicker" />
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <ImageButton
+        android:id="@+id/ibSettings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginBottom="10dp"
+        android:contentDescription="@string/main_settings"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@android:drawable/ic_menu_manage" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

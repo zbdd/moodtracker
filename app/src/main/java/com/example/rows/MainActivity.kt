@@ -191,6 +191,12 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
+        val ibSettings: ImageButton = findViewById(R.id.ibSettings)
+        ibSettings.setOnClickListener {
+            val intent = Intent(this, SettingsActivity::class.java).apply {}
+            startActivity(intent)
+        }
+
         if (isDebugMode) {
             val ibAddNewDebug: ImageButton = findViewById(R.id.ibAddNewDebug)
             ibAddNewDebug.setOnClickListener {

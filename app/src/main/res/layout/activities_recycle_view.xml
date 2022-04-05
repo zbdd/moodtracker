@@ -126,8 +126,10 @@
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
             android:layout_weight="1"
+            android:autofillHints="@string/activities_add_new_activity_name_hint"
             android:background="@drawable/activity_row_rounded_corner"
             android:ems="10"
+            android:inputType="text"
             android:minWidth="100dp"
             android:text="@string/activities_add_new_activity_name"
             android:textColor="@color/black" />
