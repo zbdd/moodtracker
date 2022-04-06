@@ -359,13 +359,14 @@ class MainActivity : AppCompatActivity() {
         }
 
         return if (isDebug) {
+            val randomYear = random.nextInt(2010, 2021).toString()
             var randMonth = random.nextInt(1,12).toString()
             if (randMonth.toInt() < 10) randMonth = "0$randMonth"
             var randDay = random.nextInt(1,28).toString()
             if (randDay.toInt() < 10) randDay = "0$randDay"
             val randMood = random.nextInt(1,9).toString()
 
-            MoodEntryModel("2022-$randMonth-$randDay", "12:34", randMood, list, UUID.randomUUID().toString())
+            MoodEntryModel("$randomYear-$randMonth-$randDay", "12:34", randMood, list, UUID.randomUUID().toString())
         } else {
             var dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
             val dateTimeNow = LocalDateTime.now()
