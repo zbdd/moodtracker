@@ -13,6 +13,11 @@ class MoodEntryModel (
     key: String = ""
 ):RowEntryModel(),
     Serializable {
+
+    init {
+        viewType = Companion.MOOD_ENTRY_TYPE
+    }
+
     @Exclude
     fun toMap(): Map<String, Any?> {
         return mapOf(

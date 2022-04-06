@@ -111,9 +111,7 @@ class MainActivity : AppCompatActivity() {
         bNpConfirm.setOnClickListener {
             val newMood = MoodEntryModel(mood.date, mood.time, numberPicker.value.toString(), mood.activities, mood.key)
             clNumberPicker.visibility = View.INVISIBLE
-            recyclerViewAdaptor.run {
-                updateMoodEntry(newMood)
-            }
+            recyclerViewAdaptor.updateMoodEntry(newMood)
         }
     }
 
@@ -178,9 +176,7 @@ class MainActivity : AppCompatActivity() {
             val data = it.data?.getStringArrayListExtra("AvailableActivities")
             writeEntrytoFile(data as ArrayList<*>,"available.json")
 
-            recyclerViewAdaptor.run {
-                updateMoodEntry(it.data?.getSerializableExtra("MoodEntry") as MoodEntryModel)
-            }
+            recyclerViewAdaptor.updateMoodEntry(it.data?.getSerializableExtra("MoodEntry") as MoodEntryModel)
         }
     }
 
@@ -226,9 +222,7 @@ class MainActivity : AppCompatActivity() {
 
         val data: ArrayList<MoodEntryModel> = ArrayList()
         data.add(moodEntry)
-        recyclerViewAdaptor.run {
-            addNewMoodEntry(moodEntry)
-        }
+        recyclerViewAdaptor.addNewMoodEntry(moodEntry)
     }
 
     private fun readDatabaseForNewData() {
@@ -251,9 +245,7 @@ class MainActivity : AppCompatActivity() {
                         )
                     }
 
-                    recyclerViewAdaptor.run {
-                        updateList(data)
-                    }
+                    recyclerViewAdaptor.updateList(data)
                 }
             }
 
@@ -279,9 +271,7 @@ class MainActivity : AppCompatActivity() {
                 data.add(moodEntries[0][x])
             }
         }
-        recyclerViewAdaptor.run {
-            updateList(data)
-        }
+        recyclerViewAdaptor.updateList(data)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

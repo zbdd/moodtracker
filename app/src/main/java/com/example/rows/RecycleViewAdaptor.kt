@@ -18,17 +18,15 @@ import kotlin.collections.ArrayList
 
 class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryModel>) -> Unit, val onListUpdated: (ArrayList<MoodEntryModel>) -> Unit, val onMoodValueClicked: (MoodEntryModel) -> Unit,
     val onStartActivitiesActivity: (MoodEntryModel) -> Unit):
-    Adapter<RecyclerView.ViewHolder>(), SwipeHelperCallback.ItemTouchHelperAdaptor {
+    Adapter<ViewHolder>(), SwipeHelperCallback.ItemTouchHelperAdaptor {
 
     private var moodList: ArrayList<RowEntryModel> = ArrayList()
-    private var filterList: ArrayList<FilterEntryModel> = ArrayList()
     private var sortBy = "date"
-    private lateinit var view: View
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return when (viewType) {
-            0 -> MoodEntryViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.mood_entry_layout, parent, false))
-            else -> FilterViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.filter_entry_layout, parent, false))
+            RowEntryModel.FILTER_ENTRY_TYPE -> FilterViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.filter_entry_layout, parent, false))
+            else -> MoodEntryViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.mood_entry_layout, parent, false))
         }
     }
 
@@ -100,8 +98,10 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
         val comparator = compareBy({ mood: MoodEntryModel -> LocalDate.parse(mood.date, dateFormatter) }, { mood: MoodEntryModel -> LocalTime.parse(mood.time, timeFormatter) })
 
         var moods: ArrayList<MoodEntryModel> = ArrayList()
-        for(mood in moodList) {
-            if (mood.javaClass == MoodEntryModel::class.java) moods.add(mood as MoodEntryModel)
+
+        for(i in moodList.indices) {
+            if (moodList[i].javaClass == MoodEntryModel::class.java) moods.add(moodList[i] as MoodEntryModel)
+            else notifyItemRemoved(i)
         }
 
         val sorted = when (sortBy) {
@@ -109,8 +109,8 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
             "mood" -> moods.sortedByDescending { moodEntry -> moodEntry.mood }
             else -> moods
         }
+
         moods.clear()
-        for(item in sorted) { moods.add(item as MoodEntryModel) }
         moodList.clear()
         moodList.addAll(sorted)
 
@@ -123,7 +123,7 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
         }
 
         val date = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH).format(LocalDate.now())
-        val pos = moods.indexOfFirst { it.date.equals(date)  }
+        val pos = sorted.indexOfFirst { it.date.equals(date)  }
         if (pos != -1) {
             val filterEntry = FilterEntryModel("Today")
             moodList.add(pos, filterEntry)
@@ -145,10 +145,10 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
         return moodList[position].viewType
     }
 
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
         when (holder.itemViewType) {
-            0 -> {
+            RowEntryModel.MOOD_ENTRY_TYPE -> {
                 var holder = holder as MoodEntryViewHolder
                 val moodViewHolder = moodList[position] as MoodEntryModel
                 holder.dateText.text = moodViewHolder.date
@@ -230,10 +230,10 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
                     onStartActivitiesActivity(moodList[position] as MoodEntryModel)
                 }
             }
-            1 -> {
-                var holder = holder as FilterEntryModel
-                //val filterRow = moodList[position] as FilterEntryModel
-                holder.title = "Today"
+            RowEntryModel.FILTER_ENTRY_TYPE -> {
+                var holder = holder as FilterViewHolder
+                val filterEntry = moodList[position] as FilterEntryModel
+                holder.tvFilterTitle.text = filterEntry.title
             }
         }
     }
