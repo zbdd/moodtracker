@@ -10,7 +10,7 @@ class MoodEntryModel (
     val time: String? = null,
     val mood: String? = null,
     val activities: MutableList<String> = ArrayList(),
-    key: String = ""
+    key: String? = ""
 ):RowEntryModel(),
     Serializable {
 

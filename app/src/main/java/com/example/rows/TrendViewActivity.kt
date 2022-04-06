@@ -18,8 +18,10 @@ import java.io.FileReader
 import java.nio.charset.Charset
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.ValueFormatter
+import com.github.mikephil.charting.utils.EntryXComparator
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.logging.SimpleFormatter
 import kotlin.collections.ArrayList
 
 class TrendViewActivity() : AppCompatActivity() {
@@ -50,12 +52,14 @@ class TrendViewActivity() : AppCompatActivity() {
     }
 
     private fun setLineChartData() {
-        var entryList: ArrayList<Entry> = ArrayList()
+        val entryList: ArrayList<Entry> = ArrayList()
         for (moods in moodData) {
-            entryList.add(Entry(SimpleDateFormat("yyyy-MM-dd").parse(moods.date ?: "2000-00-01").time.toFloat(),
+            entryList.add(Entry(SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH).parse(moods.date ?: "2000-00-01").time.toFloat(),
                 (moods.mood?.toFloat() ?: 0.0) as Float)
             )
         }
+
+        Collections.sort(entryList, EntryXComparator())
 
         val lineDataSet = LineDataSet(entryList, "Mood")
         lineDataSet.color = Color.WHITE
