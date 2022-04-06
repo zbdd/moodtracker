@@ -222,7 +222,7 @@ class MainActivity : AppCompatActivity() {
 
         val data: ArrayList<MoodEntryModel> = ArrayList()
         data.add(moodEntry)
-        recyclerViewAdaptor.addNewMoodEntry(moodEntry)
+        recyclerViewAdaptor.updateList(data)
     }
 
     private fun readDatabaseForNewData() {
@@ -354,7 +354,7 @@ class MainActivity : AppCompatActivity() {
         choices.add("Hanging out")
 
         val list: MutableList<String> = ArrayList()
-        for(i in 1..2) {
+        for(i in 1..random.nextInt(4)) {
             list.add(choices[random.nextInt(0,choices.size-1)])
         }
 
