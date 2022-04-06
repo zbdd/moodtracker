@@ -4,6 +4,7 @@
 
     <string name="welcome_text">How are you?</string>
     <string name="main_settings">Settings button</string>
+    <string name="main_row_filter_title">Today</string>
     <string name="main_view_trend">View trend</string>
     <string name="calendar_button_description">Click to see Calendar box</string>
     <string name="click_button_text">Click here to add a new entry</string>

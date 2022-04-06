@@ -137,6 +137,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun addFilterRows() {
+
+    }
+
     private fun runMainLoop() {
         if (user != null) {
             checkDatabasePathExists()
@@ -153,6 +157,8 @@ class MainActivity : AppCompatActivity() {
 
         writeEntrytoFile(stringArray,"available.json")
          */
+
+        addFilterRows()
 
         initButtons()
 

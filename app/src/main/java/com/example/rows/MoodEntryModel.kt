@@ -5,13 +5,14 @@ import com.google.firebase.database.IgnoreExtraProperties
 import java.io.Serializable
 
 @IgnoreExtraProperties
-data class MoodEntryModel (
+class MoodEntryModel (
     val date: String? = null,
     val time: String? = null,
     val mood: String? = null,
     val activities: MutableList<String> = ArrayList(),
-    val key: String? = null
-): Serializable {
+    key: String = ""
+):RowEntryModel(),
+    Serializable {
     @Exclude
     fun toMap(): Map<String, Any?> {
         return mapOf(
