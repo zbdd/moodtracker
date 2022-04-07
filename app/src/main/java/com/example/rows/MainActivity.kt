@@ -268,6 +268,8 @@ class MainActivity : AppCompatActivity() {
             val gson = GsonBuilder().create()
             val type = object: TypeToken<Array<Array<MoodEntryModel>>>() {}.type
             val moodEntries = gson.fromJson<Array<Array<MoodEntryModel>>>(jsonArray, type)
+            if (moodEntries.isEmpty()) return
+
             for(x in moodEntries[0].indices) {
                 data.add(moodEntries[0][x])
             }

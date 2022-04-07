@@ -96,7 +96,6 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
 
         for(i in moodList.indices) {
             if (moodList[i].javaClass == MoodEntryModel::class.java) moods.add(moodList[i] as MoodEntryModel)
-            else notifyItemRemoved(i)
         }
 
         val sorted = when (sortBy) {
@@ -126,33 +125,53 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
     private fun addFilterView(title: String) {
         val moods: ArrayList<MoodEntryModel> = ArrayList()
         val format = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH)
+        val validKeys: ArrayList<String> = ArrayList()
 
         for(i in moodList.indices) {
-            if (moodList[i].javaClass == MoodEntryModel::class.java) moods.add(moodList[i] as MoodEntryModel)
+            when (moodList[i].viewType) {
+                RowEntryModel.MOOD_ENTRY_TYPE -> { moods.add(moodList[i] as MoodEntryModel) }
+                RowEntryModel.FILTER_ENTRY_TYPE -> {
+                    val filterRow = moodList[i] as FilterEntryModel
+                    moods.add (MoodEntryModel(
+                    "1901-01-01",
+                    "00:01",
+                    "5",
+                    ArrayList(),
+                    filterRow.title
+                ))
+                    validKeys.add(filterRow.title)
+                }
+            }
         }
 
         var maxDate: LocalDate = LocalDate.now()
         var minDate: LocalDate = LocalDate.now()
-
-        var calendar: Calendar
+        var pos: Int = -1
 
         when (title) {
-
+            "Today" -> {
+                pos = moods.indexOfFirst { LocalDate.parse(it.date!!, format) == maxDate }
+            }
             "Last Year" -> {
                 maxDate = LocalDate.parse("${LocalDate.now().year}-01-01", format)
                 minDate = LocalDate.parse("${LocalDate.now().year - 2}-12-31", format)
+                pos = moods.indexOfFirst { LocalDate.parse(it.date!!, format) < maxDate && LocalDate.parse(it.date, format) > minDate }
             }
         }
 
-        val pos = moods.indexOfFirst { LocalDate.parse(it.date!!, format) < maxDate && LocalDate.parse(it.date, format) > minDate }
-
         if (pos != -1) {
-            val mood = moodList[pos] as MoodEntryModel
-            println(mood.date + " parse: ${LocalDate.parse(mood.date)}")
-            val filterEntry = FilterEntryModel(title)
-            moodList.add(pos, filterEntry)
-            notifyItemInserted(pos)
+            moods.add(pos, MoodEntryModel(null,null,null,ArrayList(),title))
         }
+
+        moodList.clear()
+        for (entry in moods) {
+            when {
+                entry.key == title -> moodList.add(FilterEntryModel(title))
+                validKeys.contains(entry.key) -> moodList.add(FilterEntryModel(entry.key))
+                else -> moodList.add(entry)
+            }
+        }
+        notifyDataSetChanged()
     }
 
     private fun updateDateText(calendar: Calendar, holder: MoodEntryViewHolder, mood: MoodEntryModel) {
