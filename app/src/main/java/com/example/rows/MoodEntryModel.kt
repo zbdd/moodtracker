@@ -10,12 +10,13 @@ class MoodEntryModel (
     val time: String? = null,
     val mood: String? = null,
     val activities: MutableList<String> = ArrayList(),
-    key: String? = ""
+    mKey: String = ""
 ):RowEntryModel(),
     Serializable {
 
     init {
         viewType = Companion.MOOD_ENTRY_TYPE
+        key = mKey
     }
 
     @Exclude
