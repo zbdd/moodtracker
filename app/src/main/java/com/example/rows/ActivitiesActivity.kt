@@ -116,6 +116,7 @@ class ActivitiesActivity: AppCompatActivity()  {
             applicationContext.resources.getStringArray(R.array.available_activities)
         for (activity in stringArray) {
             availableAdaptor.addItem(activity)
+            if (!availableActivities.contains(activity)) availableActivities.add(activity)
         }
 
     }
