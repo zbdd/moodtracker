@@ -174,9 +174,10 @@ class MainActivity : AppCompatActivity() {
 
         getActivitiesActivityResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             val data = it.data?.getStringArrayListExtra("AvailableActivities")
-            writeEntrytoFile(data as ArrayList<*>,"available.json")
-
-            recyclerViewAdaptor.updateMoodEntry(it.data?.getSerializableExtra("MoodEntry") as MoodEntryModel)
+            if (data != null) {
+                writeEntrytoFile(data as ArrayList<*>, "available.json")
+                recyclerViewAdaptor.updateMoodEntry(it.data?.getSerializableExtra("MoodEntry") as MoodEntryModel)
+            }
         }
     }
 
