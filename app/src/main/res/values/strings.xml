@@ -32,6 +32,7 @@
     <string name="activities_add_new_activity_name">New activity</string>
     <string name="activities_enable_delete">Delete Activity</string>
     <string name="activities_add_new_activity_name_hint">Enter in a new activity name of your choosing</string>
+    <string name="activities_restore_defaults">Restore defaults</string>
 
     <string name="settings_title">Settings</string>
 

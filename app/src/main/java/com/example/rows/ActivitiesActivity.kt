@@ -29,6 +29,7 @@ class ActivitiesActivity: AppCompatActivity()  {
         val llAddActivity: LinearLayout = findViewById(R.id.llAddNewActivity)
         val etAddActivity: EditText = findViewById(R.id.etNewActivityName)
         val bDeleteActivity: Button = findViewById(R.id.bDelete)
+        val bRestoreDefaults: Button = findViewById(R.id.bRestoreDefaults)
 
         moodEntry = intent.getSerializableExtra("MoodEntry") as MoodEntryModel
 
@@ -36,9 +37,7 @@ class ActivitiesActivity: AppCompatActivity()  {
             availableActivities.addAll(arrayData)
         }
         if (availableActivities.size == 0) {
-            val stringArray =
-                applicationContext.resources.getStringArray(R.array.available_activities)
-            availableActivities.addAll(stringArray)
+            restoreDefaults()
         }
 
         // Remove accidental duplicates
@@ -90,6 +89,10 @@ class ActivitiesActivity: AppCompatActivity()  {
             selectedAdaptor.toggleDeleteButton()
             availableAdaptor.toggleDeleteButton()
         }
+
+        bRestoreDefaults.setOnClickListener {
+            restoreDefaults()
+        }
     }
 
     private fun removeFromAvailable(activity: String) {
@@ -106,5 +109,14 @@ class ActivitiesActivity: AppCompatActivity()  {
         availableAdaptor.run {
             addItem(activity)
         }
+    }
+
+    private fun restoreDefaults() {
+        val stringArray =
+            applicationContext.resources.getStringArray(R.array.available_activities)
+        for (activity in stringArray) {
+            availableAdaptor.addItem(activity)
+        }
+
     }
 }

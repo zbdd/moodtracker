@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:layout_gravity="center_vertical"
     android:background="@color/black">
 
     <TextView
@@ -19,7 +20,6 @@
 
     <ImageButton
         android:id="@+id/bActivityAddNew"
-        tools:ignore="RedundantDescriptionCheck"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="10dp"
@@ -27,7 +27,8 @@
         android:contentDescription="@string/activities_add_new_description"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@android:drawable/ic_input_add" />
+        app:srcCompat="@android:drawable/ic_input_add"
+        tools:ignore="RedundantDescriptionCheck" />
 
     <TextView
         android:id="@+id/textView"
@@ -158,10 +159,11 @@
         android:layout_width="409dp"
         android:layout_height="70dp"
         android:layout_margin="5dp"
-        android:layout_marginStart="5dp"
+        android:layout_marginStart="10dp"
         android:layout_marginTop="5dp"
-        android:layout_marginEnd="5dp"
+        android:layout_marginEnd="10dp"
         android:layout_marginBottom="5dp"
+        android:gravity="center_vertical"
         android:orientation="horizontal"
         app:layout_constraintBottom_toTopOf="@+id/llAddNewActivity"
         app:layout_constraintEnd_toEndOf="parent"
@@ -172,9 +174,6 @@
             android:id="@+id/bConfirm"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginEnd="10dp"
             android:layout_weight="1"
             android:text="@string/confirm_change" />
 
@@ -183,10 +182,16 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
-            android:layout_marginTop="10dp"
             android:layout_marginEnd="10dp"
             android:layout_weight="1"
             android:text="@string/activities_enable_delete" />
+
+        <Button
+            android:id="@+id/bRestoreDefaults"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/activities_restore_defaults" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

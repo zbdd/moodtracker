@@ -60,6 +60,8 @@ class ActivitiesRecycleViewAdaptor(context: Context, data: MutableList<String>, 
     }
 
     fun addItem(activity: String) {
+        if (mData!!.contains(activity)) return
+
         mData?.add(activity)
         notifyItemInserted(mData?.size?.minus(1) ?: 0)
         sortList()
