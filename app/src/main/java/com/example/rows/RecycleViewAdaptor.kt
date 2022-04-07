@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.core.widget.addTextChangedListener
-import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.*
 import java.text.SimpleDateFormat
 import java.time.LocalDate
@@ -35,21 +34,25 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
 
         if (data.isNotEmpty()) {
             for (entry in data) {
-                val position = moodList.indexOfFirst { it.key == entry.key }
+                if (entry.viewType == RowEntryModel.MOOD_ENTRY_TYPE) {
+                    val position = moodList.indexOfFirst { it.key == entry.key }
 
-                if (position != -1) {
-                    val moodEntry = moodList[position] as MoodEntryModel
-                    if (moodEntry.compare(entry)) {
-                        removeList.add(moodEntry)
-                        moodList[position] = entry
-                        notifyItemChanged(position)
-                    }
-                } else {
-                    for (x in moodList.indices) {
-                        val mdEntry = moodList[x] as MoodEntryModel
-                        if (mdEntry.compare(entry)) {
-                            moodList[x] = entry
-                            notifyItemChanged(x)
+                    if (position != -1) {
+                        val moodEntry = moodList[position] as MoodEntryModel
+                        if (moodEntry.compare(entry)) {
+                            removeList.add(moodEntry)
+                            moodList[position] = entry
+                            notifyItemChanged(position)
+                        }
+                    } else {
+                        for (x in moodList.indices) {
+                            if (moodList[x].viewType == RowEntryModel.MOOD_ENTRY_TYPE) {
+                                val mdEntry = moodList[x] as MoodEntryModel
+                                if (mdEntry.compare(entry)) {
+                                    moodList[x] = entry
+                                    notifyItemChanged(x)
+                                }
+                            }
                         }
                     }
                 }
@@ -74,10 +77,10 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
     fun updateMoodEntry(mood: MoodEntryModel) {
         val position = moodList.indexOfFirst { it.key == mood.key }
         if (position != -1) {
-            moodList[position] = mood
             notifyItemChanged(position)
-
+            moodList[position] = mood
             sortList()
+
             val listToSave = ArrayList<MoodEntryModel>()
             for(item in moodList) { if (item.javaClass == MoodEntryModel::class.java) listToSave.add(item as MoodEntryModel) }
             onListUpdated(listToSave)
@@ -114,10 +117,39 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
             }
         }
 
-        val date = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH).format(LocalDate.now())
-        val pos = sorted.indexOfFirst { it.date.equals(date)  }
+        addFilterView("Today")
+        addFilterView("Last Week")
+        addFilterView("Last Month")
+        addFilterView("Last Year")
+    }
+
+    private fun addFilterView(title: String) {
+        val moods: ArrayList<MoodEntryModel> = ArrayList()
+        val format = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH)
+
+        for(i in moodList.indices) {
+            if (moodList[i].javaClass == MoodEntryModel::class.java) moods.add(moodList[i] as MoodEntryModel)
+        }
+
+        var maxDate: LocalDate = LocalDate.now()
+        var minDate: LocalDate = LocalDate.now()
+
+        var calendar: Calendar
+
+        when (title) {
+
+            "Last Year" -> {
+                maxDate = LocalDate.parse("${LocalDate.now().year}-01-01", format)
+                minDate = LocalDate.parse("${LocalDate.now().year - 2}-12-31", format)
+            }
+        }
+
+        val pos = moods.indexOfFirst { LocalDate.parse(it.date!!, format) < maxDate && LocalDate.parse(it.date, format) > minDate }
+
         if (pos != -1) {
-            val filterEntry = FilterEntryModel("Today")
+            val mood = moodList[pos] as MoodEntryModel
+            println(mood.date + " parse: ${LocalDate.parse(mood.date)}")
+            val filterEntry = FilterEntryModel(title)
             moodList.add(pos, filterEntry)
             notifyItemInserted(pos)
         }
@@ -130,7 +162,9 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
         val timeFormat = SimpleDateFormat("HH:mm", Locale.ENGLISH)
         holder.timeText.text = timeFormat.format(calendar.time)
 
-        updateMoodEntry(mood)
+        val newMood = MoodEntryModel(dateFormat.format(calendar.time), timeFormat.format(calendar.time),mood.mood,mood.activities,mood.key)
+
+        updateMoodEntry(newMood)
     }
 
     override fun getItemViewType(position: Int): Int {
