@@ -152,6 +152,19 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
             "Today" -> {
                 pos = moods.indexOfFirst { LocalDate.parse(it.date!!, format) == maxDate }
             }
+            "Last Week" -> {
+                maxDate = LocalDate.parse("${LocalDate.now().minusWeeks(1)}", format)
+                minDate = LocalDate.parse("${LocalDate.now().minusWeeks(2)}", format)
+                pos = moods.indexOfFirst { LocalDate.parse(it.date!!, format) < maxDate && LocalDate.parse(it.date, format) > minDate }
+            }
+            "Last Month" -> {
+                var date: String = LocalDate.now().minusMonths(0).format(DateTimeFormatter.ofPattern("yyyy-MM")) + "-01"
+                maxDate = LocalDate.parse(date, format)
+
+                date = LocalDate.now().minusMonths(2).format(DateTimeFormatter.ofPattern("yyyy-MM")) + "-" + LocalDate.now().minusMonths(1).lengthOfMonth()
+                minDate = LocalDate.parse(date, format)
+                pos = moods.indexOfFirst { LocalDate.parse(it.date!!, format) < maxDate && LocalDate.parse(it.date, format) > minDate }
+            }
             "Last Year" -> {
                 maxDate = LocalDate.parse("${LocalDate.now().year}-01-01", format)
                 minDate = LocalDate.parse("${LocalDate.now().year - 2}-12-31", format)
@@ -164,12 +177,17 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
         }
 
         moodList.clear()
-        for (entry in moods) {
+        for (i in moods.indices) {
             when {
-                entry.key == title -> moodList.add(FilterEntryModel(title))
-                validKeys.contains(entry.key) -> moodList.add(FilterEntryModel(entry.key))
-                else -> moodList.add(entry)
+                moods[i].key == title -> moodList.add(FilterEntryModel(title))
+                validKeys.contains(moods[i].key) -> moodList.add(FilterEntryModel(moods[i].key))
+                else -> moodList.add(moods[i])
             }
+            // Prevent two filter rows one after the other
+            if (i < moodList.size)
+                if( moodList[i].viewType == RowEntryModel.FILTER_ENTRY_TYPE)
+                    if (i > 0)
+                        if (moodList[i -1].viewType == RowEntryModel.FILTER_ENTRY_TYPE) moodList.removeAt(i - 1)
         }
         notifyDataSetChanged()
     }
