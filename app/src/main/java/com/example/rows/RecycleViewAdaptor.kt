@@ -2,6 +2,7 @@ package com.example.rows
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.text.Html
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -143,7 +144,7 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
                     moods.add (MoodEntryModel(
                     "2222-01-01",
                     "00:01",
-                    Mood(),
+                    Mood("5"),
                     ArrayList(),
                     filterRow.title
                 ))
@@ -187,7 +188,7 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
         }
 
         if (pos != -1) {
-            moods.add(pos, MoodEntryModel("2222-01-01","12:01",Mood(),ArrayList(),title))
+            moods.add(pos, MoodEntryModel("2222-01-01","12:01",Mood("5"),ArrayList(),title))
         }
 
         moodList.clear()
@@ -230,19 +231,22 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
                 val moodViewHolder = moodList[position] as MoodEntryModel
                 mHolder.dateText.text = moodViewHolder.date
                 mHolder.timeText.text = moodViewHolder.time
-                mHolder.moodText.text = moodViewHolder.mood?.value.toString()
+                if (moodViewHolder.mood?.moodMode == Mood.MOOD_MODE_FACES) mHolder.moodText.text = mHolder.itemView.resources.getString(moodViewHolder.mood.toEmoji(moodViewHolder.mood.value)!!.toInt())
+                else mHolder.moodText.text = moodViewHolder.mood?.value
                 mHolder.activityText.text = moodViewHolder.activities.toString().removeSurrounding(
                     "[",
                     "]"
                 )
 
-                when {
-                    mHolder.moodText.text.toString()
-                        .toInt() > 5 -> mHolder.moodText.setBackgroundResource(R.drawable.mood_rating_colour_high)
-                    mHolder.moodText.text.toString()
-                        .toInt() < 5 -> mHolder.moodText.setBackgroundResource(R.drawable.mood_rating_colour_low)
-                    mHolder.moodText.text.toString()
-                        .toInt() == 5 -> mHolder.moodText.setBackgroundResource(0)
+                if (moodViewHolder.mood?.moodMode == Mood.MOOD_MODE_NUMBERS) {
+                    when {
+                        mHolder.moodText.text.toString()
+                            .toInt() > 5 -> mHolder.moodText.setBackgroundResource(R.drawable.mood_rating_colour_high)
+                        mHolder.moodText.text.toString()
+                            .toInt() < 5 -> mHolder.moodText.setBackgroundResource(R.drawable.mood_rating_colour_low)
+                        mHolder.moodText.text.toString()
+                            .toInt() == 5 -> mHolder.moodText.setBackgroundResource(0)
+                    }
                 }
 
                 val calendar
@@ -252,14 +256,16 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
                     onMoodValueClicked(moodList[position] as MoodEntryModel)
                 }
 
-                mHolder.moodText.addTextChangedListener {
-                    when {
-                        mHolder.moodText.text.toString()
-                            .toInt() > 5 -> mHolder.moodText.setBackgroundResource(R.drawable.mood_rating_colour_high)
-                        mHolder.moodText.text.toString()
-                            .toInt() < 5 -> mHolder.moodText.setBackgroundResource(R.drawable.mood_rating_colour_low)
-                        mHolder.moodText.text.toString()
-                            .toInt() == 5 -> mHolder.moodText.setBackgroundResource(0)
+                if (moodViewHolder.mood?.moodMode == Mood.MOOD_MODE_NUMBERS) {
+                    mHolder.moodText.addTextChangedListener {
+                        when {
+                            mHolder.moodText.text.toString()
+                                .toInt() > 5 -> mHolder.moodText.setBackgroundResource(R.drawable.mood_rating_colour_high)
+                            mHolder.moodText.text.toString()
+                                .toInt() < 5 -> mHolder.moodText.setBackgroundResource(R.drawable.mood_rating_colour_low)
+                            mHolder.moodText.text.toString()
+                                .toInt() == 5 -> mHolder.moodText.setBackgroundResource(0)
+                        }
                     }
                 }
 

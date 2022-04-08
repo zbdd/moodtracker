@@ -102,14 +102,14 @@ class MainActivity : AppCompatActivity() {
         numberPicker.maxValue = 10
         numberPicker.minValue = 1
         numberPicker.wrapSelectorWheel = true
-        numberPicker.value = mood.mood?.toInt() ?: 0
+        numberPicker.value = mood.mood?.value?.toInt() ?: 0
 
         val clNumberPicker: ConstraintLayout = findViewById(R.id.clNumberPicker)
         clNumberPicker.visibility = View.VISIBLE
 
         val bNpConfirm: Button = findViewById(R.id.bNpConfirm)
         bNpConfirm.setOnClickListener {
-            val newMood = MoodEntryModel(mood.date, mood.time, Mood(numberPicker.value), mood.activities, mood.key)
+            val newMood = MoodEntryModel(mood.date, mood.time, Mood(numberPicker.value.toString()), mood.activities, mood.key)
             clNumberPicker.visibility = View.INVISIBLE
             recyclerViewAdaptor.updateMoodEntry(newMood)
         }
@@ -233,7 +233,7 @@ class MainActivity : AppCompatActivity() {
                             MoodEntryModel(
                                 hashmap["date"].toString(),
                                 hashmap["time"].toString(),
-                                Mood(hashmap["mood"]!!.toInt()),
+                                Mood(hashmap["mood"].toString()),
                                 hashmap["activities"] as MutableList<String>,
                                 key
                             )
@@ -361,7 +361,7 @@ class MainActivity : AppCompatActivity() {
             if (randMonth.toInt() < 10) randMonth = "0$randMonth"
             var randDay = random.nextInt(1,28).toString()
             if (randDay.toInt() < 10) randDay = "0$randDay"
-            val randMood = random.nextInt(1,9)
+            val randMood = random.nextInt(1,5).toString()
 
             MoodEntryModel("$randomYear-$randMonth-$randDay", "12:34", Mood(randMood), list, UUID.randomUUID().toString())
         } else {
@@ -372,7 +372,7 @@ class MainActivity : AppCompatActivity() {
             dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
             val time = dateTimeNow.format(dateTimeFormatter)
 
-            MoodEntryModel(date, time,Mood(),list, UUID.randomUUID().toString())
+            MoodEntryModel(date, time,Mood("3"),list, UUID.randomUUID().toString())
         }
     }
 }
