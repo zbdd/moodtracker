@@ -1,6 +1,8 @@
 package com.example.rows
 
-class Mood (var value: Int? = 5) {
+import java.io.Serializable
+
+class Mood (var value: Int? = 5): Serializable {
     var mood: String? = "Average"
     private var faces: MutableMap<String, String> = mutableMapOf()
     var moodMode: Int = MOOD_MODE_NUMBERS
