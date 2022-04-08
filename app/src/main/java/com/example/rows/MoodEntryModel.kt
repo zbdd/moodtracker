@@ -8,7 +8,7 @@ import java.io.Serializable
 class MoodEntryModel (
     val date: String? = null,
     val time: String? = null,
-    val mood: String? = null,
+    val mood: Mood? = null,
     val activities: MutableList<String> = ArrayList(),
     override var key: String = ""
 ):RowEntryModel(),
@@ -32,7 +32,7 @@ class MoodEntryModel (
 
         if (!date.equals(moodEntry.date)) isTheSame = false
         if (!time.equals(moodEntry.time)) isTheSame = false
-        if (!mood.equals(moodEntry.mood)) isTheSame = false
+        if (mood != moodEntry.mood) isTheSame = false
         if (activities != moodEntry.activities) isTheSame = false
 
         return isTheSame

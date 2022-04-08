@@ -107,7 +107,7 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
 
         val sorted = when (sortBy) {
             "date" -> { moods.sortedWith (comparator) }
-            "mood" -> moods.sortedByDescending { moodEntry -> moodEntry.mood }
+            //TODO "mood" -> moods.sortedByDescending { moodEntry -> moodEntry.mood }
             else -> moods
         }
 
@@ -143,7 +143,7 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
                     moods.add (MoodEntryModel(
                     "2222-01-01",
                     "00:01",
-                    "5",
+                    Mood(),
                     ArrayList(),
                     filterRow.title
                 ))
@@ -187,7 +187,7 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
         }
 
         if (pos != -1) {
-            moods.add(pos, MoodEntryModel("2222-01-01","12:01","5",ArrayList(),title))
+            moods.add(pos, MoodEntryModel("2222-01-01","12:01",Mood(),ArrayList(),title))
         }
 
         moodList.clear()
@@ -230,7 +230,7 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
                 val moodViewHolder = moodList[position] as MoodEntryModel
                 mHolder.dateText.text = moodViewHolder.date
                 mHolder.timeText.text = moodViewHolder.time
-                mHolder.moodText.text = moodViewHolder.mood
+                mHolder.moodText.text = moodViewHolder.mood?.value.toString()
                 mHolder.activityText.text = moodViewHolder.activities.toString().removeSurrounding(
                     "[",
                     "]"

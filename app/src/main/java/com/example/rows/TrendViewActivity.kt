@@ -55,7 +55,7 @@ class TrendViewActivity() : AppCompatActivity() {
         val entryList: ArrayList<Entry> = ArrayList()
         for (moods in moodData) {
             entryList.add(Entry(SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH).parse(moods.date ?: "2000-00-01").time.toFloat(),
-                (moods.mood?.toFloat() ?: 0.0) as Float)
+                (moods.mood?.value?.toFloat() ?: 0.0) as Float)
             )
         }
 

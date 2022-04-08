@@ -109,7 +109,7 @@ class MainActivity : AppCompatActivity() {
 
         val bNpConfirm: Button = findViewById(R.id.bNpConfirm)
         bNpConfirm.setOnClickListener {
-            val newMood = MoodEntryModel(mood.date, mood.time, numberPicker.value.toString(), mood.activities, mood.key)
+            val newMood = MoodEntryModel(mood.date, mood.time, Mood(numberPicker.value), mood.activities, mood.key)
             clNumberPicker.visibility = View.INVISIBLE
             recyclerViewAdaptor.updateMoodEntry(newMood)
         }
@@ -233,7 +233,7 @@ class MainActivity : AppCompatActivity() {
                             MoodEntryModel(
                                 hashmap["date"].toString(),
                                 hashmap["time"].toString(),
-                                hashmap["mood"].toString(),
+                                Mood(hashmap["mood"]!!.toInt()),
                                 hashmap["activities"] as MutableList<String>,
                                 key
                             )
@@ -361,9 +361,9 @@ class MainActivity : AppCompatActivity() {
             if (randMonth.toInt() < 10) randMonth = "0$randMonth"
             var randDay = random.nextInt(1,28).toString()
             if (randDay.toInt() < 10) randDay = "0$randDay"
-            val randMood = random.nextInt(1,9).toString()
+            val randMood = random.nextInt(1,9)
 
-            MoodEntryModel("$randomYear-$randMonth-$randDay", "12:34", randMood, list, UUID.randomUUID().toString())
+            MoodEntryModel("$randomYear-$randMonth-$randDay", "12:34", Mood(randMood), list, UUID.randomUUID().toString())
         } else {
             var dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
             val dateTimeNow = LocalDateTime.now()
@@ -372,7 +372,7 @@ class MainActivity : AppCompatActivity() {
             dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
             val time = dateTimeNow.format(dateTimeFormatter)
 
-            MoodEntryModel(date, time,"5",list, UUID.randomUUID().toString())
+            MoodEntryModel(date, time,Mood(),list, UUID.randomUUID().toString())
         }
     }
 }
