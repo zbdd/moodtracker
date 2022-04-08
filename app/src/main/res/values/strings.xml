@@ -36,6 +36,14 @@
 
     <string name="settings_title">Settings</string>
 
+    <string-array name="mood_faces">
+        <item>&#128557;</item> // terrible
+        <item>&#128577;</item> // unhappy
+        <item>&#128528;</item> // average
+        <item>&#128512;</item> // happy
+        <item>&#128513;</item> // ecstatic
+    </string-array>
+
     <string name="mood_ecstatic">&#128513;</string>
     <string name="mood_happy">&#128512;</string>
     <string name="mood_average">&#128528;</string>

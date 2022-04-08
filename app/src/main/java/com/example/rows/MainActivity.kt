@@ -60,7 +60,7 @@ class MainActivity : AppCompatActivity() {
         recyclerViewAdaptor = RecyclerViewAdaptor (
             { moodEntry, moodList -> onItemDismissed(moodEntry, moodList) },
             { moodEntries -> writeEntrytoFile(moodEntries); updateDatabaseEntry(moodEntries) },
-            { mood -> setupNumberPicker(mood) },
+            { mood -> setupMoodPicker(mood) },
             { moodEntry -> startActivityActivities(moodEntry)})
 
         val callback: ItemTouchHelper.Callback = SwipeHelperCallback(recyclerViewAdaptor)
@@ -96,20 +96,38 @@ class MainActivity : AppCompatActivity() {
         writeEntrytoFile(moodList)
     }
 
-    private fun setupNumberPicker(mood: MoodEntryModel) {
+    private fun setupMoodPicker(mood: MoodEntryModel) {
         val numberPicker: NumberPicker = findViewById(R.id.npNumberPicker)
 
-        numberPicker.maxValue = 10
-        numberPicker.minValue = 1
-        numberPicker.wrapSelectorWheel = true
-        numberPicker.value = mood.mood?.value?.toInt() ?: 0
+        when (mood.mood?.moodMode) {
+            Mood.MOOD_MODE_NUMBERS -> {
+
+                numberPicker.maxValue = 5
+                numberPicker.minValue = 1
+                numberPicker.wrapSelectorWheel = true
+                numberPicker.value = mood.mood.value?.toInt() ?: 3
+
+            }
+            Mood.MOOD_MODE_FACES -> {
+                numberPicker.displayedValues = resources.getStringArray(R.array.mood_faces)
+                numberPicker.minValue = 0
+                numberPicker.maxValue = resources.getStringArray(R.array.mood_faces).size - 1
+                numberPicker.value = (mood.mood.toNumber(mood.mood.value)!!.toInt() - 1)
+            }
+        }
 
         val clNumberPicker: ConstraintLayout = findViewById(R.id.clNumberPicker)
         clNumberPicker.visibility = View.VISIBLE
 
         val bNpConfirm: Button = findViewById(R.id.bNpConfirm)
         bNpConfirm.setOnClickListener {
-            val newMood = MoodEntryModel(mood.date, mood.time, Mood(numberPicker.value.toString()), mood.activities, mood.key)
+            val newMood = MoodEntryModel(
+                mood.date,
+                mood.time,
+                Mood((numberPicker.value + 1).toString()),
+                mood.activities,
+                mood.key
+            )
             clNumberPicker.visibility = View.INVISIBLE
             recyclerViewAdaptor.updateMoodEntry(newMood)
         }
