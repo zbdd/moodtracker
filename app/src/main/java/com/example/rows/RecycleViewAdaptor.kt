@@ -127,6 +127,7 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
         addFilterView("Last Week")
         addFilterView("Last Month")
         addFilterView("Last Year")
+        addFilterView("Years Ago")
     }
 
     private fun addFilterView(title: String) {
@@ -140,7 +141,7 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
                 RowEntryModel.FILTER_ENTRY_TYPE -> {
                     val filterRow = moodList[i] as FilterEntryModel
                     moods.add (MoodEntryModel(
-                    "1901-01-01",
+                    "2222-01-01",
                     "00:01",
                     "5",
                     ArrayList(),
@@ -179,10 +180,17 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
                 minDate = LocalDate.parse("${LocalDate.now().year - 2}-12-31", format)
                 pos = moods.indexOfFirst { LocalDate.parse(it.date!!, format) < maxDate && LocalDate.parse(it.date, format) > minDate }
             }
+            "Years Ago" -> {
+                maxDate = LocalDate.parse("${LocalDate.now().year - 1}-01-01", format)
+                pos = moods.indexOfFirst { LocalDate.parse(it.date!!, format) < maxDate }
+                if (pos != -1) {
+                    println(moods[pos])
+                }
+            }
         }
 
         if (pos != -1) {
-            moods.add(pos, MoodEntryModel(null,null,null,ArrayList(),title))
+            moods.add(pos, MoodEntryModel("2222-01-01","12:01","5",ArrayList(),title))
         }
 
         moodList.clear()
