@@ -183,9 +183,6 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
             "Years Ago" -> {
                 maxDate = LocalDate.parse("${LocalDate.now().year - 1}-01-01", format)
                 pos = moods.indexOfFirst { LocalDate.parse(it.date!!, format) < maxDate }
-                if (pos != -1) {
-                    println(moods[pos])
-                }
             }
         }
 
