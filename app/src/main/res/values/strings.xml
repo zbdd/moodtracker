@@ -35,6 +35,7 @@
     <string name="activities_restore_defaults">Restore defaults</string>
 
     <string name="settings_title">Settings</string>
+    <string name="settings_mood_display">Mood Visuals</string>
 
     <string-array name="mood_faces">
         <item>&#128557;</item> // terrible
