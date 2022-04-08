@@ -10,14 +10,11 @@ class MoodEntryModel (
     val time: String? = null,
     val mood: String? = null,
     val activities: MutableList<String> = ArrayList(),
-    mKey: String = ""
+    override var key: String = ""
 ):RowEntryModel(),
     Serializable {
 
-    init {
-        viewType = Companion.MOOD_ENTRY_TYPE
-        key = mKey
-    }
+    override var viewType: Int = MOOD_ENTRY_TYPE
 
     @Exclude
     fun toMap(): Map<String, Any?> {

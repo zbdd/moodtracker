@@ -1,8 +1,8 @@
 package com.example.rows
 
 open class RowEntryModel () {
-    open var key: String = "default_row_key"
-    open var viewType: Int = -1
+    @Transient open var key: String = "default_row_key"
+    @Transient open var viewType: Int = -1
 
     companion object {
         const val MOOD_ENTRY_TYPE: Int = 0

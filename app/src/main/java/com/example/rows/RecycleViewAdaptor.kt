@@ -75,7 +75,14 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
     }
 
     fun updateMoodEntry(mood: MoodEntryModel) {
-        val position = moodList.indexOfFirst { it.key == mood.key }
+        var position = -1
+
+        for(i in moodList.indices) {
+            if (moodList[i].viewType == RowEntryModel.MOOD_ENTRY_TYPE) {
+                val row = moodList[i] as MoodEntryModel
+                if (row.key == mood.key) { position = i; break }
+            }
+        }
         if (position != -1) {
             notifyItemChanged(position)
             moodList[position] = mood
@@ -95,7 +102,7 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
         var moods: ArrayList<MoodEntryModel> = ArrayList()
 
         for(i in moodList.indices) {
-            if (moodList[i].javaClass == MoodEntryModel::class.java) moods.add(moodList[i] as MoodEntryModel)
+            if (moodList[i].viewType == RowEntryModel.MOOD_ENTRY_TYPE) moods.add(moodList[i] as MoodEntryModel)
         }
 
         val sorted = when (sortBy) {
@@ -143,6 +150,8 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
                 }
             }
         }
+
+        if (moods.size == 0) return
 
         var maxDate: LocalDate = LocalDate.now()
         var minDate: LocalDate = LocalDate.now()
