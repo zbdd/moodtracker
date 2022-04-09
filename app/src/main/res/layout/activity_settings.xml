@@ -37,7 +37,7 @@
 
     <LinearLayout
         android:id="@+id/llSettings"
-        android:layout_width="0"
+        android:layout_width="0dp"
         android:layout_height="500dp"
         android:layout_marginStart="10dp"
         android:layout_marginTop="10dp"
@@ -59,7 +59,7 @@
 
             <TextView
                 android:id="@+id/tvMoodChoice"
-                android:layout_width="match_parent"
+                android:layout_width="140dp"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:layout_marginHorizontal="5dp"
@@ -68,17 +68,19 @@
                 android:text="@string/settings_mood_display"
                 android:textAlignment="center"
                 android:textColor="@color/black"
-                android:textSize="24sp" />
+                android:textSize="16sp" />
 
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/cgMoodChoice"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
+            <Switch
+                android:id="@+id/sMoodNumerals"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_margin="5dp"
-                android:layout_marginHorizontal="5dp"
-                android:layout_weight="1">
-
-            </com.google.android.material.chip.ChipGroup>
+                android:layout_weight="1"
+                android:background="@drawable/activity_row_rounded_corner"
+                android:text="@string/settings_mood_use_numerals"
+                android:textAlignment="center"
+                android:textColor="@color/black"
+                android:textSize="16sp" />
 
         </LinearLayout>
     </LinearLayout>

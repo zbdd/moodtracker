@@ -45,12 +45,14 @@ class MainActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var myRef: DatabaseReference
     private lateinit var getActivitiesActivityResult: ActivityResultLauncher<Intent>
+    private lateinit var getSettingsActivityResult: ActivityResultLauncher<Intent>
 
     private var user: FirebaseUser? = null
     private var mItemTouchHelper: ItemTouchHelper? = null
     private var isPremiumEdition = false
 
     private val isDebugMode = true
+    private var settings: Settings = Settings()
 
     private val signInLauncher = registerForActivityResult(FirebaseAuthUIActivityResultContract()) {
         res -> this.onSignInResult(res)
@@ -81,14 +83,23 @@ class MainActivity : AppCompatActivity() {
         // Get activities that are stored in local json file
         if (jsonArray.isNotEmpty()) {
             val gson = GsonBuilder().create()
-            val activities = gson.fromJson(jsonArray, ArrayList::class.java)
-            var data = activities[0] as ArrayList<String>
+            val activities = gson.fromJson(jsonArray, Settings::class.java)
+            var data = activities as ArrayList<String>
             intent.putStringArrayListExtra("AvailableActivities", data)
         }
 
         intent.putExtra("MoodEntry", moodEntry)
 
         getActivitiesActivityResult.launch(intent)
+    }
+
+    private fun startActivitySettings() {
+        val intent = Intent(this, SettingsActivity::class.java)
+
+        intent.putExtra("Settings", settings)
+
+        getSettingsActivityResult.launch(intent)
+
     }
 
     private fun onItemDismissed(moodEntry: MoodEntryModel, moodList: ArrayList<MoodEntryModel>) {
@@ -112,7 +123,7 @@ class MainActivity : AppCompatActivity() {
                 numberPicker.displayedValues = resources.getStringArray(R.array.mood_faces)
                 numberPicker.minValue = 0
                 numberPicker.maxValue = resources.getStringArray(R.array.mood_faces).size - 1
-                numberPicker.value = (mood.mood.toNumber(mood.mood.value)!!.toInt() - 1)
+                numberPicker.value = (mood.mood.toNumber(mood.mood.value)!!.toInt())
             }
         }
 
@@ -170,7 +181,15 @@ class MainActivity : AppCompatActivity() {
         writeEntrytoFile(stringArray,"available.json")
          */
 
+        //settings.mood_numerals = true
+        //writeEntrytoFile(settings, "settings.json")
+
         initButtons()
+        val jsonSettings = loadFromJSONAsset("settings.json")
+        val gson = Gson()
+        val type = object: TypeToken<Array<Settings>>() {}.type
+        //settings = gson.fromJson<Array<MutableMap<String,String>>>(jsonSettings, type)[0]
+        settings = gson.fromJson<Array<Settings>>(jsonSettings,type)[0]
 
         val ibLogin: ImageButton = findViewById(R.id.ibLogin)
         if (user == null) ibLogin.background.setTint(Color.LTGRAY)
@@ -191,6 +210,13 @@ class MainActivity : AppCompatActivity() {
                 recyclerViewAdaptor.updateMoodEntry(it.data?.getSerializableExtra("MoodEntry") as MoodEntryModel)
             }
         }
+
+        getSettingsActivityResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            val data = it.data?.getParcelableExtra<Settings>("Settings")
+            if (data != null) {
+                writeEntrytoFile(data as ArrayList<*>, "settings.json")
+            }
+        }
     }
 
     private fun initButtons () {
@@ -208,8 +234,7 @@ class MainActivity : AppCompatActivity() {
 
         val ibSettings: ImageButton = findViewById(R.id.ibSettings)
         ibSettings.setOnClickListener {
-            val intent = Intent(this, SettingsActivity::class.java).apply {}
-            startActivity(intent)
+            startActivitySettings()
         }
 
         if (isDebugMode) {
@@ -320,6 +345,18 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun writeEntrytoFile(data: ArrayList<*>, filename: String = "testData.json") {
+        val gson = Gson()
+        val jsonString: String = gson.toJson(data)
+        val fileout: FileOutputStream = openFileOutput(filename, MODE_PRIVATE)
+        val outwrite = OutputStreamWriter(fileout)
+        outwrite.write(jsonString)
+        outwrite.close()
+        fileout.close()
+    }
+
+    private fun writeEntrytoFile(data: Settings, filename: String = "") {
+        if (filename == "") return
+
         val gson = Gson()
         val jsonString: String = gson.toJson(data)
         val fileout: FileOutputStream = openFileOutput(filename, MODE_PRIVATE)
