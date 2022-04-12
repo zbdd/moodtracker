@@ -4,11 +4,22 @@ import java.io.Serializable
 
 class Mood (nValue: String = "5", mode: Int = MOOD_MODE_NUMBERS): Serializable {
     var value: String? = nValue
-
+    get() {
+        return when (moodMode) {
+            MOOD_MODE_FACES -> toFaces()
+            else -> toNumber()
+        }
+    }
+    set(myValue) {
+        field = myValue
+        storedValue = myValue as String
+    }
+    private lateinit var storedValue: String
     private var faces: MutableMap<String, Int> = mutableMapOf()
     var moodMode: Int = mode
 
     init {
+        value = nValue
         faces["Ecstatic"] = R.string.mood_ecstatic
         faces["Happy"] = R.string.mood_happy
         faces["Average"] = R.string.mood_average
@@ -17,31 +28,35 @@ class Mood (nValue: String = "5", mode: Int = MOOD_MODE_NUMBERS): Serializable {
     }
 
     fun toFaces(): String {
-        value = when (value) {
+        storedValue = when (storedValue) {
             "1" -> "Terrible"
             "2" -> "Unhappy"
             "4" -> "Happy"
             "5" -> "Ecstatic"
-            else -> "Average"
+            "3" -> "Average"
+            else -> storedValue
         }
+        value = storedValue
         moodMode = MOOD_MODE_FACES
-        return value as String
+        return storedValue as String
     }
 
     fun toEmoji(): Int? {
-        return faces[value]
+        return faces[storedValue]
     }
 
     fun toNumber(): String {
-        value = when (value) {
+        storedValue = when (storedValue) {
             "Ecstatic" -> "5"
             "Happy" -> "4"
-            "Poor" -> "2"
+            "Unhappy" -> "2"
             "Terrible" -> "1"
-            else -> "3"
+            "Average" -> "3"
+            else -> storedValue
         }
+        value = storedValue
         moodMode = MOOD_MODE_NUMBERS
-        return value as String
+        return storedValue as String
     }
 
     companion object {

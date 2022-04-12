@@ -188,7 +188,7 @@ class MainActivity : AppCompatActivity() {
         val type = object : TypeToken<Array<Settings>>() {}.type
         //settings = gson.fromJson<Array<MutableMap<String,String>>>(jsonSettings, type)[0]
         settings = gson.fromJson<Array<Settings>>(jsonSettings, type)[0]
-        val config = MoodEntryModel("", "", Mood(""))
+        val config = MoodEntryModel("", "", Mood("5"))
         when (settings.mood_numerals) {
             "true" -> config.mood!!.moodMode = Mood.MOOD_MODE_NUMBERS
         }

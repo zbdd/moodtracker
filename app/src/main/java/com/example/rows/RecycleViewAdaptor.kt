@@ -116,11 +116,11 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
                 if (moodE.mood!!.moodMode == Mood.MOOD_MODE_NUMBERS) {
                     when {
                         mHolder.moodText.text.toString()
-                            .toInt() > 5 -> mHolder.moodText.setBackgroundResource(R.drawable.mood_rating_colour_high)
+                            .toInt() > 3 -> mHolder.moodText.setBackgroundResource(R.drawable.mood_rating_colour_high)
                         mHolder.moodText.text.toString()
-                            .toInt() < 5 -> mHolder.moodText.setBackgroundResource(R.drawable.mood_rating_colour_low)
+                            .toInt() < 3 -> mHolder.moodText.setBackgroundResource(R.drawable.mood_rating_colour_low)
                         mHolder.moodText.text.toString()
-                            .toInt() == 5 -> mHolder.moodText.setBackgroundResource(0)
+                            .toInt() == 3 -> mHolder.moodText.setBackgroundResource(0)
                     }
                 } else mHolder.moodText.setBackgroundResource(0)
             }
