@@ -261,11 +261,13 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
             RowEntryModel.MOOD_ENTRY_TYPE -> {
                 val mHolder = holder as MoodEntryViewHolder
                 val moodViewHolder = moodList[position] as MoodEntryModel
+                if (moodViewHolder.key == "default_row_key") return
 
                 mHolder.dateText.text = moodViewHolder.date
                 mHolder.timeText.text = moodViewHolder.time
 
                 if (moodViewHolder.mood?.moodMode == Mood.MOOD_MODE_FACES) {
+                    val moodValue = moodViewHolder.mood.value
                     mHolder.moodText.text = mHolder.itemView.resources.getString(moodViewHolder.mood?.toEmoji()!!)
                 }
                 else mHolder.moodText.text = moodViewHolder.mood?.value

@@ -10,10 +10,11 @@ class MoodEntryModel (
     val time: String? = null,
     val mood: Mood? = null,
     val activities: MutableList<String> = ArrayList(),
-    override var key: String = ""
+    key: String = ""
 ):RowEntryModel(),
     Serializable {
 
+    override var key = key
     override var viewType: Int = MOOD_ENTRY_TYPE
 
     @Exclude
