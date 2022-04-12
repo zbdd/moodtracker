@@ -5,16 +5,15 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
 import android.widget.TextView
 import androidx.core.view.get
 import androidx.recyclerview.widget.RecyclerView
 
 
-class ActivitiesRecycleViewAdaptor(context: Context, data: MutableList<String>, val onClick: (String) -> Unit, val onClickDelete: (String) -> Unit): RecyclerView.Adapter<ActivitiesRecycleViewAdaptor.ViewHolder>() {
-    class ViewHolder(ItemView: View): RecyclerView.ViewHolder(ItemView) {
-        val tvName: TextView = itemView.findViewById(R.id.tvName)
-        val tvCancel: TextView = itemView.findViewById(R.id.tvCancel)
+class ActivitiesRecycleViewAdaptor(context: Context, data: MutableList<String>, val onClick: (String) -> Unit, val onClickDelete: (String) -> Unit): RecyclerView.Adapter<ActivitiesRecycleViewAdaptor.ActivitiesViewHolder>() {
+    class ActivitiesViewHolder(ItemView: View): RecyclerView.ViewHolder(ItemView) {
+        val tvName: TextView = itemView.findViewById(R.id.tvActivitiesRowName)
+        val tvCancel: TextView = itemView.findViewById(R.id.tvActivitiesRowCancel)
     }
 
     private var mData: MutableList<String>? = null
@@ -29,19 +28,19 @@ class ActivitiesRecycleViewAdaptor(context: Context, data: MutableList<String>, 
 
     fun toggleDeleteButton() {
         for(row in mData!!.indices) {
-            val item = mGroup[row].findViewById<TextView>(R.id.tvCancel)
+            val item = mGroup[row].findViewById<TextView>(R.id.tvActivitiesRowCancel)
             if (item.visibility == View.INVISIBLE) item.visibility = View.VISIBLE
             else item.visibility = View.INVISIBLE
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ActivitiesViewHolder {
         val view: View = mInflater?.inflate(R.layout.activities_recycle_view_row, parent,false) ?: View(parent.context)
         mGroup = parent
-        return ViewHolder(view)
+        return ActivitiesViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: ActivitiesViewHolder, position: Int) {
         holder.tvName.text = mData?.get(position) ?: "Error"
 
         holder.tvName.setOnClickListener {

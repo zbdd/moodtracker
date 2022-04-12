@@ -84,8 +84,8 @@ class MainActivity : AppCompatActivity() {
         // Get activities that are stored in local json file
         if (jsonArray.isNotEmpty()) {
             val gson = GsonBuilder().create()
-            val activities = gson.fromJson(jsonArray, Settings::class.java)
-            var data = activities as ArrayList<String>
+            val activities = gson.fromJson(jsonArray, ArrayList::class.java)
+            var data = activities[0] as ArrayList<String>
             intent.putStringArrayListExtra("AvailableActivities", data)
         }
 

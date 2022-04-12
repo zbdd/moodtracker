@@ -21,7 +21,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
-            android:id="@+id/tvName"
+            android:id="@+id/tvActivitiesRowName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="5dp"
@@ -37,7 +37,7 @@
             tools:ignore="RtlCompat" />
 
         <TextView
-            android:id="@+id/tvCancel"
+            android:id="@+id/tvActivitiesRowCancel"
             android:layout_width="32dp"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
