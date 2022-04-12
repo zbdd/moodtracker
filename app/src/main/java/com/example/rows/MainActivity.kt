@@ -111,6 +111,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupMoodPicker(mood: MoodEntryModel) {
         val numberPicker: NumberPicker = findViewById(R.id.npNumberPicker)
+        var value = 0
 
         when (mood.mood?.moodMode) {
             Mood.MOOD_MODE_NUMBERS -> {
@@ -123,9 +124,10 @@ class MainActivity : AppCompatActivity() {
             }
             Mood.MOOD_MODE_FACES -> {
                 numberPicker.displayedValues = resources.getStringArray(R.array.mood_faces)
-                numberPicker.minValue = 0
+                numberPicker.minValue = 1
                 numberPicker.maxValue = resources.getStringArray(R.array.mood_faces).size - 1
-                numberPicker.value = (mood.mood.toNumber().toInt() - 1)
+                numberPicker.value = (mood.mood.toNumber().toInt())
+                value++
             }
         }
 
@@ -133,11 +135,12 @@ class MainActivity : AppCompatActivity() {
         clNumberPicker.visibility = View.VISIBLE
 
         val bNpConfirm: Button = findViewById(R.id.bNpConfirm)
+
         bNpConfirm.setOnClickListener {
             val newMood = MoodEntryModel(
                 mood.date,
                 mood.time,
-                Mood((numberPicker.value + 1).toString()),
+                Mood((numberPicker.value + value).toString()),
                 mood.activities,
                 mood.key
             )
