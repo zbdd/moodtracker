@@ -54,16 +54,17 @@ class MainActivity : AppCompatActivity() {
     private val isDebugMode = true
     private var settings: Settings = Settings()
 
-    private val signInLauncher = registerForActivityResult(FirebaseAuthUIActivityResultContract()) {
-        res -> this.onSignInResult(res)
-    }
+    private val signInLauncher =
+        registerForActivityResult(FirebaseAuthUIActivityResultContract()) { res ->
+            this.onSignInResult(res)
+        }
 
     private fun setupRecycleView() {
-        recyclerViewAdaptor = RecyclerViewAdaptor (
+        recyclerViewAdaptor = RecyclerViewAdaptor(
             { moodEntry, moodList -> onItemDismissed(moodEntry, moodList) },
             { moodEntries -> writeEntrytoFile(moodEntries); updateDatabaseEntry(moodEntries) },
             { mood -> setupMoodPicker(mood) },
-            { moodEntry -> startActivityActivities(moodEntry)})
+            { moodEntry -> startActivityActivities(moodEntry) })
 
         val callback: ItemTouchHelper.Callback = SwipeHelperCallback(recyclerViewAdaptor)
         mItemTouchHelper = ItemTouchHelper(callback)
@@ -103,7 +104,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onItemDismissed(moodEntry: MoodEntryModel, moodList: ArrayList<MoodEntryModel>) {
-        if (user != null) myRef.child(user?.uid ?: "").child("moodEntries").child("${moodEntry.key}").removeValue()
+        if (user != null) myRef.child(user?.uid ?: "").child("moodEntries")
+            .child("${moodEntry.key}").removeValue()
         writeEntrytoFile(moodList)
     }
 
@@ -123,7 +125,7 @@ class MainActivity : AppCompatActivity() {
                 numberPicker.displayedValues = resources.getStringArray(R.array.mood_faces)
                 numberPicker.minValue = 0
                 numberPicker.maxValue = resources.getStringArray(R.array.mood_faces).size - 1
-                numberPicker.value = (mood.mood.toNumber(mood.mood.value)!!.toInt())
+                numberPicker.value = (mood.mood.toNumber().toInt() - 1)
             }
         }
 
@@ -158,19 +160,15 @@ class MainActivity : AppCompatActivity() {
 
             ibLogin.background.setTint(Color.GREEN)
         } else {
-            user= null
+            user = null
             ibLogin.background.setTint(Color.LTGRAY)
-            Toast.makeText(applicationContext,"Unable to sign-in at this time",Toast.LENGTH_SHORT).show()
+            Toast.makeText(applicationContext, "Unable to sign-in at this time", Toast.LENGTH_SHORT)
+                .show()
         }
     }
 
     private fun runMainLoop() {
-        if (user != null) {
-            checkDatabasePathExists()
-            readDatabaseForNewData()
-        } else {
-            readFromLocalStore()
-        }
+
 
         /* Please ignore this horror
         var stringArray = ArrayList<String>()
@@ -181,15 +179,26 @@ class MainActivity : AppCompatActivity() {
         writeEntrytoFile(stringArray,"available.json")
          */
 
-        //settings.mood_numerals = true
-        //writeEntrytoFile(settings, "settings.json")
+        settings.mood_numerals = "true"
+        writeEntrytoFile(settings, "settings.json")
 
         initButtons()
         val jsonSettings = loadFromJSONAsset("settings.json")
         val gson = Gson()
-        val type = object: TypeToken<Array<Settings>>() {}.type
+        val type = object : TypeToken<Array<Settings>>() {}.type
         //settings = gson.fromJson<Array<MutableMap<String,String>>>(jsonSettings, type)[0]
-        settings = gson.fromJson<Array<Settings>>(jsonSettings,type)[0]
+        settings = gson.fromJson<Array<Settings>>(jsonSettings, type)[0]
+        val config = MoodEntryModel("", "", Mood(""))
+        when (settings.mood_numerals) {
+            "true" -> config.mood!!.moodMode = Mood.MOOD_MODE_NUMBERS
+        }
+
+        if (user != null) {
+            checkDatabasePathExists()
+            readDatabaseForNewData()
+        } else {
+            readFromLocalStore()
+        }
 
         val ibLogin: ImageButton = findViewById(R.id.ibLogin)
         if (user == null) ibLogin.background.setTint(Color.LTGRAY)
@@ -197,29 +206,46 @@ class MainActivity : AppCompatActivity() {
 
         ibLogin.setOnClickListener {
             if (!isPremiumEdition) {
-                Toast.makeText(applicationContext,"Premium edition feature only", Toast.LENGTH_SHORT).show()
-            }
-            else if(user == null) { launchSignInEvent() }
-            else { Toast.makeText(applicationContext,"Already signed in", Toast.LENGTH_SHORT).show() }
-        }
-
-        getActivitiesActivityResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            val data = it.data?.getStringArrayListExtra("AvailableActivities")
-            if (data != null) {
-                writeEntrytoFile(data as ArrayList<*>, "available.json")
-                recyclerViewAdaptor.updateMoodEntry(it.data?.getSerializableExtra("MoodEntry") as MoodEntryModel)
+                Toast.makeText(
+                    applicationContext,
+                    "Premium edition feature only",
+                    Toast.LENGTH_SHORT
+                ).show()
+            } else if (user == null) {
+                launchSignInEvent()
+            } else {
+                Toast.makeText(applicationContext, "Already signed in", Toast.LENGTH_SHORT).show()
             }
         }
 
-        getSettingsActivityResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            val data = it.data?.getParcelableExtra<Settings>("Settings")
-            if (data != null) {
-                writeEntrytoFile(data as ArrayList<*>, "settings.json")
+        getActivitiesActivityResult =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+                val data = it.data?.getStringArrayListExtra("AvailableActivities")
+                if (data != null) {
+                    writeEntrytoFile(data as ArrayList<*>, "available.json")
+                    recyclerViewAdaptor.updateMoodEntry(it.data?.getSerializableExtra("MoodEntry") as MoodEntryModel)
+                }
             }
-        }
+
+        getSettingsActivityResult =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+                val data = it.data?.getParcelableExtra<Settings>("Settings")
+                if (data != null) {
+                    writeEntrytoFile(data, "settings.json")
+                    val mood = MoodEntryModel("", "", Mood(""))
+                    if (settings.mood_numerals != data.mood_numerals) {
+                        when (data.mood_numerals) {
+                            "true" -> mood.mood?.moodMode = Mood.MOOD_MODE_NUMBERS
+                            else -> mood.mood?.moodMode = Mood.MOOD_MODE_FACES
+                        }
+                        recyclerViewAdaptor.updateListConfig(mood)
+                    }
+                    settings = data
+                }
+            }
     }
 
-    private fun initButtons () {
+    private fun initButtons() {
         val addNewButton: ImageButton = findViewById(R.id.addNewButton)
 
         addNewButton.setOnClickListener {
@@ -247,7 +273,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateDatabaseEntry(moods: ArrayList<MoodEntryModel>) {
         if (user != null) {
-            for(moodEntry in moods) {
+            for (moodEntry in moods) {
                 val moodHash = moodEntry.toMap()
                 val update = hashMapOf<String, Any>("moodEntries/${moodEntry.key}" to moodHash)
                 myRef.child(user?.uid ?: "").updateChildren(update)
@@ -264,54 +290,61 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun readDatabaseForNewData() {
-        val data = ArrayList<MoodEntryModel>()
 
-        myRef.child(user?.uid ?: "").child("moodEntries").addValueEventListener(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                if (snapshot.value == null) return
+        myRef.child(user?.uid ?: "").child("moodEntries")
+            .addValueEventListener(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val moodData = ArrayList<MoodEntryModel>()
+                    if (snapshot.value == null) return
 
-                if (snapshot.value?.javaClass == HashMap<String, Any>().javaClass) {
-                    for ((key, hashmap) in snapshot.value as HashMap<String, HashMap<String, String>>) {
-                        data.add(
-                            MoodEntryModel(
-                                hashmap["date"].toString(),
-                                hashmap["time"].toString(),
-                                Mood(hashmap["mood"].toString()),
-                                hashmap["activities"] as MutableList<String>,
-                                key
+                    if (snapshot.value?.javaClass == HashMap<String, Any>().javaClass) {
+                        for ((key, hashmap) in snapshot.value as HashMap<String, HashMap<String, String>>) {
+                            moodData.add(
+                                MoodEntryModel(
+                                    hashmap["date"].toString(),
+                                    hashmap["time"].toString(),
+                                    Mood(hashmap["mood"].toString()),
+                                    hashmap["activities"] as MutableList<String>,
+                                    key
+                                )
                             )
-                        )
+                        }
+
+                        recyclerViewAdaptor.updateList(moodData)
                     }
-
-                    recyclerViewAdaptor.updateList(data)
                 }
-            }
 
-            override fun onCancelled(error: DatabaseError) {
-                Log.d("Debug","Failed to connect to database")
-            }
-        })
+                override fun onCancelled(error: DatabaseError) {
+                    Log.d("Debug", "Failed to connect to database")
+                }
+            })
     }
 
     private fun checkDatabasePathExists() {
-        if (myRef.child(user?.uid ?: "").child("moodEntries") == null) myRef.child(user?.uid ?: "").child("moodEntries").setValue("")
+        if (myRef.child(user?.uid ?: "").child("moodEntries") == null) myRef.child(user?.uid ?: "")
+            .child("moodEntries").setValue("")
     }
 
     private fun readFromLocalStore() {
         val jsonArray = loadFromJSONAsset()
-        val data = ArrayList<MoodEntryModel>()
+        val moodData = ArrayList<MoodEntryModel>()
 
         if (jsonArray.isNotEmpty()) {
             val gson = GsonBuilder().create()
-            val type = object: TypeToken<Array<Array<MoodEntryModel>>>() {}.type
+            val type = object : TypeToken<Array<Array<MoodEntryModel>>>() {}.type
             val moodEntries = gson.fromJson<Array<Array<MoodEntryModel>>>(jsonArray, type)
             if (moodEntries.isEmpty()) return
 
-            for(x in moodEntries[0].indices) {
-                data.add(moodEntries[0][x])
+            for (x in moodEntries[0].indices) {
+                when (settings.mood_numerals) {
+                    "true" -> moodEntries[0][x].mood!!.moodMode = Mood.MOOD_MODE_NUMBERS
+                    else -> moodEntries[0][x].mood!!.moodMode = Mood.MOOD_MODE_FACES
+                }
+                moodData.add(moodEntries[0][x])
             }
         }
-        recyclerViewAdaptor.updateList(data)
+
+        recyclerViewAdaptor.updateList(moodData)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -333,7 +366,8 @@ class MainActivity : AppCompatActivity() {
         // Choose authentication providers
         val providers = arrayListOf(
             AuthUI.IdpConfig.EmailBuilder().build(),
-            AuthUI.IdpConfig.GoogleBuilder().build())
+            AuthUI.IdpConfig.GoogleBuilder().build()
+        )
 
         // Create and launch sign-in intent
         val signInIntent = AuthUI.getInstance()
@@ -379,8 +413,7 @@ class MainActivity : AppCompatActivity() {
             json = fileReader.readLines().toString()
             fileReader.close()
             return json
-        }
-        else {
+        } else {
             val inputStream = assets.open(filename)
             val size = inputStream.available()
             val buffer = ByteArray(size)
@@ -406,19 +439,36 @@ class MainActivity : AppCompatActivity() {
         choices.add("Hanging out")
 
         val list: MutableList<String> = ArrayList()
-        for(i in 1..random.nextInt(4)) {
-            list.add(choices[random.nextInt(0,choices.size-1)])
+        for (i in 1..random.nextInt(4)) {
+            list.add(choices[random.nextInt(0, choices.size - 1)])
         }
 
         return if (isDebug) {
             val randomYear = random.nextInt(2010, 2021).toString()
-            var randMonth = random.nextInt(1,12).toString()
+            var randMonth = random.nextInt(1, 12).toString()
             if (randMonth.toInt() < 10) randMonth = "0$randMonth"
-            var randDay = random.nextInt(1,28).toString()
+            var randDay = random.nextInt(1, 28).toString()
             if (randDay.toInt() < 10) randDay = "0$randDay"
-            val randMood = random.nextInt(1,5).toString()
+            val randMood = random.nextInt(1, 5).toString()
 
-            MoodEntryModel("$randomYear-$randMonth-$randDay", "12:34", Mood(randMood), list, UUID.randomUUID().toString())
+            when (settings.mood_numerals) {
+                "true" -> MoodEntryModel(
+                    "$randomYear-$randMonth-$randDay",
+                    "12:34",
+                    Mood(randMood),
+                    list,
+                    UUID.randomUUID().toString()
+                )
+                else -> {
+                    MoodEntryModel(
+                        "$randomYear-$randMonth-$randDay",
+                        "12:34",
+                        Mood("Average", Mood.MOOD_MODE_FACES),
+                        list,
+                        UUID.randomUUID().toString()
+                    )
+                }
+            }
         } else {
             var dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
             val dateTimeNow = LocalDateTime.now()
@@ -427,7 +477,16 @@ class MainActivity : AppCompatActivity() {
             dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
             val time = dateTimeNow.format(dateTimeFormatter)
 
-            MoodEntryModel(date, time,Mood("3"),list, UUID.randomUUID().toString())
+            when (settings.mood_numerals) {
+                "true" -> MoodEntryModel(date, time, Mood("3"), list, UUID.randomUUID().toString())
+                else -> MoodEntryModel(
+                    date,
+                    time,
+                    Mood("Average", Mood.MOOD_MODE_FACES),
+                    list,
+                    UUID.randomUUID().toString()
+                )
+            }
         }
     }
 }

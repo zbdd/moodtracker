@@ -6,9 +6,11 @@ import android.text.Html
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.RecyclerView.*
+import java.lang.Long.parseLong
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.LocalTime
@@ -22,12 +24,27 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
 
     private var moodList: ArrayList<RowEntryModel> = ArrayList()
     private var sortBy = "date"
+    lateinit var viewHolder: ViewHolder
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return when (viewType) {
+        viewHolder = when (viewType) {
             RowEntryModel.FILTER_ENTRY_TYPE -> FilterViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.filter_entry_layout, parent, false))
             else -> MoodEntryViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.mood_entry_layout, parent, false))
         }
+        return viewHolder
+    }
+
+    fun updateListConfig(config: MoodEntryModel) {
+        for(item in moodList) {
+            if (item.viewType == RowEntryModel.MOOD_ENTRY_TYPE) {
+                val mood = item as MoodEntryModel
+                when (config.mood!!.moodMode) {
+                    Mood.MOOD_MODE_FACES ->  mood.mood?.toFaces()
+                    Mood.MOOD_MODE_NUMBERS -> mood.mood?.toNumber()
+                }
+            }
+        }
+        updateList()
     }
 
     fun updateList(data: ArrayList<MoodEntryModel> = ArrayList(0)) {
@@ -92,6 +109,21 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
             val listToSave = ArrayList<MoodEntryModel>()
             for(item in moodList) { if (item.javaClass == MoodEntryModel::class.java) listToSave.add(item as MoodEntryModel) }
             onListUpdated(listToSave)
+
+            if (viewHolder.itemViewType == RowEntryModel.MOOD_ENTRY_TYPE) {
+                val mHolder = viewHolder as MoodEntryViewHolder
+                val moodE = moodList[position] as MoodEntryModel
+                if (moodE.mood!!.moodMode == Mood.MOOD_MODE_NUMBERS) {
+                    when {
+                        mHolder.moodText.text.toString()
+                            .toInt() > 5 -> mHolder.moodText.setBackgroundResource(R.drawable.mood_rating_colour_high)
+                        mHolder.moodText.text.toString()
+                            .toInt() < 5 -> mHolder.moodText.setBackgroundResource(R.drawable.mood_rating_colour_low)
+                        mHolder.moodText.text.toString()
+                            .toInt() == 5 -> mHolder.moodText.setBackgroundResource(0)
+                    }
+                } else mHolder.moodText.setBackgroundResource(0)
+            }
         }
     }
 
@@ -229,9 +261,13 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
             RowEntryModel.MOOD_ENTRY_TYPE -> {
                 val mHolder = holder as MoodEntryViewHolder
                 val moodViewHolder = moodList[position] as MoodEntryModel
+
                 mHolder.dateText.text = moodViewHolder.date
                 mHolder.timeText.text = moodViewHolder.time
-                if (moodViewHolder.mood?.moodMode == Mood.MOOD_MODE_FACES) mHolder.moodText.text = mHolder.itemView.resources.getString(moodViewHolder.mood.toEmoji(moodViewHolder.mood.value)!!.toInt())
+
+                if (moodViewHolder.mood?.moodMode == Mood.MOOD_MODE_FACES) {
+                    mHolder.moodText.text = mHolder.itemView.resources.getString(moodViewHolder.mood?.toEmoji()!!)
+                }
                 else mHolder.moodText.text = moodViewHolder.mood?.value
                 mHolder.activityText.text = moodViewHolder.activities.toString().removeSurrounding(
                     "[",
@@ -241,32 +277,19 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
                 if (moodViewHolder.mood?.moodMode == Mood.MOOD_MODE_NUMBERS) {
                     when {
                         mHolder.moodText.text.toString()
-                            .toInt() > 5 -> mHolder.moodText.setBackgroundResource(R.drawable.mood_rating_colour_high)
+                            .toInt() > 3 -> mHolder.moodText.setBackgroundResource(R.drawable.mood_rating_colour_high)
                         mHolder.moodText.text.toString()
-                            .toInt() < 5 -> mHolder.moodText.setBackgroundResource(R.drawable.mood_rating_colour_low)
+                            .toInt() < 3 -> mHolder.moodText.setBackgroundResource(R.drawable.mood_rating_colour_low)
                         mHolder.moodText.text.toString()
-                            .toInt() == 5 -> mHolder.moodText.setBackgroundResource(0)
+                            .toInt() == 3 -> mHolder.moodText.setBackgroundResource(0)
                     }
-                }
+                } else mHolder.moodText.setBackgroundResource(0)
 
                 val calendar
                         : Calendar = Calendar.getInstance(TimeZone.getDefault())
 
                 mHolder.moodText.setOnClickListener {
                     onMoodValueClicked(moodList[position] as MoodEntryModel)
-                }
-
-                if (moodViewHolder.mood?.moodMode == Mood.MOOD_MODE_NUMBERS) {
-                    mHolder.moodText.addTextChangedListener {
-                        when {
-                            mHolder.moodText.text.toString()
-                                .toInt() > 5 -> mHolder.moodText.setBackgroundResource(R.drawable.mood_rating_colour_high)
-                            mHolder.moodText.text.toString()
-                                .toInt() < 5 -> mHolder.moodText.setBackgroundResource(R.drawable.mood_rating_colour_low)
-                            mHolder.moodText.text.toString()
-                                .toInt() == 5 -> mHolder.moodText.setBackgroundResource(0)
-                        }
-                    }
                 }
 
                 val timeSetListener = TimePickerDialog.OnTimeSetListener { _, hour, minute ->
