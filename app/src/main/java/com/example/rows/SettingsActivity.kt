@@ -5,8 +5,6 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import android.widget.Switch
-import androidx.appcompat.widget.SwitchCompat
-import com.google.android.material.switchmaterial.SwitchMaterial
 
 class SettingsActivity() : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
