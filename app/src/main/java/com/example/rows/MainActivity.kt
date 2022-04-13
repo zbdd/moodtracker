@@ -143,9 +143,9 @@ class MainActivity : AppCompatActivity() {
             }
             Mood.MOOD_MODE_FACES -> {
                 numberPicker.displayedValues = resources.getStringArray(R.array.mood_faces)
-                numberPicker.minValue = 1
+                numberPicker.minValue = 0
                 numberPicker.maxValue = resources.getStringArray(R.array.mood_faces).size - 1
-                numberPicker.value = (mood.mood.toNumber().toInt())
+                numberPicker.value = (mood.mood.toNumber().toInt() - 1)
             }
         }
 
@@ -157,7 +157,7 @@ class MainActivity : AppCompatActivity() {
         bNpConfirm.setOnClickListener {
             var moodValue: Mood = when (settings.mood_numerals) {
                 "true" -> Mood((numberPicker.value).toString(), Mood.MOOD_MODE_NUMBERS)
-                else -> Mood((numberPicker.value).toString(), Mood.MOOD_MODE_FACES)
+                else -> Mood((numberPicker.value + 1).toString(), Mood.MOOD_MODE_FACES)
             }
             val newMood = MoodEntryModel(
                 mood.date,
