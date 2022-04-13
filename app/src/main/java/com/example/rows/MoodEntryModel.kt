@@ -6,12 +6,12 @@ import java.io.Serializable
 
 @IgnoreExtraProperties
 class MoodEntryModel (
-    val date: String? = null,
-    val time: String? = null,
-    val mood: Mood? = null,
+    val date: String? = "1987-11-06",
+    val time: String? = "08:30",
+    val mood: Mood? = Mood(),
     val feelings: MutableList<String> = ArrayList(),
     val activities: MutableList<String> = ArrayList(),
-    key: String = ""
+    key: String = "mood_entry_key"
 ):RowEntryModel(),
     Serializable {
 
