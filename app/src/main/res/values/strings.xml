@@ -52,6 +52,7 @@
     <string name="settings_title">Settings</string>
     <string name="settings_mood_display">Mood Options</string>
     <string name="settings_mood_use_numerals">Use Numbers for Mood</string>
+    <string name="settings_choose_file">Import JSON</string>
 
     <string-array name="mood_faces">
         <item>&#128557;</item> // terrible
