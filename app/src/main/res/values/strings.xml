@@ -36,6 +36,19 @@
     <string name="activities_add_new_activity_name_hint">Enter in a new activity name of your choosing</string>
     <string name="activities_restore_defaults">Restore defaults</string>
 
+    <string name="feelings_welcome">Choose how you feel</string>
+    <string name="feelings_selected">Selected</string>
+    <string name="feelings_available">Available</string>
+    <string name="feelings_name">Feeling</string>
+    <string name="feelings_delete">Press to delete</string>
+    <string name="feelings_cross">X</string>
+    <string name="feelings_add_new">Click here to add a new Feeling</string>
+    <string name="feelings_add_new_description">Clickable button to add new Feeling</string>
+    <string name="feelings_add_new_feeling">New Feeling</string>
+    <string name="feelings_enable_delete">Delete Feeling</string>
+    <string name="feelings_add_new_activity_name_hint">Record a new feeling</string>
+    <string name="feelings_restore_defaults">Restore defaults</string>
+
     <string name="settings_title">Settings</string>
     <string name="settings_mood_display">Mood Options</string>
     <string name="settings_mood_use_numerals">Use Numerals</string>
