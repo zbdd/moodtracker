@@ -36,10 +36,6 @@ class FeelingsActivity: AppCompatActivity()  {
         if (arrayData != null) {
             availableFeelings.addAll(arrayData)
         }
-        if (availableFeelings.size == 0) {
-            restoreDefaults()
-        }
-
         // Remove accidental duplicates
         for (item in moodEntry.feelings) {
             availableFeelings.remove(item)
@@ -61,6 +57,10 @@ class FeelingsActivity: AppCompatActivity()  {
                 { feeling -> removeFromAvailable(feeling)})
 
         availableRecycleView.adapter = availableAdaptor
+
+        if (availableFeelings.size == 0) {
+            restoreDefaults()
+        }
 
         bConfirm.setOnClickListener {
             val finishIntent = Intent()

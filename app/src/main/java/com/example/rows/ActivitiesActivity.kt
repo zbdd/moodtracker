@@ -36,9 +36,6 @@ class ActivitiesActivity: AppCompatActivity()  {
         if (arrayData != null) {
             availableActivities.addAll(arrayData)
         }
-        if (availableActivities.size == 0) {
-            restoreDefaults()
-        }
 
         // Remove accidental duplicates
         for (item in moodEntry.activities) {
@@ -60,6 +57,10 @@ class ActivitiesActivity: AppCompatActivity()  {
             { activity -> removeFromAvailable(activity)})
 
         availableRecycleView.adapter = availableAdaptor
+
+        if (availableActivities.size == 0) {
+            restoreDefaults()
+        }
 
         bConfirm.setOnClickListener {
             val finishIntent = Intent()

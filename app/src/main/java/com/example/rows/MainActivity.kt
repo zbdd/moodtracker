@@ -107,13 +107,14 @@ class MainActivity : AppCompatActivity() {
 
     private fun startActivityFeelings(moodEntry: MoodEntryModel) {
         val intent = Intent(this, FeelingsActivity::class.java)
-        val jsonArray = loadFromJSONAsset("available.json")
+        val jsonArray = loadFromJSONAsset("feelings.json")
 
         // Get activities that are stored in local json file
         if (jsonArray.isNotEmpty()) {
             val gson = GsonBuilder().create()
             val feelings = gson.fromJson(jsonArray, ArrayList::class.java)
-            var data = feelings[0] as ArrayList<String>
+            var data = ArrayList<String>()
+            if (feelings.isNotEmpty()) data = feelings[0] as ArrayList<String>
             intent.putStringArrayListExtra("AvailableFeelings", data)
         }
 
