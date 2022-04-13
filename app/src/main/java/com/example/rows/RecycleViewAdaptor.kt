@@ -2,15 +2,11 @@ package com.example.rows
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
-import android.text.Html
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.RecyclerView.*
-import java.lang.Long.parseLong
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.LocalTime
@@ -19,7 +15,8 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryModel>) -> Unit, val onListUpdated: (ArrayList<MoodEntryModel>) -> Unit, val onMoodValueClicked: (MoodEntryModel) -> Unit,
-    val onStartActivitiesActivity: (MoodEntryModel) -> Unit):
+    val onStartActivitiesActivity: (MoodEntryModel) -> Unit,
+    val startFeelingsActivity: (MoodEntryModel) -> Unit):
     Adapter<ViewHolder>(), SwipeHelperCallback.ItemTouchHelperAdaptor {
 
     private var moodList: ArrayList<RowEntryModel> = ArrayList()
@@ -176,9 +173,10 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
                     moods.add (MoodEntryModel(
                     "2222-01-01",
                     "00:01",
-                    Mood("5"),
-                    ArrayList(),
-                    filterRow.title
+                        Mood("5"),
+                        ArrayList(),
+                        ArrayList(),
+                        filterRow.title
                 ))
                     validKeys.add(filterRow.title)
                 }
@@ -220,7 +218,7 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
         }
 
         if (pos != -1) {
-            moods.add(pos, MoodEntryModel("2222-01-01","12:01",Mood("5"),ArrayList(),title))
+            moods.add(pos, MoodEntryModel("2222-01-01","12:01",Mood("5"),ArrayList(),ArrayList(),title))
         }
 
         moodList.clear()
@@ -246,7 +244,7 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
         val timeFormat = SimpleDateFormat("HH:mm", Locale.ENGLISH)
         holder.timeText.text = timeFormat.format(calendar.time)
 
-        val newMood = MoodEntryModel(dateFormat.format(calendar.time), timeFormat.format(calendar.time),mood.mood,mood.activities,mood.key)
+        val newMood = MoodEntryModel(dateFormat.format(calendar.time), timeFormat.format(calendar.time),mood.mood,mood.feelings,mood.activities,mood.key)
 
         updateMoodEntry(newMood)
     }
@@ -271,10 +269,22 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
                     mHolder.moodText.text = mHolder.itemView.resources.getString(moodViewHolder.mood?.toEmoji()!!)
                 }
                 else mHolder.moodText.text = moodViewHolder.mood?.value
-                mHolder.activityText.text = moodViewHolder.activities.toString().removeSurrounding(
-                    "[",
-                    "]"
-                )
+
+                mHolder.activityText.text = when (moodViewHolder.activities.toString()) {
+                    "" ->  "Click to add an activity"
+                    else -> moodViewHolder.activities.toString().removeSurrounding(
+                        "[",
+                        "]"
+                    )
+                }
+
+                mHolder.feelingsText.text = when (moodViewHolder.feelings.toString()) {
+                    "" ->  "Click to add feelings"
+                    else -> moodViewHolder.feelings.toString().removeSurrounding(
+                        "[",
+                        "]"
+                    )
+                }
 
                 if (moodViewHolder.mood?.moodMode == Mood.MOOD_MODE_NUMBERS) {
                     when {
@@ -337,6 +347,10 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
                 mHolder.activityText.setOnClickListener {
                     onStartActivitiesActivity(moodList[position] as MoodEntryModel)
                 }
+
+                mHolder.feelingsText.setOnClickListener {
+                    startFeelingsActivity(moodList[position] as MoodEntryModel)
+                }
             }
             RowEntryModel.FILTER_ENTRY_TYPE -> {
                 val vHolder = holder as FilterViewHolder
@@ -355,6 +369,7 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
         val timeText: TextView = itemView.findViewById(R.id.tvMoodTime)
         val moodText: TextView = itemView.findViewById(R.id.tvMoodRating)
         val activityText: TextView = itemView.findViewById(R.id.etActivityText)
+        val feelingsText: TextView = itemView.findViewById(R.id.tvMainRowFeelings)
     }
 
     class FilterViewHolder(itemView: View): ViewHolder(itemView) {

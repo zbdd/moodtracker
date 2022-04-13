@@ -46,6 +46,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var myRef: DatabaseReference
     private lateinit var getActivitiesActivityResult: ActivityResultLauncher<Intent>
     private lateinit var getSettingsActivityResult: ActivityResultLauncher<Intent>
+    private lateinit var getFeelingsActivityResult: ActivityResultLauncher<Intent>
 
     private var user: FirebaseUser? = null
     private var mItemTouchHelper: ItemTouchHelper? = null
@@ -64,7 +65,8 @@ class MainActivity : AppCompatActivity() {
             { moodEntry, moodList -> onItemDismissed(moodEntry, moodList) },
             { moodEntries -> writeEntrytoFile(moodEntries); updateDatabaseEntry(moodEntries) },
             { mood -> setupMoodPicker(mood) },
-            { moodEntry -> startActivityActivities(moodEntry) })
+            { moodEntry -> startActivityActivities(moodEntry) },
+            { moodEntry -> startActivityFeelings(moodEntry) })
 
         val callback: ItemTouchHelper.Callback = SwipeHelperCallback(recyclerViewAdaptor)
         mItemTouchHelper = ItemTouchHelper(callback)
@@ -101,6 +103,23 @@ class MainActivity : AppCompatActivity() {
 
         getSettingsActivityResult.launch(intent)
 
+    }
+
+    private fun startActivityFeelings(moodEntry: MoodEntryModel) {
+        val intent = Intent(this, FeelingsActivity::class.java)
+        val jsonArray = loadFromJSONAsset("available.json")
+
+        // Get activities that are stored in local json file
+        if (jsonArray.isNotEmpty()) {
+            val gson = GsonBuilder().create()
+            val feelings = gson.fromJson(jsonArray, ArrayList::class.java)
+            var data = feelings[0] as ArrayList<String>
+            intent.putStringArrayListExtra("AvailableFeelings", data)
+        }
+
+        intent.putExtra("MoodEntry", moodEntry)
+
+        getFeelingsActivityResult.launch(intent)
     }
 
     private fun onItemDismissed(moodEntry: MoodEntryModel, moodList: ArrayList<MoodEntryModel>) {
@@ -143,6 +162,7 @@ class MainActivity : AppCompatActivity() {
                 mood.date,
                 mood.time,
                 moodValue,
+                mood.feelings,
                 mood.activities,
                 mood.key
             )
@@ -174,7 +194,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun runMainLoop() {
 
-
+        var moodData = ArrayList<MoodEntryModel>()
         /* Please ignore this horror
         var stringArray = ArrayList<String>()
         stringArray.add("Boxing")
@@ -189,21 +209,17 @@ class MainActivity : AppCompatActivity() {
 
         initButtons()
         val jsonSettings = loadFromJSONAsset("settings.json")
-        val gson = Gson()
-        val type = object : TypeToken<Array<Settings>>() {}.type
-        //settings = gson.fromJson<Array<MutableMap<String,String>>>(jsonSettings, type)[0]
-        settings = gson.fromJson<Array<Settings>>(jsonSettings, type)[0]
-        val config = MoodEntryModel("", "", Mood("5"))
-        when (settings.mood_numerals) {
-            "true" -> config.mood!!.moodMode = Mood.MOOD_MODE_NUMBERS
-        }
+
+        readSettingsDataFromJson(jsonSettings)
 
         if (user != null) {
             checkDatabasePathExists()
-            readDatabaseForNewData()
+            moodData = readDatabaseForNewData()
         } else {
-            readFromLocalStore()
+            moodData = readFromLocalStore()
         }
+
+        recyclerViewAdaptor.updateList(moodData)
 
         val ibLogin: ImageButton = findViewById(R.id.ibLogin)
         if (user == null) ibLogin.background.setTint(Color.LTGRAY)
@@ -232,6 +248,14 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
+        getFeelingsActivityResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            val data = it.data?.getStringArrayListExtra("AvailableFeelings")
+            if (data != null) {
+                writeEntrytoFile(data as ArrayList<*>, "feelings.json")
+                recyclerViewAdaptor.updateMoodEntry(it.data?.getSerializableExtra("MoodEntry") as MoodEntryModel)
+            }
+        }
+
         getSettingsActivityResult =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
                 val data = it.data?.getParcelableExtra<Settings>("Settings")
@@ -248,6 +272,16 @@ class MainActivity : AppCompatActivity() {
                     settings = data
                 }
             }
+    }
+
+    private fun readSettingsDataFromJson(jsonSettings: String) {
+        val gson = Gson()
+        val type = object : TypeToken<Array<Settings>>() {}.type
+        settings = gson.fromJson<Array<Settings>>(jsonSettings, type)[0]
+        val config = MoodEntryModel("", "", Mood("5"))
+        when (settings.mood_numerals) {
+            "true" -> config.mood!!.moodMode = Mood.MOOD_MODE_NUMBERS
+        }
     }
 
     private fun initButtons() {
@@ -267,6 +301,8 @@ class MainActivity : AppCompatActivity() {
         ibSettings.setOnClickListener {
             startActivitySettings()
         }
+
+
 
         if (isDebugMode) {
             val ibAddNewDebug: ImageButton = findViewById(R.id.ibAddNewDebug)
@@ -294,12 +330,12 @@ class MainActivity : AppCompatActivity() {
         recyclerViewAdaptor.updateList(data)
     }
 
-    private fun readDatabaseForNewData() {
+    private fun readDatabaseForNewData(): ArrayList<MoodEntryModel> {
+        val moodData = ArrayList<MoodEntryModel>()
 
         myRef.child(user?.uid ?: "").child("moodEntries")
             .addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    val moodData = ArrayList<MoodEntryModel>()
                     if (snapshot.value == null) return
 
                     if (snapshot.value?.javaClass == HashMap<String, Any>().javaClass) {
@@ -309,13 +345,12 @@ class MainActivity : AppCompatActivity() {
                                     hashmap["date"].toString(),
                                     hashmap["time"].toString(),
                                     Mood(hashmap["mood"].toString()),
+                                    hashmap["feelings"] as MutableList<String>,
                                     hashmap["activities"] as MutableList<String>,
                                     key
                                 )
                             )
                         }
-
-                        recyclerViewAdaptor.updateList(moodData)
                     }
                 }
 
@@ -323,6 +358,7 @@ class MainActivity : AppCompatActivity() {
                     Log.d("Debug", "Failed to connect to database")
                 }
             })
+        return moodData
     }
 
     private fun checkDatabasePathExists() {
@@ -330,7 +366,7 @@ class MainActivity : AppCompatActivity() {
             .child("moodEntries").setValue("")
     }
 
-    private fun readFromLocalStore() {
+    private fun readFromLocalStore(): ArrayList<MoodEntryModel> {
         val jsonArray = loadFromJSONAsset()
         val moodData = ArrayList<MoodEntryModel>()
 
@@ -338,7 +374,7 @@ class MainActivity : AppCompatActivity() {
             val gson = GsonBuilder().create()
             val type = object : TypeToken<Array<Array<MoodEntryModel>>>() {}.type
             val moodEntries = gson.fromJson<Array<Array<MoodEntryModel>>>(jsonArray, type)
-            if (moodEntries.isEmpty()) return
+            if (moodEntries.isEmpty()) return moodData
 
             for (x in moodEntries[0].indices) {
                 when (settings.mood_numerals) {
@@ -349,7 +385,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        recyclerViewAdaptor.updateList(moodData)
+        return moodData
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -443,9 +479,16 @@ class MainActivity : AppCompatActivity() {
         choices.add("DnD")
         choices.add("Hanging out")
 
+        val availFeelings = resources.getStringArray(R.array.available_feelings)
+
         val list: MutableList<String> = ArrayList()
         for (i in 1..random.nextInt(4)) {
             list.add(choices[random.nextInt(0, choices.size - 1)])
+        }
+
+        val feelings: MutableList<String> = ArrayList()
+        for (i in 1..random.nextInt(4)) {
+            feelings.add(availFeelings[random.nextInt(0, availFeelings.size - 1)])
         }
 
         return if (isDebug) {
@@ -461,6 +504,7 @@ class MainActivity : AppCompatActivity() {
                     "$randomYear-$randMonth-$randDay",
                     "12:34",
                     Mood(randMood),
+                    feelings,
                     list,
                     UUID.randomUUID().toString()
                 )
@@ -469,6 +513,7 @@ class MainActivity : AppCompatActivity() {
                         "$randomYear-$randMonth-$randDay",
                         "12:34",
                         Mood("Average", Mood.MOOD_MODE_FACES),
+                        feelings,
                         list,
                         UUID.randomUUID().toString()
                     )
@@ -483,11 +528,12 @@ class MainActivity : AppCompatActivity() {
             val time = dateTimeNow.format(dateTimeFormatter)
 
             when (settings.mood_numerals) {
-                "true" -> MoodEntryModel(date, time, Mood("3"), list, UUID.randomUUID().toString())
+                "true" -> MoodEntryModel(date, time, Mood("3"), feelings, list, UUID.randomUUID().toString())
                 else -> MoodEntryModel(
                     date,
                     time,
                     Mood("Average", Mood.MOOD_MODE_FACES),
+                    feelings,
                     list,
                     UUID.randomUUID().toString()
                 )

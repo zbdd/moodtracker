@@ -9,6 +9,7 @@ class MoodEntryModel (
     val date: String? = null,
     val time: String? = null,
     val mood: Mood? = null,
+    val feelings: MutableList<String> = ArrayList(),
     val activities: MutableList<String> = ArrayList(),
     key: String = ""
 ):RowEntryModel(),
@@ -23,6 +24,7 @@ class MoodEntryModel (
             "date" to date,
             "time" to time,
             "mood" to mood,
+            "feelings" to feelings,
             "activities" to activities,
             "key" to key
         )
@@ -35,6 +37,7 @@ class MoodEntryModel (
         if (!time.equals(moodEntry.time)) isTheSame = false
         if (mood != moodEntry.mood) isTheSame = false
         if (activities != moodEntry.activities) isTheSame = false
+        if (feelings != moodEntry.feelings) isTheSame = false
 
         return isTheSame
     }

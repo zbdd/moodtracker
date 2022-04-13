@@ -10,8 +10,8 @@ import androidx.core.view.get
 import androidx.recyclerview.widget.RecyclerView
 
 
-class FeelingsRecycleViewAdaptor(context: Context, data: MutableList<String>, val onClick: (String) -> Unit, val onClickDelete: (String) -> Unit): RecyclerView.Adapter<FeelingsRecycleViewAdaptor.ActivitiesViewHolder>() {
-    class ActivitiesViewHolder(ItemView: View): RecyclerView.ViewHolder(ItemView) {
+class FeelingsRecycleViewAdaptor(context: Context, data: MutableList<String>, val onClick: (String) -> Unit, val onClickDelete: (String) -> Unit): RecyclerView.Adapter<FeelingsRecycleViewAdaptor.FeelingsViewHolder>() {
+    class FeelingsViewHolder(ItemView: View): RecyclerView.ViewHolder(ItemView) {
         val tvName: TextView = itemView.findViewById(R.id.tvFeelingsRowName)
         val tvCancel: TextView = itemView.findViewById(R.id.tvFeelingsRowCancel)
     }
@@ -34,13 +34,13 @@ class FeelingsRecycleViewAdaptor(context: Context, data: MutableList<String>, va
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ActivitiesViewHolder {
-        val view: View = mInflater?.inflate(R.layout.activities_recycle_view_row, parent,false) ?: View(parent.context)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FeelingsViewHolder {
+        val view: View = mInflater?.inflate(R.layout.feelings_recycle_view_row, parent,false) ?: View(parent.context)
         mGroup = parent
-        return ActivitiesViewHolder(view)
+        return FeelingsViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: ActivitiesViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: FeelingsViewHolder, position: Int) {
         holder.tvName.text = mData?.get(position) ?: "Error"
 
         holder.tvName.setOnClickListener {

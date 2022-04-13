@@ -78,6 +78,19 @@
         <item>Cooking</item>
         <item>Cleaning</item>
     </string-array>
+
+    <string-array name="available_feelings">
+        <item>Happy</item>
+        <item>Ecstatic</item>
+        <item>Okay</item>
+        <item>Unhappy</item>
+        <item>Terrible</item>
+        <item>Sad</item>
+        <item>Angry</item>
+        <item>Frustrated</item>
+        <item>Energetic</item>
+        <item>Motivated</item>
+    </string-array>
 </resources>
 
 
