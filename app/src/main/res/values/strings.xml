@@ -91,6 +91,15 @@
         <item>Energetic</item>
         <item>Motivated</item>
     </string-array>
+
+    <string-array name="valid_filter_row_keys">
+        <item>Today</item>
+        <item>Last Week</item>
+        <item>Last Month</item>
+        <item>Last Year</item>
+        <item>Years Ago</item>
+        <item></item>
+    </string-array>
 </resources>
 
 

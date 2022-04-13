@@ -164,6 +164,7 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
         val moods: ArrayList<MoodEntryModel> = ArrayList()
         val format = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH)
         val validKeys: ArrayList<String> = ArrayList()
+        validKeys.add("")
 
         for(i in moodList.indices) {
             when (moodList[i].viewType) {
@@ -188,15 +189,18 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
         var maxDate: LocalDate = LocalDate.now()
         var minDate: LocalDate = LocalDate.now()
         var pos: Int = -1
+        var posLast = -1
 
         when (title) {
             "Today" -> {
                 pos = moods.indexOfFirst { LocalDate.parse(it.date!!, format) == maxDate }
+                posLast = moods.indexOfLast { LocalDate.parse(it.date!!, format) == maxDate }
             }
             "Last Week" -> {
                 maxDate = LocalDate.parse("${LocalDate.now().minusWeeks(1)}", format)
                 minDate = LocalDate.parse("${LocalDate.now().minusWeeks(2)}", format)
                 pos = moods.indexOfFirst { LocalDate.parse(it.date!!, format) < maxDate && LocalDate.parse(it.date, format) > minDate }
+                posLast = moods.indexOfLast { LocalDate.parse(it.date!!, format) < maxDate && LocalDate.parse(it.date, format) > minDate }
             }
             "Last Month" -> {
                 var date: String = LocalDate.now().minusMonths(0).format(DateTimeFormatter.ofPattern("yyyy-MM")) + "-01"
@@ -205,11 +209,13 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
                 date = LocalDate.now().minusMonths(2).format(DateTimeFormatter.ofPattern("yyyy-MM")) + "-" + LocalDate.now().minusMonths(1).lengthOfMonth()
                 minDate = LocalDate.parse(date, format)
                 pos = moods.indexOfFirst { LocalDate.parse(it.date!!, format) < maxDate && LocalDate.parse(it.date, format) > minDate }
+                posLast = moods.indexOfLast { LocalDate.parse(it.date!!, format) < maxDate && LocalDate.parse(it.date, format) > minDate }
             }
             "Last Year" -> {
                 maxDate = LocalDate.parse("${LocalDate.now().year}-01-01", format)
                 minDate = LocalDate.parse("${LocalDate.now().year - 2}-12-31", format)
                 pos = moods.indexOfFirst { LocalDate.parse(it.date!!, format) < maxDate && LocalDate.parse(it.date, format) > minDate }
+                posLast = moods.indexOfLast { LocalDate.parse(it.date!!, format) < maxDate && LocalDate.parse(it.date, format) > minDate }
             }
             "Years Ago" -> {
                 maxDate = LocalDate.parse("${LocalDate.now().year - 1}-01-01", format)
@@ -219,12 +225,14 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
 
         if (pos != -1) {
             moods.add(pos, MoodEntryModel("2222-01-01","12:01",Mood("5"),ArrayList(),ArrayList(),title))
+            if (posLast != -1) moods.add((posLast + 2), MoodEntryModel("2222-01-01","12:01",Mood("5"),ArrayList(),ArrayList(),""))
         }
 
         moodList.clear()
         for (i in moods.indices) {
             when {
                 moods[i].key == title -> moodList.add(FilterEntryModel(title))
+                moods[i].key == "" -> moodList.add(FilterEntryModel(""))
                 validKeys.contains(moods[i].key) -> moodList.add(FilterEntryModel(moods[i].key))
                 else -> moodList.add(moods[i])
             }
@@ -232,7 +240,8 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
             if (i < moodList.size)
                 if( moodList[i].viewType == RowEntryModel.FILTER_ENTRY_TYPE)
                     if (i > 0)
-                        if (moodList[i -1].viewType == RowEntryModel.FILTER_ENTRY_TYPE) moodList.removeAt(i - 1)
+                        if (moodList[i - 1].key != "")
+                            if (moodList[i -1].viewType == RowEntryModel.FILTER_ENTRY_TYPE) moodList.removeAt(i - 1)
         }
         notifyDataSetChanged()
     }
