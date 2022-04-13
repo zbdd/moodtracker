@@ -60,8 +60,8 @@
             android:id="@+id/llMainRowVertical"
             android:layout_width="30dp"
             android:layout_height="match_parent"
+            android:layout_marginRight="5dp"
             android:layout_weight="0"
-            android:background="@drawable/activity_row_rounded_corner"
             android:orientation="vertical">
 
             <TextView

@@ -293,7 +293,7 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
                         mHolder.moodText.text.toString()
                             .toInt() < 3 -> mHolder.moodText.setBackgroundResource(R.drawable.mood_rating_colour_low)
                         mHolder.moodText.text.toString()
-                            .toInt() == 3 -> mHolder.moodText.setBackgroundResource(0)
+                            .toInt() == 3 -> mHolder.moodText.setBackgroundResource(R.drawable.mood_rating_colour)
                     }
                 } else mHolder.moodText.setBackgroundResource(0)
 
