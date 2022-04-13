@@ -3,19 +3,21 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="30dp"
+    android:layout_height="wrap_content"
     android:layout_margin="5dp">
 
     <TextView
         android:id="@+id/tvFilterTitle"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="0dp"
         android:autoSizeTextType="uniform"
         android:background="@drawable/activity_row_rounded_corner"
         android:backgroundTint="#BDBABA"
         android:gravity="center_horizontal|center_vertical"
         android:text="@string/main_row_filter_title"
         android:textColor="@color/black"
+        android:textSize="18sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
