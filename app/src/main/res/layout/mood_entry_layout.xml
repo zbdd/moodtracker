@@ -3,75 +3,121 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="60dp">
+    android:layout_height="85dp">
 
     <LinearLayout
-        android:id="@+id/horizLayout"
+        android:id="@+id/llMainRowTop"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_weight="1"
         android:background="@drawable/activity_row_rounded_corner"
         android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
-            android:layout_width="293dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="4"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
             android:orientation="vertical">
 
             <TextView
                 android:id="@+id/tvMoodDate"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
+                android:layout_weight="1"
                 android:ems="10"
+                android:gravity="center_vertical"
                 android:text="@string/default_date"
                 android:textAlignment="center"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                 android:textColor="@color/black"
-                android:textSize="18sp"
+                android:textSize="16sp"
                 tools:ignore="TouchTargetSizeCheck" />
 
             <TextView
                 android:id="@+id/tvMoodTime"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_weight="1"
                 android:ems="10"
+                android:gravity="center_vertical"
                 android:text="@string/default_time"
                 android:textAlignment="center"
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                 android:textColor="@color/black"
+                android:textSize="16sp"
                 tools:ignore="TouchTargetSizeCheck" />
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/tvMoodRating"
-            android:layout_width="120dp"
+        <LinearLayout
+            android:id="@+id/llMainRowVertical"
+            android:layout_width="30dp"
             android:layout_height="match_parent"
-            android:layout_weight="2"
-            android:gravity="center_vertical"
-            android:text="@string/default_mood"
-            android:textAlignment="center"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:textColor="@color/black"
-            android:textSize="24sp"
-            tools:ignore="RtlCompat,TouchTargetSizeCheck" />
+            android:layout_weight="0"
+            android:background="@drawable/activity_row_rounded_corner"
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/etActivityText"
-            android:layout_width="200dp"
+            <TextView
+                android:id="@+id/tvMoodRating"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="0"
+                android:gravity="center_vertical"
+                android:text="@string/default_mood"
+                android:textAlignment="center"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:textColor="@color/black"
+                android:textSize="24sp"
+                tools:ignore="RtlCompat,TouchTargetSizeCheck" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_margin="5dp"
             android:layout_weight="1"
-            android:autoSizeMaxTextSize="16sp"
-            android:autoSizeTextType="uniform"
-            android:ems="10"
-            android:gravity="center_vertical"
-            android:textAlignment="center"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-            android:textColor="@color/black"
-            tools:ignore="RtlCompat" />
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/etActivityText"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:autoSizeMaxTextSize="18sp"
+                android:autoSizeMinTextSize="8sp"
+                android:autoSizeTextType="uniform"
+                android:background="#F4F1F1"
+                android:ems="10"
+                android:gravity="center_vertical"
+                android:text="@string/main_row_activities"
+                android:textAlignment="center"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                tools:ignore="RtlCompat" />
+
+            <TextView
+                android:id="@+id/tvMainRowFeelings"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:autoSizeMaxTextSize="18sp"
+                android:autoSizeMinTextSize="8sp"
+                android:autoSizeTextType="uniform"
+                android:background="#F4E6E6"
+                android:gravity="center_vertical"
+                android:text="@string/main_row_feelings"
+                android:textAlignment="center"
+                android:textColor="@color/black"
+                android:textSize="16sp" />
+        </LinearLayout>
 
     </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
