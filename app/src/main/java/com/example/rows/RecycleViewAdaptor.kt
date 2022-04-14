@@ -23,6 +23,17 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
     private var sortBy = "date"
     lateinit var viewHolder: ViewHolder
 
+    fun getMoodList(): ArrayList<MoodEntryModel> {
+        val moodArray = ArrayList<MoodEntryModel>()
+
+        for(item in moodList) {
+            when (item.viewType) {
+                RowEntryModel.MOOD_ENTRY_TYPE -> moodArray.add(item as MoodEntryModel)
+            }
+        }
+        return moodArray
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         viewHolder = when (viewType) {
             RowEntryModel.FILTER_ENTRY_TYPE -> FilterViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.filter_entry_layout, parent, false))

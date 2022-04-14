@@ -101,6 +101,7 @@ class MainActivity : AppCompatActivity() {
         val intent = Intent(this, SettingsActivity::class.java)
 
         intent.putExtra("Settings", settings)
+        intent.putParcelableArrayListExtra("MoodEntries", recyclerViewAdaptor.getMoodList() as java.util.ArrayList<out Parcelable>)
 
         getSettingsActivityResult.launch(intent)
 

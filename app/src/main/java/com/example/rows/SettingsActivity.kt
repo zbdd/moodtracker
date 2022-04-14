@@ -3,6 +3,7 @@ package com.example.rows
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.os.Parcelable
 import android.widget.Button
@@ -12,10 +13,14 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import org.w3c.dom.Text
+import java.io.File
+import java.io.OutputStream
 import java.lang.Exception
+import java.net.URI
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -37,7 +42,10 @@ class SettingsActivity() : AppCompatActivity() {
         val tvSettingsImport: TextView = findViewById(R.id.tvSettingsImport)
         val tvSettingsExport: TextView = findViewById(R.id.tvSettingsExport)
         val bSettingsConfirm: Button = findViewById(R.id.bSettingsConfirm)
-        val moodData = ArrayList<MoodEntryModel>()
+        var moodData = ArrayList<MoodEntryModel>()
+
+        val moodEntries = intent.getParcelableArrayListExtra<Parcelable>("MoodEntries")
+        if (moodEntries != null) moodData = intent.getParcelableArrayListExtra<Parcelable>("MoodEntries") as ArrayList<MoodEntryModel>
 
         val settings = intent.getParcelableExtra<Settings>("Settings")
         sMoodNumerals.isChecked = settings?.mood_numerals?.equals("true") ?: false
@@ -52,6 +60,7 @@ class SettingsActivity() : AppCompatActivity() {
             val intent = Intent()
                 .setType("text/json")
                 .addCategory(Intent.CATEGORY_OPENABLE)
+                .putExtra(Intent.EXTRA_TITLE, "zoodle_export.json")
                 .setAction(Intent.ACTION_CREATE_DOCUMENT)
             getExportJsonFileResult.launch(intent)
         }
@@ -73,7 +82,19 @@ class SettingsActivity() : AppCompatActivity() {
         }
 
         getExportJsonFileResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { exportResult ->
-            println(exportResult)
+
+            try {
+                val gson = Gson()
+                val data = exportResult.data?.data
+                val outStream = data?.let { contentResolver.openOutputStream(it, "w") }
+                val jsonString = gson.toJson(moodData)
+                outStream?.write(jsonString.toByteArray())
+                outStream?.flush()
+                outStream?.close()
+            } catch (e: Exception) {
+                Toast.makeText(this, "Unable to write to file", Toast.LENGTH_SHORT)
+            }
+
         }
 
         getImportJsonFileResult =
