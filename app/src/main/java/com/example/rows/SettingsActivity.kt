@@ -14,9 +14,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
+import org.w3c.dom.Text
 import java.lang.Exception
 import java.time.LocalDate
-import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.collections.ArrayList
@@ -26,6 +26,7 @@ import kotlin.collections.HashMap
 class SettingsActivity() : AppCompatActivity() {
 
     private lateinit var getImportJsonFileResult: ActivityResultLauncher<Intent>
+    private lateinit var getExportJsonFileResult: ActivityResultLauncher<Intent>
 
     @SuppressLint("UseSwitchCompatOrMaterialCode")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,6 +35,7 @@ class SettingsActivity() : AppCompatActivity() {
 
         val sMoodNumerals: Switch = findViewById(R.id.sMoodNumerals)
         val tvSettingsImport: TextView = findViewById(R.id.tvSettingsImport)
+        val tvSettingsExport: TextView = findViewById(R.id.tvSettingsExport)
         val bSettingsConfirm: Button = findViewById(R.id.bSettingsConfirm)
         val moodData = ArrayList<MoodEntryModel>()
 
@@ -44,6 +46,14 @@ class SettingsActivity() : AppCompatActivity() {
             run {
                 settings?.mood_numerals = isChecked.toString()
             }
+        }
+
+        tvSettingsExport.setOnClickListener {
+            val intent = Intent()
+                .setType("text/json")
+                .addCategory(Intent.CATEGORY_OPENABLE)
+                .setAction(Intent.ACTION_CREATE_DOCUMENT)
+            getExportJsonFileResult.launch(intent)
         }
 
         tvSettingsImport.setOnClickListener {
@@ -60,6 +70,10 @@ class SettingsActivity() : AppCompatActivity() {
             finishIntent.putParcelableArrayListExtra("MoodEntries", moodData as java.util.ArrayList<out Parcelable>)
             setResult(RESULT_OK, finishIntent)
             finish()
+        }
+
+        getExportJsonFileResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { exportResult ->
+            println(exportResult)
         }
 
         getImportJsonFileResult =

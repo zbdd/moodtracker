@@ -63,10 +63,31 @@
                 android:layout_weight="1"
                 android:background="@drawable/activity_row_rounded_corner"
                 android:gravity="center_horizontal|center_vertical"
-                android:text="@string/settings_choose_file"
+                android:text="@string/settings_import"
                 android:textColor="@color/black"
                 android:textSize="16sp" />
 
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_weight="0"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tvSettingsExport"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:background="@drawable/activity_row_rounded_corner"
+                android:gravity="center_horizontal|center_vertical"
+                android:text="@string/settings_export"
+                android:textColor="@color/black"
+                android:textSize="16sp" />
         </LinearLayout>
 
         <LinearLayout
