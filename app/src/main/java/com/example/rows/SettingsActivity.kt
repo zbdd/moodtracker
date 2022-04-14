@@ -26,6 +26,7 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
+import kotlin.math.ceil
 
 
 class SettingsActivity() : AppCompatActivity() {
@@ -163,11 +164,13 @@ class SettingsActivity() : AppCompatActivity() {
                                 ).show()
                             }
 
+                            val moodNum = (ceil(mood["mood"]?.toDouble()?.div(2) as Double).toInt().toString())
+
                             moodData.add(
                                 MoodEntryModel(
                                     date.toString(),
                                     time,
-                                    mood["mood"]?.let { Mood(it) },
+                                    Mood(moodNum),
                                     moodFeelings,
                                     moodActivities,
                                     mood["key"]?.let { UUID.randomUUID().toString() }
