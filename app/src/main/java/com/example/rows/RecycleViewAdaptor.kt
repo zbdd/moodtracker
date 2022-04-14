@@ -233,7 +233,7 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
             when {
                 moods[i].key == title -> moodList.add(FilterEntryModel(title))
                 moods[i].key == "" -> moodList.add(FilterEntryModel(""))
-                validKeys.contains(moods[i].key) -> moodList.add(FilterEntryModel(moods[i].key))
+                validKeys.contains(moods[i].key) -> moodList.add(FilterEntryModel(moods[i].key.toString()))
                 else -> moodList.add(moods[i])
             }
             // Prevent two filter rows one after the other
