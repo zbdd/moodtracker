@@ -43,16 +43,16 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
     }
 
     fun updateListConfig(config: MoodEntryModel) {
-        for(item in moodList) {
-            if (item.viewType == RowEntryModel.MOOD_ENTRY_TYPE) {
-                val mood = item as MoodEntryModel
+        for(i in moodList.indices) {
+            if (moodList[i].viewType == RowEntryModel.MOOD_ENTRY_TYPE) {
+                val mood = moodList[i] as MoodEntryModel
                 when (config.mood!!.moodMode) {
                     Mood.MOOD_MODE_FACES ->  mood.mood?.toFaces()
                     Mood.MOOD_MODE_NUMBERS -> mood.mood?.toNumber()
                 }
+                notifyItemChanged(i)
             }
         }
-        updateList()
     }
 
     fun updateList(data: ArrayList<MoodEntryModel> = ArrayList(0)) {
