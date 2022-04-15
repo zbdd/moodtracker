@@ -43,8 +43,9 @@ class SettingsActivity() : AppCompatActivity() {
         val tvSettingsImport: TextView = findViewById(R.id.tvSettingsImport)
         val tvSettingsExport: TextView = findViewById(R.id.tvSettingsExport)
         val bSettingsConfirm: Button = findViewById(R.id.bSettingsConfirm)
-        var moodData = ArrayList<MoodEntryModel>()
+        var dataImport = ArrayList<MoodEntryModel>()
 
+        var moodData = ArrayList<MoodEntryModel>()
         val moodEntries = intent.getParcelableArrayListExtra<Parcelable>("MoodEntries")
         if (moodEntries != null) moodData = intent.getParcelableArrayListExtra<Parcelable>("MoodEntries") as ArrayList<MoodEntryModel>
 
@@ -77,13 +78,12 @@ class SettingsActivity() : AppCompatActivity() {
         bSettingsConfirm.setOnClickListener {
             val finishIntent = Intent()
             finishIntent.putExtra("Settings", settings)
-            finishIntent.putParcelableArrayListExtra("MoodEntries", moodData as java.util.ArrayList<out Parcelable>)
+            if (dataImport.isNotEmpty()) finishIntent.putParcelableArrayListExtra("MoodEntries", dataImport as java.util.ArrayList<out Parcelable>)
             setResult(RESULT_OK, finishIntent)
             finish()
         }
 
         getExportJsonFileResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { exportResult ->
-
             try {
                 val gson = Gson()
                 val data = exportResult.data?.data
@@ -166,14 +166,19 @@ class SettingsActivity() : AppCompatActivity() {
 
                             val moodNum = (ceil(mood["mood"]?.toDouble()?.div(2) as Double).toInt().toString())
 
-                            moodData.add(
+                            val key = when (mood["key"]) {
+                                null -> UUID.randomUUID().toString()
+                                else -> mood["key"]
+                            }
+
+                            dataImport.add(
                                 MoodEntryModel(
                                     date.toString(),
                                     time,
                                     Mood(moodNum),
                                     moodFeelings,
                                     moodActivities,
-                                    mood["key"]?.let { UUID.randomUUID().toString() }
+                                    key
                                 )
                             )
                         }
