@@ -88,7 +88,7 @@ class MainActivity : AppCompatActivity() {
         if (jsonArray.isNotEmpty()) {
             val gson = GsonBuilder().create()
             val activities = gson.fromJson(jsonArray, ArrayList::class.java)
-            var data = activities[0] as ArrayList<String>
+            val data = activities as ArrayList<String>
             intent.putStringArrayListExtra("AvailableActivities", data)
         }
 
@@ -101,10 +101,10 @@ class MainActivity : AppCompatActivity() {
         val intent = Intent(this, SettingsActivity::class.java)
 
         intent.putExtra("Settings", settings)
-        intent.putParcelableArrayListExtra("MoodEntries", recyclerViewAdaptor.getMoodList() as java.util.ArrayList<out Parcelable>)
+        val data = recyclerViewAdaptor.getMoodList() as java.util.ArrayList<out Parcelable>
+        if (data.isNotEmpty()) intent.putParcelableArrayListExtra("MoodEntries", data)
 
         getSettingsActivityResult.launch(intent)
-
     }
 
     private fun startActivityFeelings(moodEntry: MoodEntryModel) {

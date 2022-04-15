@@ -1,5 +1,7 @@
 package com.example.rows
 
+import android.app.Application
+import android.content.Context
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -27,6 +29,18 @@ import kotlin.collections.ArrayList
 class TrendViewActivity() : AppCompatActivity() {
 
     private var moodData = ArrayList<MoodEntryModel>()
+    private var lineFilter = "days"
+
+    class MyFormat(val context: Context): ValueFormatter() {
+        override fun getAxisLabel(value: Float, axis: AxisBase?): String {
+            val mood = Mood(value.toInt().toString())
+            mood.toFaces()
+
+            if (mood.toEmoji() == null) return value.toString()
+
+            return context.resources.getString(mood.toEmoji() as Int)
+        }
+    }
 
     class ChartValueFormatter: ValueFormatter() {
         override fun getAxisLabel(value: Float, axis: AxisBase?): String {
@@ -56,7 +70,7 @@ class TrendViewActivity() : AppCompatActivity() {
         for (moods in moodData) {
             var moodNumber = moods.mood?.value
             if (moods.mood?.moodMode == Mood.MOOD_MODE_FACES) moodNumber = moods.mood.toNumber()
-            entryList.add(Entry(SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH).parse(moods.date ?: "2000-00-01").time.toFloat(),
+            entryList.add(Entry(SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH).parse(moods.date).time.toFloat(),
                 (moodNumber?.toFloat() ?: 0.0) as Float)
             )
         }
@@ -65,9 +79,9 @@ class TrendViewActivity() : AppCompatActivity() {
 
         val lineDataSet = LineDataSet(entryList, "Mood")
         lineDataSet.color = Color.WHITE
-        lineDataSet.circleRadius = 10f
-        lineDataSet.valueTextSize = 20F
-        lineDataSet.lineWidth = 4f
+        lineDataSet.circleRadius = 0f
+        lineDataSet.valueTextSize = 10F
+        lineDataSet.lineWidth = 2f
         lineDataSet.fillColor = Color.WHITE
         lineDataSet.valueTextColor = Color.WHITE
         lineDataSet.mode = LineDataSet.Mode.HORIZONTAL_BEZIER;
@@ -89,10 +103,13 @@ class TrendViewActivity() : AppCompatActivity() {
         xAxis.labelRotationAngle = 90f
         xAxis.setDrawGridLines(false)
 
+
         var yAxis = chart.axisLeft
         yAxis.textColor = Color.WHITE
-        yAxis.axisMaximum = 10f
+        yAxis.axisMaximum = 5f
         yAxis.axisMinimum = 0f
+        yAxis.granularity = 1f
+        if (moodData.isNotEmpty()) if (moodData[0].mood?.moodMode == Mood.MOOD_MODE_FACES) yAxis.valueFormatter = MyFormat(applicationContext)
         yAxis.setDrawGridLines(false)
     }
 
