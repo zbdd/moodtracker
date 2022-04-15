@@ -167,7 +167,8 @@ class MainActivity : AppCompatActivity() {
                 moodValue,
                 mood.feelings,
                 mood.activities,
-                mood.key
+                mood.key,
+                LocalDateTime.now().toString()
             )
             clNumberPicker.visibility = View.INVISIBLE
             recyclerViewAdaptor.updateMoodEntry(newMood)

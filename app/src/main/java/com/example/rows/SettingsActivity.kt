@@ -22,6 +22,7 @@ import java.io.OutputStream
 import java.lang.Exception
 import java.net.URI
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.collections.ArrayList
@@ -171,6 +172,11 @@ class SettingsActivity() : AppCompatActivity() {
                                 else -> mood["key"]
                             }
 
+                            var lastUpdated = when (mood["lastUpdated"]) {
+                                null -> LocalDateTime.now().toString()
+                                else -> mood["lastUpdated"]
+                            }
+
                             dataImport.add(
                                 MoodEntryModel(
                                     date.toString(),
@@ -178,7 +184,8 @@ class SettingsActivity() : AppCompatActivity() {
                                     Mood(moodNum),
                                     moodFeelings,
                                     moodActivities,
-                                    key
+                                    key,
+                                    lastUpdated
                                 )
                             )
                         }

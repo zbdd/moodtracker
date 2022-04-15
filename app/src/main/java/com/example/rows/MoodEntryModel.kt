@@ -3,6 +3,7 @@ package com.example.rows
 import com.google.firebase.database.Exclude
 import com.google.firebase.database.IgnoreExtraProperties
 import java.io.Serializable
+import java.time.LocalDateTime
 
 @IgnoreExtraProperties
 class MoodEntryModel(
@@ -11,7 +12,8 @@ class MoodEntryModel(
     val mood: Mood? = Mood(),
     val feelings: MutableList<String> = ArrayList(),
     val activities: MutableList<String> = ArrayList(),
-    key: String? = "mood_entry_key"
+    key: String? = "mood_entry_key",
+    var lastUpdated: String? = LocalDateTime.now().toString()
 ):RowEntryModel(),
     Serializable {
 
