@@ -36,10 +36,10 @@ class MoodEntryModel(
         var isTheSame = true
 
         if (!date.equals(moodEntry.date)) isTheSame = false
-        if (!time.equals(moodEntry.time)) isTheSame = false
-        if (mood != moodEntry.mood) isTheSame = false
-        if (activities != moodEntry.activities) isTheSame = false
-        if (feelings != moodEntry.feelings) isTheSame = false
+        else if (!time.equals(moodEntry.time)) isTheSame = false
+        else if (mood?.value != moodEntry.mood?.value) isTheSame = false
+        else if (activities != moodEntry.activities) isTheSame = false
+        else if (feelings != moodEntry.feelings) isTheSame = false
 
         return isTheSame
     }

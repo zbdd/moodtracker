@@ -57,39 +57,44 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
 
     fun updateList(data: ArrayList<MoodEntryModel> = ArrayList(0)) {
         val removeList: MutableList<MoodEntryModel> = ArrayList()
+        val format = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss", Locale.ENGLISH)
 
-        if (data.isNotEmpty()) {
-            for (entry in data) {
-                if (entry.viewType == RowEntryModel.MOOD_ENTRY_TYPE) {
-                    val position = moodList.indexOfFirst { it.key == entry.key }
+        if (data.isEmpty()) return
 
-                    if (position != -1) {
-                        val moodEntry = moodList[position] as MoodEntryModel
-                        if (moodEntry.compare(entry)) {
+        for (moodEntry in data) {
+            for (i in moodList.indices) {
+                if (moodList[i].viewType == RowEntryModel.MOOD_ENTRY_TYPE) {
+                    val moodListItem = moodList[i] as MoodEntryModel
+                    if (moodListItem.key.equals(moodEntry.key)) {
+                        val moodListItem = moodList[i] as MoodEntryModel
+                        if (LocalDate.parse(moodListItem.lastUpdated?.substring(0,19), format) < LocalDate.parse(
+                                moodEntry.lastUpdated?.substring(0,19),
+                                format
+                            )
+                        ) {
+                            moodList[i] = moodEntry
                             removeList.add(moodEntry)
-                            moodList[position] = entry
-                            notifyItemChanged(position)
-                        }
-                    } else {
-                        for (x in moodList.indices) {
-                            if (moodList[x].viewType == RowEntryModel.MOOD_ENTRY_TYPE) {
-                                val mdEntry = moodList[x] as MoodEntryModel
-                                if (mdEntry.compare(entry)) {
-                                    moodList[x] = entry
-                                    notifyItemChanged(x)
-                                }
-                            }
-                        }
+                            notifyItemChanged(i)
+                        } else removeList.add(moodEntry)
+                    } else if (moodListItem.compare(moodEntry)) {
+                        if (LocalDate.parse(moodListItem.lastUpdated?.substring(0,19), format) < LocalDate.parse(
+                                moodEntry.lastUpdated?.substring(0,19),
+                                format
+                            )
+                        ) {
+                            moodList[i] = moodEntry
+                            removeList.add(moodEntry)
+                            notifyItemChanged(i)
+                        } else removeList.add(moodEntry)
                     }
                 }
             }
-            for (entry in removeList) {
-                data.remove(entry)
-            }
-            for (entry in data) {
-                moodList.add(entry)
-                notifyItemInserted(moodList.size - 1)
-            }
+        }
+        for (item in removeList) {
+            data.remove(item)
+        }
+        for (moodEntry in data) {
+            moodList.add(moodEntry)
         }
 
         data.clear()
