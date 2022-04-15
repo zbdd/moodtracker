@@ -134,20 +134,22 @@ class MainActivity : AppCompatActivity() {
     private fun setupMoodPicker(mood: MoodEntryModel) {
         val numberPicker: NumberPicker = findViewById(R.id.npNumberPicker)
 
-        when (mood.mood?.moodMode) {
-            Mood.MOOD_MODE_NUMBERS -> {
+        when (settings.mood_numerals) {
+            "true" -> {
 
                 numberPicker.maxValue = 5
                 numberPicker.minValue = 1
                 numberPicker.wrapSelectorWheel = true
-                numberPicker.value = mood.mood.value?.toInt() ?: 3
+                numberPicker.displayedValues = arrayOf("1","2","3","4","5")
+                numberPicker.textColor = Color.WHITE
+                numberPicker.value = mood.mood?.value?.toInt() ?: 3
 
             }
-            Mood.MOOD_MODE_FACES -> {
+            "false" -> {
                 numberPicker.displayedValues = resources.getStringArray(R.array.mood_faces)
                 numberPicker.minValue = 0
                 numberPicker.maxValue = resources.getStringArray(R.array.mood_faces).size - 1
-                numberPicker.value = (mood.mood.toNumber().toInt() - 1)
+                numberPicker.value = (mood.mood?.toNumber()?.toInt()?.minus(1) as Int)
             }
         }
 
