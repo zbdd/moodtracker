@@ -26,6 +26,7 @@
     <string name="trend_reset">Reset</string>
     <string name="trend_month">Month</string>
     <string name="trend_year">Year</string>
+    <string name="trend_title">How have you been</string>
 
     <string name="activities_choose">Choose your activity…</string>
     <string name="activities_selected">Selected</string>

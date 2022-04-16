@@ -1,12 +1,10 @@
 package com.example.rows
 
-import android.app.Application
 import android.content.Context
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
-import com.example.rows.databinding.ActivityTrendViewBinding
 import com.github.mikephil.charting.animation.Easing
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.AxisBase
@@ -23,7 +21,6 @@ import com.github.mikephil.charting.formatter.ValueFormatter
 import com.github.mikephil.charting.utils.EntryXComparator
 import java.text.SimpleDateFormat
 import java.util.*
-import java.util.logging.SimpleFormatter
 import kotlin.collections.ArrayList
 
 class TrendViewActivity() : AppCompatActivity() {
@@ -42,9 +39,10 @@ class TrendViewActivity() : AppCompatActivity() {
         }
     }
 
-    class ChartValueFormatter(val filter: String): ValueFormatter() {
+    class ChartValueFormatter(private val filter: String): ValueFormatter() {
         override fun getAxisLabel(value: Float, axis: AxisBase?): String {
             val formatter = when (filter) {
+                "year" -> SimpleDateFormat("yyyy-MM", Locale.ENGLISH)
                 "month" -> SimpleDateFormat("yyyy-MM", Locale.ENGLISH)
                 else -> SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
             }
@@ -65,6 +63,7 @@ class TrendViewActivity() : AppCompatActivity() {
         val bViewData: Button = findViewById(R.id.bViewData)
         val bReset: Button = findViewById(R.id.bTrendReset)
         val bMonth: Button = findViewById(R.id.bTrendMonth)
+        val bYear: Button = findViewById(R.id.bTrendYear)
 
         bReset.setOnClickListener {
             filter = "default"
@@ -76,6 +75,11 @@ class TrendViewActivity() : AppCompatActivity() {
             setLineChartData()
         }
 
+        bYear.setOnClickListener {
+            filter = "year"
+            setLineChartData()
+        }
+
         bViewData.setOnClickListener {
             finish()
         }
@@ -83,49 +87,59 @@ class TrendViewActivity() : AppCompatActivity() {
 
     private fun setLineChartData() {
         val entryList: ArrayList<Entry> = ArrayList()
-        var monthArray = mutableMapOf<String, ArrayList<Int>>()
+        val timeArray = mutableMapOf<String, ArrayList<Int>>()
+        var subStringLength = 4
+        var dateFormat = SimpleDateFormat(
+            "yyyy-MM-dd",
+            Locale.ENGLISH
+        )
+        var format = "yyyy"
 
         for (moods in moodData) {
             var moodNumber = moods.mood?.value
-            var month = ""
+            var timePeriod = ""
 
             if (moods.mood?.moodMode == Mood.MOOD_MODE_FACES) moodNumber = moods.mood.toNumber()
 
             if (filter == "month") {
-                if (month == "" || month != moods.date?.substring(0, 7)) {
-                    month =
-                        moods.date?.substring(0, 7) as String
-                    if (monthArray[month] == null) monthArray[month] = ArrayList()
+                format = "yyyy-MM"
+                subStringLength = 7
+            } else if (filter == "year") format = "yyyy"
+
+            if (filter != "default") {
+                dateFormat = SimpleDateFormat(
+                    format,
+                    Locale.ENGLISH
+                )
+
+                if (timePeriod == "" || timePeriod != moods.date?.substring(0, subStringLength)) {
+                    timePeriod =
+                        moods.date?.substring(0, subStringLength) as String
+                    if (timeArray[timePeriod] == null) timeArray[timePeriod] = ArrayList()
                     val value = moods.mood?.toNumber()?.toInt() as Int
-                    monthArray[month]?.add(value)
+                    timeArray[timePeriod]?.add(value)
                 }
             } else {
                 entryList.add(
                     Entry(
-                        SimpleDateFormat(
-                            "yyyy-MM-dd",
-                            Locale.ENGLISH
-                        ).parse(moods.date).time.toFloat(),
+                        dateFormat.parse(moods.date.toString())?.time?.toFloat() ?: 0.0.toFloat(),
                         (moodNumber?.toFloat() ?: 0.0) as Float
                     )
                 )
             }
         }
 
-            if (filter == "month") {
-                for ((key, value) in monthArray) {
+            if (filter != "default") {
+                for ((key, value) in timeArray) {
                     var average = 0
-                    for (data in monthArray[key]!!) {
+                    for (data in timeArray[key]!!) {
                         average += data
                     }
-                    average /= monthArray[key]!!.size
+                    average /= timeArray[key]!!.size
                     entryList.add(
                     Entry(
-                        SimpleDateFormat(
-                            "yyyy-MM",
-                            Locale.ENGLISH
-                        ).parse(key).time.toFloat(),
-                        (average?.toFloat() ?: 0.0) as Float
+                        dateFormat.parse(key)?.time?.toFloat() ?: 0.0.toFloat(),
+                        (average.toFloat() ?: 0.0) as Float
                     ))
                 }
             }
@@ -134,7 +148,7 @@ class TrendViewActivity() : AppCompatActivity() {
 
         val lineDataSet = LineDataSet(entryList, "Mood")
         lineDataSet.color = Color.WHITE
-        lineDataSet.circleRadius = 0f
+        lineDataSet.circleRadius = 1f
         lineDataSet.valueTextSize = 10F
         lineDataSet.lineWidth = 2f
         lineDataSet.fillColor = Color.WHITE
@@ -151,7 +165,7 @@ class TrendViewActivity() : AppCompatActivity() {
         chart.setBackgroundColor(Color.BLACK)
         chart.animateXY(2000, 2000, Easing.EaseInCubic)
 
-        var xAxis = chart.xAxis
+        val xAxis = chart.xAxis
         xAxis.position = XAxis.XAxisPosition.BOTTOM
         xAxis.textColor = Color.WHITE
         xAxis.valueFormatter = ChartValueFormatter(filter)
@@ -159,7 +173,7 @@ class TrendViewActivity() : AppCompatActivity() {
         xAxis.setDrawGridLines(false)
 
 
-        var yAxis = chart.axisLeft
+        val yAxis = chart.axisLeft
         yAxis.textColor = Color.WHITE
         yAxis.axisMaximum = 5f
         yAxis.axisMinimum = 0f
@@ -182,7 +196,7 @@ class TrendViewActivity() : AppCompatActivity() {
     }
 
     private fun loadFromJSONAsset(): String {
-        var json: String
+        val json: String
 
         val path = this.filesDir.absoluteFile
 
