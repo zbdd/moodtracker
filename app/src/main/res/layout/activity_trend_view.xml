@@ -57,4 +57,39 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/getTheGraph" />
 
+    <LinearLayout
+        android:id="@+id/llTrendOptions"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/bViewData">
+
+        <Button
+            android:id="@+id/bTrendReset"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            android:text="@string/trend_reset" />
+
+        <Button
+            android:id="@+id/bTrendMonth"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            android:text="@string/trend_month" />
+
+        <Button
+            android:id="@+id/bTrendYear"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            android:text="@string/trend_year" />
+    </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -136,7 +136,6 @@ class MainActivity : AppCompatActivity() {
 
         when (settings.mood_numerals) {
             "true" -> {
-
                 numberPicker.maxValue = 5
                 numberPicker.minValue = 1
                 numberPicker.wrapSelectorWheel = true

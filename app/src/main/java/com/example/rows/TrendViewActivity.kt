@@ -29,7 +29,7 @@ import kotlin.collections.ArrayList
 class TrendViewActivity() : AppCompatActivity() {
 
     private var moodData = ArrayList<MoodEntryModel>()
-    private var lineFilter = "days"
+    private var filter = "default"
 
     class MyFormat(val context: Context): ValueFormatter() {
         override fun getAxisLabel(value: Float, axis: AxisBase?): String {
@@ -42,9 +42,12 @@ class TrendViewActivity() : AppCompatActivity() {
         }
     }
 
-    class ChartValueFormatter: ValueFormatter() {
+    class ChartValueFormatter(val filter: String): ValueFormatter() {
         override fun getAxisLabel(value: Float, axis: AxisBase?): String {
-            val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
+            val formatter = when (filter) {
+                "month" -> SimpleDateFormat("yyyy-MM", Locale.ENGLISH)
+                else -> SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
+            }
             return formatter.format(Date(value.toLong()))
         }
 
@@ -60,6 +63,19 @@ class TrendViewActivity() : AppCompatActivity() {
         setLineChartData()
 
         val bViewData: Button = findViewById(R.id.bViewData)
+        val bReset: Button = findViewById(R.id.bTrendReset)
+        val bMonth: Button = findViewById(R.id.bTrendMonth)
+
+        bReset.setOnClickListener {
+            filter = "default"
+            setLineChartData()
+        }
+
+        bMonth.setOnClickListener {
+            filter = "month"
+            setLineChartData()
+        }
+
         bViewData.setOnClickListener {
             finish()
         }
@@ -67,13 +83,52 @@ class TrendViewActivity() : AppCompatActivity() {
 
     private fun setLineChartData() {
         val entryList: ArrayList<Entry> = ArrayList()
+        var monthArray = mutableMapOf<String, ArrayList<Int>>()
+
         for (moods in moodData) {
             var moodNumber = moods.mood?.value
+            var month = ""
+
             if (moods.mood?.moodMode == Mood.MOOD_MODE_FACES) moodNumber = moods.mood.toNumber()
-            entryList.add(Entry(SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH).parse(moods.date).time.toFloat(),
-                (moodNumber?.toFloat() ?: 0.0) as Float)
-            )
+
+            if (filter == "month") {
+                if (month == "" || month != moods.date?.substring(0, 7)) {
+                    month =
+                        moods.date?.substring(0, 7) as String
+                    if (monthArray[month] == null) monthArray[month] = ArrayList()
+                    val value = moods.mood?.toNumber()?.toInt() as Int
+                    monthArray[month]?.add(value)
+                }
+            } else {
+                entryList.add(
+                    Entry(
+                        SimpleDateFormat(
+                            "yyyy-MM-dd",
+                            Locale.ENGLISH
+                        ).parse(moods.date).time.toFloat(),
+                        (moodNumber?.toFloat() ?: 0.0) as Float
+                    )
+                )
+            }
         }
+
+            if (filter == "month") {
+                for ((key, value) in monthArray) {
+                    var average = 0
+                    for (data in monthArray[key]!!) {
+                        average += data
+                    }
+                    average /= monthArray[key]!!.size
+                    entryList.add(
+                    Entry(
+                        SimpleDateFormat(
+                            "yyyy-MM",
+                            Locale.ENGLISH
+                        ).parse(key).time.toFloat(),
+                        (average?.toFloat() ?: 0.0) as Float
+                    ))
+                }
+            }
 
         Collections.sort(entryList, EntryXComparator())
 
@@ -88,7 +143,7 @@ class TrendViewActivity() : AppCompatActivity() {
 
         val data = LineData(lineDataSet)
         data.setValueTextColor(Color.WHITE)
-        data.setValueFormatter(ChartValueFormatter())
+        data.setValueFormatter(ChartValueFormatter(filter))
 
         val chart: LineChart = findViewById(R.id.getTheGraph)
 
@@ -99,7 +154,7 @@ class TrendViewActivity() : AppCompatActivity() {
         var xAxis = chart.xAxis
         xAxis.position = XAxis.XAxisPosition.BOTTOM
         xAxis.textColor = Color.WHITE
-        xAxis.valueFormatter = ChartValueFormatter()
+        xAxis.valueFormatter = ChartValueFormatter(filter)
         xAxis.labelRotationAngle = 90f
         xAxis.setDrawGridLines(false)
 

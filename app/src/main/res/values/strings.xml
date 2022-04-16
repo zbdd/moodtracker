@@ -23,6 +23,10 @@
     <string name="default_time">12:01</string>
     <string name="default_mood">5</string>
 
+    <string name="trend_reset">Reset</string>
+    <string name="trend_month">Month</string>
+    <string name="trend_year">Year</string>
+
     <string name="activities_choose">Choose your activity…</string>
     <string name="activities_selected">Selected</string>
     <string name="activities_available">Available</string>
