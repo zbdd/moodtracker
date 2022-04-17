@@ -13,10 +13,11 @@ import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.math.ceil
 
 class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryModel>) -> Unit, val onListUpdated: (ArrayList<MoodEntryModel>) -> Unit, val onMoodValueClicked: (MoodEntryModel) -> Unit,
     val onStartActivitiesActivity: (MoodEntryModel) -> Unit,
-    val startFeelingsActivity: (MoodEntryModel) -> Unit):
+    val startFeelingsActivity: (MoodEntryModel) -> Unit, private var settings: Settings = Settings()):
     Adapter<ViewHolder>(), SwipeHelperCallback.ItemTouchHelperAdaptor {
 
     private var moodList: ArrayList<RowEntryModel> = ArrayList()
@@ -290,8 +291,8 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
                 mHolder.timeText.text = moodViewHolder.time
 
                 if (moodViewHolder.mood?.moodMode == Mood.MOOD_MODE_FACES) {
-                    val moodValue = moodViewHolder.mood.value
-                    mHolder.moodText.text = mHolder.itemView.resources.getString(moodViewHolder.mood?.toEmoji()!!)
+                    val moodValue = (ceil(moodViewHolder.mood.value?.toDouble()?.div(5/settings.mood_max!!.toInt()) as Double).toInt().toString())
+                    mHolder.moodText.text = mHolder.itemView.resources.getString(moodViewHolder.mood.toEmoji(moodValue)!!)
                 }
                 else mHolder.moodText.text = moodViewHolder.mood?.value
 

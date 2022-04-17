@@ -165,8 +165,6 @@ class SettingsActivity() : AppCompatActivity() {
                                 ).show()
                             }
 
-                            val moodNum = (ceil(mood["mood"]?.toDouble()?.div(2) as Double).toInt().toString())
-
                             val key = when (mood["key"]) {
                                 null -> UUID.randomUUID().toString()
                                 else -> mood["key"]
@@ -177,11 +175,16 @@ class SettingsActivity() : AppCompatActivity() {
                                 else -> mood["lastUpdated"]
                             }
 
+                            if (mood["mood"] != null) {
+                                if (mood["mood"]!!.toInt() in 6..10) settings!!.mood_max = "10"
+                                else if (mood["mood"]!!.toInt() > settings!!.mood_max!!.toInt()) settings!!.mood_max = mood["mood"]
+                            }
+
                             dataImport.add(
                                 MoodEntryModel(
                                     date.toString(),
                                     time,
-                                    Mood(moodNum),
+                                    Mood(mood["mood"].toString()),
                                     moodFeelings,
                                     moodActivities,
                                     key,

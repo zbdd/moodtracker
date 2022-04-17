@@ -48,6 +48,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var getActivitiesActivityResult: ActivityResultLauncher<Intent>
     private lateinit var getSettingsActivityResult: ActivityResultLauncher<Intent>
     private lateinit var getFeelingsActivityResult: ActivityResultLauncher<Intent>
+    private lateinit var getTrendViewActivitiesResult: ActivityResultLauncher<Intent>
 
     private var user: FirebaseUser? = null
     private var mItemTouchHelper: ItemTouchHelper? = null
@@ -67,7 +68,8 @@ class MainActivity : AppCompatActivity() {
             { moodEntries -> writeEntrytoFile(moodEntries); updateDatabaseEntry(moodEntries) },
             { mood -> setupMoodPicker(mood) },
             { moodEntry -> startActivityActivities(moodEntry) },
-            { moodEntry -> startActivityFeelings(moodEntry) })
+            { moodEntry -> startActivityFeelings(moodEntry) },
+            settings)
 
         val callback: ItemTouchHelper.Callback = SwipeHelperCallback(recyclerViewAdaptor)
         mItemTouchHelper = ItemTouchHelper(callback)
@@ -107,6 +109,16 @@ class MainActivity : AppCompatActivity() {
         getSettingsActivityResult.launch(intent)
     }
 
+    private fun startActivityTrendView() {
+        val intent = Intent(this, TrendViewActivity::class.java)
+
+        intent.putExtra("Settings", settings)
+        val data = recyclerViewAdaptor.getMoodList() as java.util.ArrayList<out Parcelable>
+        if (data.isNotEmpty()) intent.putParcelableArrayListExtra("MoodEntries", data)
+
+        getTrendViewActivitiesResult.launch(intent)
+    }
+
     private fun startActivityFeelings(moodEntry: MoodEntryModel) {
         val intent = Intent(this, FeelingsActivity::class.java)
         val jsonArray = loadFromJSONAsset("feelings.json")
@@ -133,13 +145,14 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupMoodPicker(mood: MoodEntryModel) {
         val numberPicker: NumberPicker = findViewById(R.id.npNumberPicker)
+        val numberArray = Array(settings!!.mood_max!!.toInt()) { (it + 1).toString() }
 
         when (settings.mood_numerals) {
             "true" -> {
-                numberPicker.maxValue = 5
+                numberPicker.maxValue = settings.mood_max?.toInt() ?: 5
                 numberPicker.minValue = 1
                 numberPicker.wrapSelectorWheel = true
-                numberPicker.displayedValues = arrayOf("1","2","3","4","5")
+                numberPicker.displayedValues = numberArray
                 numberPicker.textColor = Color.WHITE
                 numberPicker.value = mood.mood?.value?.toInt() ?: 3
 
@@ -253,6 +266,10 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
+        getTrendViewActivitiesResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+
+        }
+
         getFeelingsActivityResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             val data = it.data?.getStringArrayListExtra("AvailableFeelings")
             if (data != null) {
@@ -304,8 +321,7 @@ class MainActivity : AppCompatActivity() {
 
         val bViewTrend: Button = findViewById(R.id.bViewTrend)
         bViewTrend.setOnClickListener {
-            val intent = Intent(this, TrendViewActivity::class.java).apply {}
-            startActivity(intent)
+            startActivityTrendView()
         }
 
         val ibSettings: ImageButton = findViewById(R.id.ibSettings)

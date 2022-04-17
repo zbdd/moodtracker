@@ -27,6 +27,7 @@ class TrendViewActivity() : AppCompatActivity() {
 
     private var moodData = ArrayList<MoodEntryModel>()
     private var filter = "default"
+    private var settings: Settings? = null
 
     class MyFormat(val context: Context): ValueFormatter() {
         override fun getAxisLabel(value: Float, axis: AxisBase?): String {
@@ -58,7 +59,8 @@ class TrendViewActivity() : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_trend_view)
         readFromLocalStore()
-        setLineChartData()
+        settings = intent.getParcelableExtra("Settings")
+        if (moodData.isNotEmpty()) setLineChartData()
 
         val bViewData: Button = findViewById(R.id.bViewData)
         val bReset: Button = findViewById(R.id.bTrendReset)
@@ -99,7 +101,7 @@ class TrendViewActivity() : AppCompatActivity() {
             var moodNumber = moods.mood?.value
             var timePeriod = ""
 
-            if (moods.mood?.moodMode == Mood.MOOD_MODE_FACES) moodNumber = moods.mood.toNumber()
+            if (settings?.mood_numerals == "true") moodNumber = moods.mood?.toNumber() ?: "3"
 
             if (filter == "month") {
                 format = "yyyy-MM"
@@ -175,10 +177,10 @@ class TrendViewActivity() : AppCompatActivity() {
 
         val yAxis = chart.axisLeft
         yAxis.textColor = Color.WHITE
-        yAxis.axisMaximum = 5f
+        yAxis.axisMaximum = settings!!.mood_max?.toFloat() ?: 5f
         yAxis.axisMinimum = 0f
         yAxis.granularity = 1f
-        if (moodData.isNotEmpty()) if (moodData[0].mood?.moodMode == Mood.MOOD_MODE_FACES) yAxis.valueFormatter = MyFormat(applicationContext)
+        if (moodData.isNotEmpty()) if (settings!!.mood_numerals == "false") yAxis.valueFormatter = MyFormat(applicationContext)
         yAxis.setDrawGridLines(false)
     }
 
@@ -189,6 +191,7 @@ class TrendViewActivity() : AppCompatActivity() {
             val gson = GsonBuilder().create()
             val type = object: TypeToken<Array<Array<MoodEntryModel>>>() {}.type
             val moodEntries = gson.fromJson<Array<Array<MoodEntryModel>>>(jsonArray, type)
+            if (moodEntries.isEmpty()) return
             for(x in moodEntries[0].indices) {
                 moodData.add(moodEntries[0][x])
             }
