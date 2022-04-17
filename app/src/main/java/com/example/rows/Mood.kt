@@ -41,8 +41,8 @@ class Mood (nValue: String = "5", mode: Int = MOOD_MODE_NUMBERS): Serializable {
         return storedValue as String
     }
 
-    fun toEmoji(): Int? {
-        return faces[storedValue]
+    fun toEmoji(convertValue: String = storedValue): Int? {
+        return faces[convertValue]
     }
 
     fun toNumber(): String {
