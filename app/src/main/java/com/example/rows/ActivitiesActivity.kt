@@ -1,6 +1,7 @@
 package com.example.rows
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.widget.*
@@ -8,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
+@Suppress("DEPRECATION")
 class ActivitiesActivity: AppCompatActivity()  {
 
     private lateinit var activitiesRecycleView: RecyclerView
@@ -29,6 +31,9 @@ class ActivitiesActivity: AppCompatActivity()  {
         val etAddActivity: EditText = findViewById(R.id.etNewActivityName)
         val bDeleteActivity: Button = findViewById(R.id.bActivitiesDelete)
         val bRestoreDefaults: Button = findViewById(R.id.bRestoreDefaults)
+        val rvSelected: RecyclerView = findViewById(R.id.rvSelected)
+        val rvAvailable: RecyclerView = findViewById(R.id.rvAvailable)
+        var deleteMode = false
 
         val arrayData = intent.getStringArrayListExtra("AvailableActivities")
         moodEntry = intent.getSerializableExtra("MoodEntry") as MoodEntryModel
@@ -87,8 +92,17 @@ class ActivitiesActivity: AppCompatActivity()  {
         }
 
         bDeleteActivity.setOnClickListener {
-            selectedAdaptor.toggleDeleteButton()
-            availableAdaptor.toggleDeleteButton()
+            deleteMode = !deleteMode
+            selectedAdaptor.toggleDeleteMode(deleteMode)
+            availableAdaptor.toggleDeleteMode(deleteMode)
+
+            if (deleteMode) {
+                rvSelected.background.setTint(Color.RED)
+                rvAvailable.background.setTint(Color.RED)
+            } else {
+                rvSelected.background.setTint(resources.getColor(R.color.dark_gray))
+                rvAvailable.background.setTint(resources.getColor(R.color.dark_gray))
+            }
         }
 
         bRestoreDefaults.setOnClickListener {
