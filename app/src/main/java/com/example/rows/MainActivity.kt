@@ -38,6 +38,7 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
+import kotlin.math.ceil
 import kotlin.random.Random
 
 class MainActivity : AppCompatActivity() {
@@ -55,7 +56,7 @@ class MainActivity : AppCompatActivity() {
     private var isPremiumEdition = false
 
     private val isDebugMode = true
-    private var settings: Settings = Settings()
+    lateinit private var settings: Settings
 
     private val signInLauncher =
         registerForActivityResult(FirebaseAuthUIActivityResultContract()) { res ->
@@ -137,31 +138,53 @@ class MainActivity : AppCompatActivity() {
         getFeelingsActivityResult.launch(intent)
     }
 
+    private fun getSanitisedNumber(value: Int): Int {
+        return (ceil(
+            value?.toDouble()?.div(settings.mood_max!!.toInt() / 5) as Double
+        ).toInt())
+    }
+
+    private fun getUnsanitisedNumber(value: Int): Int {
+        return value.times(settings.mood_max!!.toInt()/ 5)
+    }
+
+
+    private fun getEmoji(convertValue: String): Int {
+        return when (convertValue) {
+            "Ecstatic" -> R.string.mood_ecstatic
+            "Happy" -> R.string.mood_happy
+            "Unhappy" -> R.string.mood_unhappy
+            "Terrible" -> R.string.mood_terrible
+            else -> R.string.mood_average
+        }
+    }
+
     private fun onItemDismissed(moodEntry: MoodEntryModel, moodList: ArrayList<MoodEntryModel>) {
         if (user != null) myRef.child(user?.uid ?: "").child("moodEntries")
             .child("${moodEntry.key}").removeValue()
         writeEntrytoFile(moodList)
     }
 
-    private fun setupMoodPicker(mood: MoodEntryModel) {
+    private fun setupMoodPicker(moodEntry: MoodEntryModel) {
         val numberPicker: NumberPicker = findViewById(R.id.npNumberPicker)
         val numberArray = Array(settings!!.mood_max!!.toInt()) { (it + 1).toString() }
 
         when (settings.mood_numerals) {
             "true" -> {
-                numberPicker.maxValue = settings.mood_max?.toInt() ?: 5
-                numberPicker.minValue = 1
-                numberPicker.wrapSelectorWheel = true
                 numberPicker.displayedValues = numberArray
+                numberPicker.maxValue = settings.mood_max?.toInt()?.minus(1)?: 4
+                numberPicker.minValue = 0
+                numberPicker.wrapSelectorWheel = true
                 numberPicker.textColor = Color.WHITE
-                numberPicker.value = mood.mood?.value?.toInt() ?: 3
+                numberPicker.value = moodEntry.mood!!.value!!.toInt().minus(1)
 
             }
             "false" -> {
                 numberPicker.displayedValues = resources.getStringArray(R.array.mood_faces)
                 numberPicker.minValue = 0
                 numberPicker.maxValue = resources.getStringArray(R.array.mood_faces).size - 1
-                numberPicker.value = (mood.mood?.toNumber()?.toInt()?.minus(1) as Int)
+                numberPicker.value = getEmoji(moodEntry!!.mood!!.toFaces(
+                    getSanitisedNumber(moodEntry.mood!!.value!!.toInt()).toString()))
             }
         }
 
@@ -172,16 +195,16 @@ class MainActivity : AppCompatActivity() {
 
         bNpConfirm.setOnClickListener {
             var moodValue: Mood = when (settings.mood_numerals) {
-                "true" -> Mood((numberPicker.value).toString(), Mood.MOOD_MODE_NUMBERS)
-                else -> Mood((numberPicker.value + 1).toString(), Mood.MOOD_MODE_FACES)
+                "true" -> Mood((numberPicker.value + 1).toString(), Mood.MOOD_MODE_NUMBERS)
+                else -> Mood(getUnsanitisedNumber(numberPicker.value + 1).toString(), Mood.MOOD_MODE_FACES)
             }
             val newMood = MoodEntryModel(
-                mood.date,
-                mood.time,
+                moodEntry.date,
+                moodEntry.time,
                 moodValue,
-                mood.feelings,
-                mood.activities,
-                mood.key,
+                moodEntry.feelings,
+                moodEntry.activities,
+                moodEntry.key,
                 LocalDateTime.now().toString()
             )
             clNumberPicker.visibility = View.INVISIBLE
@@ -222,13 +245,10 @@ class MainActivity : AppCompatActivity() {
         writeEntrytoFile(stringArray,"available.json")
          */
 
-        settings.mood_numerals = "true"
+        settings.mood_numerals = "false"
         writeEntrytoFile(settings, "settings.json")
 
         initButtons()
-        val jsonSettings = loadFromJSONAsset("settings.json")
-
-        readSettingsDataFromJson(jsonSettings)
 
         if (user != null) {
             checkDatabasePathExists()
@@ -285,20 +305,13 @@ class MainActivity : AppCompatActivity() {
                 var moodData = ArrayList<MoodEntryModel>()
                 if (moodEntries != null) moodData = it.data?.getParcelableArrayListExtra<Parcelable>("MoodEntries") as ArrayList<MoodEntryModel>
 
-                recyclerViewAdaptor.updateList(moodData)
-
                 if (data != null) {
                     writeEntrytoFile(data, "settings.json")
-                    val mood = MoodEntryModel("", "", Mood(""))
-                    if (settings.mood_numerals != data.mood_numerals) {
-                        when (data.mood_numerals) {
-                            "true" -> mood.mood?.moodMode = Mood.MOOD_MODE_NUMBERS
-                            else -> mood.mood?.moodMode = Mood.MOOD_MODE_FACES
-                        }
-                        recyclerViewAdaptor.updateListConfig(mood)
-                    }
+                    recyclerViewAdaptor.updateListConfig(data)
                     settings = data
                 }
+
+                recyclerViewAdaptor.updateList(moodData)
             }
     }
 
@@ -306,10 +319,6 @@ class MainActivity : AppCompatActivity() {
         val gson = Gson()
         val type = object : TypeToken<Array<Settings>>() {}.type
         settings = gson.fromJson<Array<Settings>>(jsonSettings, type)[0]
-        val config = MoodEntryModel("", "", Mood("5"))
-        when (settings.mood_numerals) {
-            "true" -> config.mood!!.moodMode = Mood.MOOD_MODE_NUMBERS
-        }
     }
 
     private fun initButtons() {
@@ -416,7 +425,11 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        setupRecycleView()
+
+        val jsonSettings = loadFromJSONAsset("settings.json")
+        readSettingsDataFromJson(jsonSettings)
+
+        if(::settings.isInitialized)  setupRecycleView()
 
         if (isDebugMode) isPremiumEdition = true
 

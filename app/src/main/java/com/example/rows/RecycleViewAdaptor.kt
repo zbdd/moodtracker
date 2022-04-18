@@ -17,7 +17,7 @@ import kotlin.math.ceil
 
 class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryModel>) -> Unit, val onListUpdated: (ArrayList<MoodEntryModel>) -> Unit, val onMoodValueClicked: (MoodEntryModel) -> Unit,
     val onStartActivitiesActivity: (MoodEntryModel) -> Unit,
-    val startFeelingsActivity: (MoodEntryModel) -> Unit, private var settings: Settings = Settings()):
+    val startFeelingsActivity: (MoodEntryModel) -> Unit, var settings: Settings = Settings()):
     Adapter<ViewHolder>(), SwipeHelperCallback.ItemTouchHelperAdaptor {
 
     private var moodList: ArrayList<RowEntryModel> = ArrayList()
@@ -43,13 +43,15 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
         return viewHolder
     }
 
-    fun updateListConfig(config: MoodEntryModel) {
+    fun updateListConfig(config: Settings) {
+        settings = config
+
         for(i in moodList.indices) {
             if (moodList[i].viewType == RowEntryModel.MOOD_ENTRY_TYPE) {
                 val mood = moodList[i] as MoodEntryModel
-                when (config.mood!!.moodMode) {
-                    Mood.MOOD_MODE_FACES ->  mood.mood?.toFaces()
-                    Mood.MOOD_MODE_NUMBERS -> mood.mood?.toNumber()
+                when (settings.mood_numerals) {
+                    "false" ->  mood.mood?.toFaces()
+                    "true" -> mood.mood?.toNumber()
                 }
                 notifyItemChanged(i)
             }
@@ -279,6 +281,23 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
         return moodList[position].viewType
     }
 
+    private fun getSanitisedNumber(value: Int): Int {
+        return (ceil(
+            value?.toDouble()?.div(settings.mood_max!!.toInt() / 5) as Double
+        ).toInt())
+    }
+
+
+    private fun getEmoji(convertValue: String): Int {
+        return when (convertValue) {
+            "Ecstatic" -> R.string.mood_ecstatic
+            "Happy" -> R.string.mood_happy
+            "Unhappy" -> R.string.mood_unhappy
+            "Terrible" -> R.string.mood_terrible
+            else -> R.string.mood_average
+        }
+    }
+
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
         when (holder.itemViewType) {
@@ -290,11 +309,8 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
                 mHolder.dateText.text = moodViewHolder.date
                 mHolder.timeText.text = moodViewHolder.time
 
-                if (moodViewHolder.mood?.moodMode == Mood.MOOD_MODE_FACES) {
-                    val moodValue = (ceil(moodViewHolder.mood.value?.toDouble()?.div(5/settings.mood_max!!.toInt()) as Double).toInt().toString())
-                    mHolder.moodText.text = mHolder.itemView.resources.getString(moodViewHolder.mood.toEmoji(moodValue)!!)
-                }
-                else mHolder.moodText.text = moodViewHolder.mood?.value
+                if (settings.mood_numerals == "false") mHolder.moodText.text = mHolder.itemView.resources.getString(getEmoji(moodViewHolder.mood!!.toFaces(getSanitisedNumber(moodViewHolder.mood.value!!.toInt()).toString())))
+                else mHolder.moodText.text = moodViewHolder.mood!!.value
 
                 mHolder.activityText.text = when (moodViewHolder.activities.toString()) {
                     "" ->  "Click to add an activity"
@@ -312,7 +328,7 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
                     )
                 }
 
-                if (moodViewHolder.mood?.moodMode == Mood.MOOD_MODE_NUMBERS) {
+                if (settings.mood_numerals == "true") {
                     when {
                         mHolder.moodText.text.toString()
                             .toInt() > 3 -> mHolder.moodText.setBackgroundResource(R.drawable.mood_rating_colour_high)

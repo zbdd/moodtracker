@@ -22,6 +22,7 @@ import com.github.mikephil.charting.utils.EntryXComparator
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.math.ceil
 
 class TrendViewActivity() : AppCompatActivity() {
 
@@ -29,14 +30,28 @@ class TrendViewActivity() : AppCompatActivity() {
     private var filter = "default"
     private var settings: Settings? = null
 
-    class MyFormat(val context: Context): ValueFormatter() {
+    class MyFormat(val context: Context, val settings: Settings): ValueFormatter() {
+        private fun getSanitisedNumber(value: Int): Int {
+            return (ceil(
+                value?.toDouble()?.div(settings.mood_max!!.toInt() / 5) as Double
+            ).toInt())
+        }
+
+        private fun getEmoji(convertValue: String): Int {
+            return when (convertValue) {
+                "Ecstatic" -> R.string.mood_ecstatic
+                "Happy" -> R.string.mood_happy
+                "Unhappy" -> R.string.mood_unhappy
+                "Terrible" -> R.string.mood_terrible
+                else -> R.string.mood_average
+            }
+        }
         override fun getAxisLabel(value: Float, axis: AxisBase?): String {
-            val mood = Mood(value.toInt().toString())
-            mood.toFaces()
-
-            if (mood.toEmoji() == null) return value.toString()
-
-            return context.resources.getString(mood.toEmoji() as Int)
+           when (settings.mood_numerals) {
+               "true" -> return value.toString()
+              // else -> return context.resources.getString()
+           }
+            return ""
         }
     }
 
@@ -180,7 +195,9 @@ class TrendViewActivity() : AppCompatActivity() {
         yAxis.axisMaximum = settings!!.mood_max?.toFloat() ?: 5f
         yAxis.axisMinimum = 0f
         yAxis.granularity = 1f
-        if (moodData.isNotEmpty()) if (settings!!.mood_numerals == "false") yAxis.valueFormatter = MyFormat(applicationContext)
+        if (moodData.isNotEmpty()) if (settings!!.mood_numerals == "false") yAxis.valueFormatter = MyFormat(applicationContext,
+            settings!!
+        )
         yAxis.setDrawGridLines(false)
     }
 
