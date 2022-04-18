@@ -1,6 +1,7 @@
 package com.example.rows
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.widget.*
@@ -15,6 +16,7 @@ class FeelingsActivity: AppCompatActivity()  {
     private lateinit var availableRecycleView: RecyclerView
     private lateinit var availableAdaptor: FeelingsRecycleViewAdaptor
     private lateinit var moodEntry: MoodEntryModel
+    private var deleteMode = false
     private var availableFeelings: ArrayList<String> = ArrayList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,6 +32,8 @@ class FeelingsActivity: AppCompatActivity()  {
         val etAddActivity: EditText = findViewById(R.id.etFeelingsAddNewTitle)
         val bDeleteActivity: Button = findViewById(R.id.bFeelingsDelete)
         val bRestoreDefaults: Button = findViewById(R.id.bFeelingsRestoreDefaults)
+        val rvSelected: RecyclerView = findViewById(R.id.rvSelected)
+        val rvAvailable: RecyclerView = findViewById(R.id.rvAvailable)
 
         moodEntry = intent.getSerializableExtra("MoodEntry") as MoodEntryModel
 
@@ -70,6 +74,20 @@ class FeelingsActivity: AppCompatActivity()  {
             finish()
         }
 
+        bDeleteActivity.setOnClickListener {
+            deleteMode = !deleteMode
+            selectedAdaptor.toggleDeleteMode(deleteMode)
+            availableAdaptor.toggleDeleteMode(deleteMode)
+
+            if (deleteMode) {
+                rvSelected.background.setTint(Color.RED)
+                rvAvailable.background.setTint(Color.RED)
+            } else {
+                rvSelected.background.setTint(resources.getColor(R.color.dark_gray))
+                rvAvailable.background.setTint(resources.getColor(R.color.dark_gray))
+            }
+        }
+
         bActivityAddNew.setOnClickListener {
             llAddActivity.visibility = View.VISIBLE
         }
@@ -87,8 +105,17 @@ class FeelingsActivity: AppCompatActivity()  {
         }
 
         bDeleteActivity.setOnClickListener {
-            selectedAdaptor.toggleDeleteButton()
-            availableAdaptor.toggleDeleteButton()
+            deleteMode = !deleteMode
+            selectedAdaptor.toggleDeleteMode(deleteMode)
+            availableAdaptor.toggleDeleteMode(deleteMode)
+
+            if (deleteMode) {
+                rvSelected.background.setTint(Color.RED)
+                rvAvailable.background.setTint(Color.RED)
+            } else {
+                rvSelected.background.setTint(resources.getColor(R.color.dark_gray))
+                rvAvailable.background.setTint(resources.getColor(R.color.dark_gray))
+            }
         }
 
         bRestoreDefaults.setOnClickListener {

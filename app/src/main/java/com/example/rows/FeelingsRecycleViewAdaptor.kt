@@ -5,6 +5,7 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
 import androidx.core.view.get
 import androidx.recyclerview.widget.RecyclerView
@@ -12,13 +13,13 @@ import androidx.recyclerview.widget.RecyclerView
 
 class FeelingsRecycleViewAdaptor(context: Context, data: MutableList<String>, val onClick: (String) -> Unit, val onClickDelete: (String) -> Unit): RecyclerView.Adapter<FeelingsRecycleViewAdaptor.FeelingsViewHolder>() {
     class FeelingsViewHolder(ItemView: View): RecyclerView.ViewHolder(ItemView) {
-        val tvName: TextView = itemView.findViewById(R.id.tvFeelingsRowName)
-        val tvCancel: TextView = itemView.findViewById(R.id.tvFeelingsRowCancel)
+        val tvName: Button = itemView.findViewById(R.id.tvFeelingsRowName)
     }
 
     private var mData: MutableList<String>? = null
     private var mInflater: LayoutInflater? = null
     private lateinit var mGroup: ViewGroup
+    private var _deleteMode = false
 
     init {
         mInflater = LayoutInflater.from(context)
@@ -26,12 +27,8 @@ class FeelingsRecycleViewAdaptor(context: Context, data: MutableList<String>, va
         sortList()
     }
 
-    fun toggleDeleteButton() {
-        for(row in mData!!.indices) {
-            val item = mGroup[row].findViewById<TextView>(R.id.tvFeelingsRowCancel)
-            if (item.visibility == View.INVISIBLE) item.visibility = View.VISIBLE
-            else item.visibility = View.INVISIBLE
-        }
+    fun toggleDeleteMode(deleteMode: Boolean) {
+        _deleteMode = deleteMode
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FeelingsViewHolder {
@@ -44,17 +41,17 @@ class FeelingsRecycleViewAdaptor(context: Context, data: MutableList<String>, va
         holder.tvName.text = mData?.get(position) ?: "Error"
 
         holder.tvName.setOnClickListener {
-            onClick(holder.tvName.text.toString())
-            mData?.removeAt(position)
-            notifyItemRemoved(position)
-            sortList()
-        }
-
-        holder.tvCancel.setOnClickListener {
-            mData?.removeAt(position)
-            onClickDelete(holder.tvName.text.toString())
-            notifyItemRemoved(position)
-            sortList()
+            if (_deleteMode) {
+                mData?.removeAt(position)
+                onClickDelete(holder.tvName.text.toString())
+                notifyItemRemoved(position)
+                sortList()
+            } else {
+                onClick(holder.tvName.text.toString())
+                mData?.removeAt(position)
+                notifyItemRemoved(position)
+                sortList()
+            }
         }
     }
 
