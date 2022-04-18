@@ -23,7 +23,6 @@ class ActivitiesActivity: AppCompatActivity()  {
 
         val bConfirm: Button = findViewById(R.id.bActivitiesConfirm)
         val bActivityAddNew: ImageButton = findViewById(R.id.bActivityAddNew)
-        val arrayData = intent.getStringArrayListExtra("AvailableActivities")
         val bActivityAdd: Button = findViewById(R.id.bActivityAdd)
         val bActivityCancel: Button = findViewById(R.id.bActivityCancel)
         val llAddActivity: LinearLayout = findViewById(R.id.llAddNewActivity)
@@ -31,6 +30,7 @@ class ActivitiesActivity: AppCompatActivity()  {
         val bDeleteActivity: Button = findViewById(R.id.bActivitiesDelete)
         val bRestoreDefaults: Button = findViewById(R.id.bRestoreDefaults)
 
+        val arrayData = intent.getStringArrayListExtra("AvailableActivities")
         moodEntry = intent.getSerializableExtra("MoodEntry") as MoodEntryModel
 
         if (arrayData != null) {

@@ -91,8 +91,10 @@ class MainActivity : AppCompatActivity() {
         if (jsonArray.isNotEmpty()) {
             val gson = GsonBuilder().create()
             val activities = gson.fromJson(jsonArray, ArrayList::class.java)
-            val data = activities as ArrayList<String>
-            intent.putStringArrayListExtra("AvailableActivities", data)
+            if (activities.isNotEmpty()) {
+                val data = activities[0] as ArrayList<String>
+                intent.putStringArrayListExtra("AvailableActivities", data)
+            }
         }
 
         intent.putExtra("MoodEntry", moodEntry)
