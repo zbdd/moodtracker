@@ -1,4 +1,4 @@
-package com.example.rows
+package com.kalzakath.zoodle
 
 import java.io.Serializable
 

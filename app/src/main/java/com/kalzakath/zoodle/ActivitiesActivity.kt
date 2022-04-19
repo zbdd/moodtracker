@@ -1,4 +1,4 @@
-package com.example.rows
+package com.kalzakath.zoodle
 
 import android.content.Intent
 import android.graphics.Color
@@ -9,83 +9,70 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
-class FeelingsActivity: AppCompatActivity()  {
+@Suppress("DEPRECATION")
+class ActivitiesActivity: AppCompatActivity()  {
 
-    private lateinit var feelingsRecycleView: RecyclerView
-    private lateinit var selectedAdaptor: FeelingsRecycleViewAdaptor
+    private lateinit var activitiesRecycleView: RecyclerView
+    private lateinit var selectedAdaptor: ActivitiesRecycleViewAdaptor
     private lateinit var availableRecycleView: RecyclerView
-    private lateinit var availableAdaptor: FeelingsRecycleViewAdaptor
+    private lateinit var availableAdaptor: ActivitiesRecycleViewAdaptor
     private lateinit var moodEntry: MoodEntryModel
-    private var deleteMode = false
-    private var availableFeelings: ArrayList<String> = ArrayList()
+    private var availableActivities: ArrayList<String> = ArrayList()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.feelings_recycle_view)
+        setContentView(R.layout.activities_recycle_view)
 
-        val bConfirm: Button = findViewById(R.id.bFeelingsConfirm)
-        val bActivityAddNew: ImageButton = findViewById(R.id.bFeelingsAddNew)
-        val arrayData = intent.getStringArrayListExtra("AvailableFeelings")
+        val bConfirm: Button = findViewById(R.id.bActivitiesConfirm)
+        val bActivityAddNew: ImageButton = findViewById(R.id.bActivityAddNew)
         val bActivityAdd: Button = findViewById(R.id.bActivityAdd)
         val bActivityCancel: Button = findViewById(R.id.bActivityCancel)
         val llAddActivity: LinearLayout = findViewById(R.id.llAddNewActivity)
-        val etAddActivity: EditText = findViewById(R.id.etFeelingsAddNewTitle)
-        val bDeleteActivity: Button = findViewById(R.id.bFeelingsDelete)
-        val bRestoreDefaults: Button = findViewById(R.id.bFeelingsRestoreDefaults)
+        val etAddActivity: EditText = findViewById(R.id.etNewActivityName)
+        val bDeleteActivity: Button = findViewById(R.id.bActivitiesDelete)
+        val bRestoreDefaults: Button = findViewById(R.id.bRestoreDefaults)
         val rvSelected: RecyclerView = findViewById(R.id.rvSelected)
         val rvAvailable: RecyclerView = findViewById(R.id.rvAvailable)
+        var deleteMode = false
 
+        val arrayData = intent.getStringArrayListExtra("AvailableActivities")
         moodEntry = intent.getSerializableExtra("MoodEntry") as MoodEntryModel
 
         if (arrayData != null) {
-            availableFeelings.addAll(arrayData)
+            availableActivities.addAll(arrayData)
         }
+
         // Remove accidental duplicates
-        for (item in moodEntry.feelings) {
-            availableFeelings.remove(item)
+        for (item in moodEntry.activities) {
+            availableActivities.remove(item)
         }
 
-        feelingsRecycleView = findViewById(R.id.rvSelected)
-        feelingsRecycleView.layoutManager = LinearLayoutManager(this)
-        selectedAdaptor = FeelingsRecycleViewAdaptor(applicationContext, moodEntry.feelings,
-            { feeling -> moveToAvailable(feeling) },
-            { feeling -> removeFromAvailable(feeling)})
+        activitiesRecycleView = findViewById(R.id.rvSelected)
+        activitiesRecycleView.layoutManager = LinearLayoutManager(this)
+        selectedAdaptor = ActivitiesRecycleViewAdaptor(applicationContext, moodEntry.activities,
+        { activity -> moveToAvailable(activity) },
+        { activity -> removeFromAvailable(activity)})
 
-        feelingsRecycleView.adapter = selectedAdaptor
+        activitiesRecycleView.adapter = selectedAdaptor
 
         availableRecycleView = findViewById(R.id.rvAvailable)
         availableRecycleView.layoutManager = LinearLayoutManager(this)
-        availableAdaptor =
-            FeelingsRecycleViewAdaptor(applicationContext, availableFeelings.toMutableList(),
-                { feeling -> moveToSelected(feeling) },
-                { feeling -> removeFromAvailable(feeling)})
+        availableAdaptor = ActivitiesRecycleViewAdaptor(applicationContext, availableActivities.toMutableList(),
+            { activity -> moveToSelected(activity) },
+            { activity -> removeFromAvailable(activity)})
 
         availableRecycleView.adapter = availableAdaptor
 
-        if (availableFeelings.size == 0) {
+        if (availableActivities.size == 0) {
             restoreDefaults()
         }
 
         bConfirm.setOnClickListener {
             val finishIntent = Intent()
             finishIntent.putExtra("MoodEntry", moodEntry)
-            finishIntent.putStringArrayListExtra("AvailableFeelings", availableFeelings)
+            finishIntent.putStringArrayListExtra("AvailableActivities", availableActivities)
             setResult(RESULT_OK, finishIntent)
             finish()
-        }
-
-        bDeleteActivity.setOnClickListener {
-            deleteMode = !deleteMode
-            selectedAdaptor.toggleDeleteMode(deleteMode)
-            availableAdaptor.toggleDeleteMode(deleteMode)
-
-            if (deleteMode) {
-                rvSelected.background.setTint(Color.RED)
-                rvAvailable.background.setTint(Color.RED)
-            } else {
-                rvSelected.background.setTint(resources.getColor(R.color.dark_gray))
-                rvAvailable.background.setTint(resources.getColor(R.color.dark_gray))
-            }
         }
 
         bActivityAddNew.setOnClickListener {
@@ -94,14 +81,14 @@ class FeelingsActivity: AppCompatActivity()  {
 
         bActivityCancel.setOnClickListener {
             llAddActivity.visibility = View.INVISIBLE
-            etAddActivity.setText(applicationContext.resources.getString(R.string.feelings_add_new_feeling))
+            etAddActivity.setText(applicationContext.resources.getString(R.string.activities_add_new_activity_name))
         }
 
         bActivityAdd.setOnClickListener {
             selectedAdaptor.addItem(etAddActivity.text.toString())
 
             llAddActivity.visibility = View.INVISIBLE
-            etAddActivity.setText(applicationContext.resources.getString(R.string.feelings_add_new_feeling))
+            etAddActivity.setText(applicationContext.resources.getString(R.string.activities_add_new_activity_name))
         }
 
         bDeleteActivity.setOnClickListener {
@@ -124,7 +111,7 @@ class FeelingsActivity: AppCompatActivity()  {
     }
 
     private fun removeFromAvailable(activity: String) {
-        availableFeelings.remove(activity)
+        availableActivities.remove(activity)
     }
 
     private fun moveToSelected(activity: String) {
@@ -141,10 +128,10 @@ class FeelingsActivity: AppCompatActivity()  {
 
     private fun restoreDefaults() {
         val stringArray =
-            applicationContext.resources.getStringArray(R.array.available_feelings)
+            applicationContext.resources.getStringArray(R.array.available_activities)
         for (activity in stringArray) {
             availableAdaptor.addItem(activity)
-            if (!availableFeelings.contains(activity)) availableFeelings.add(activity)
+            if (!availableActivities.contains(activity)) availableActivities.add(activity)
         }
 
     }

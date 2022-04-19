@@ -1,4 +1,4 @@
-package com.example.rows
+package com.kalzakath.zoodle
 
 open class RowEntryModel () {
     @Transient open var key: String? = "default_row_key"

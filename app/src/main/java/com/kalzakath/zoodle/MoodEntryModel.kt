@@ -1,4 +1,4 @@
-package com.example.rows
+package com.kalzakath.zoodle
 
 import com.google.firebase.database.Exclude
 import com.google.firebase.database.IgnoreExtraProperties

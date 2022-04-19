@@ -1,4 +1,4 @@
-package com.example.rows
+package com.kalzakath.zoodle
 
 import android.os.Parcel
 import android.os.Parcelable

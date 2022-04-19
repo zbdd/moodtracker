@@ -1,4 +1,4 @@
-package com.example.rows
+package com.kalzakath.zoodle
 
 class FilterEntryModel (
     var title: String = "",

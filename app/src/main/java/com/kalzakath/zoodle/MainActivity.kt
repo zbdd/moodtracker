@@ -1,4 +1,4 @@
-package com.example.rows
+package com.kalzakath.zoodle
 
 import android.content.Intent
 import android.graphics.Color
@@ -185,8 +185,8 @@ class MainActivity : AppCompatActivity() {
                 numberPicker.displayedValues = resources.getStringArray(R.array.mood_faces)
                 numberPicker.minValue = 0
                 numberPicker.maxValue = resources.getStringArray(R.array.mood_faces).size - 1
-                numberPicker.value = getEmoji(moodEntry!!.mood!!.toFaces(
-                    getSanitisedNumber(moodEntry.mood!!.value!!.toInt()).toString()))
+                numberPicker.value =
+                    getSanitisedNumber(moodEntry.mood!!.value!!.toInt()).minus(1)
             }
         }
 

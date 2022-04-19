@@ -1,4 +1,4 @@
-package com.example.rows
+package com.kalzakath.zoodle
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -6,14 +6,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.TextView
-import androidx.core.view.get
 import androidx.recyclerview.widget.RecyclerView
 
 
-class FeelingsRecycleViewAdaptor(context: Context, data: MutableList<String>, val onClick: (String) -> Unit, val onClickDelete: (String) -> Unit): RecyclerView.Adapter<FeelingsRecycleViewAdaptor.FeelingsViewHolder>() {
-    class FeelingsViewHolder(ItemView: View): RecyclerView.ViewHolder(ItemView) {
-        val tvName: Button = itemView.findViewById(R.id.tvFeelingsRowName)
+class ActivitiesRecycleViewAdaptor(context: Context, data: MutableList<String>, val onClick: (String) -> Unit, val onClickDelete: (String) -> Unit): RecyclerView.Adapter<ActivitiesRecycleViewAdaptor.ActivitiesViewHolder>() {
+    class ActivitiesViewHolder(ItemView: View): RecyclerView.ViewHolder(ItemView) {
+        val tvName: Button = itemView.findViewById(R.id.tvActivitiesRowName)
     }
 
     private var mData: MutableList<String>? = null
@@ -31,13 +29,13 @@ class FeelingsRecycleViewAdaptor(context: Context, data: MutableList<String>, va
         _deleteMode = deleteMode
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FeelingsViewHolder {
-        val view: View = mInflater?.inflate(R.layout.feelings_recycle_view_row, parent,false) ?: View(parent.context)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ActivitiesViewHolder {
+        val view: View = mInflater?.inflate(R.layout.activities_recycle_view_row, parent,false) ?: View(parent.context)
         mGroup = parent
-        return FeelingsViewHolder(view)
+        return ActivitiesViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: FeelingsViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: ActivitiesViewHolder, position: Int) {
         holder.tvName.text = mData?.get(position) ?: "Error"
 
         holder.tvName.setOnClickListener {

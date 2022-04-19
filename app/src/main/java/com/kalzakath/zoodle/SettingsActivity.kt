@@ -1,9 +1,8 @@
-package com.example.rows
+package com.kalzakath.zoodle
 
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.os.Parcelable
 import android.widget.Button
@@ -16,18 +15,13 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
-import org.w3c.dom.Text
-import java.io.File
-import java.io.OutputStream
 import java.lang.Exception
-import java.net.URI
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
-import kotlin.math.ceil
 
 
 class SettingsActivity() : AppCompatActivity() {
