@@ -4,24 +4,28 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/ic_alfielauncher"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@mipmap/ic_alfielauncher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Rows">
-        <activity android:name="com.kalzakath.zoodle.FeelingsActivity"
+        <activity
+            android:name=".createMoodEntryActivity"
             android:exported="false" />
         <activity
-            android:name="com.kalzakath.zoodle.SettingsActivity"
+            android:name=".FeelingsActivity"
             android:exported="false" />
         <activity
-            android:name="com.kalzakath.zoodle.ActivitiesActivity"
+            android:name=".SettingsActivity"
             android:exported="false" />
         <activity
-            android:name="com.kalzakath.zoodle.TrendViewActivity"
+            android:name=".ActivitiesActivity"
             android:exported="false" />
         <activity
-            android:name="com.kalzakath.zoodle.MainActivity"
+            android:name=".TrendViewActivity"
+            android:exported="false" />
+        <activity
+            android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
