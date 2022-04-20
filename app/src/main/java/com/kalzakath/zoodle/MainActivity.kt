@@ -247,8 +247,8 @@ class MainActivity : AppCompatActivity() {
         writeEntrytoFile(stringArray,"available.json")
          */
 
-        settings.mood_numerals = "false"
-        writeEntrytoFile(settings, "settings.json")
+        //settings.mood_numerals = "false"
+        //writeEntrytoFile(settings, "settings.json")
 
         initButtons()
 
@@ -322,6 +322,7 @@ class MainActivity : AppCompatActivity() {
         val type = object : TypeToken<Array<Settings>>() {}.type
         val data = gson.fromJson<Array<Settings>>(jsonSettings, type)
         if (data.isNotEmpty()) settings = data[0]
+        else settings = Settings()
     }
 
     private fun initButtons() {
