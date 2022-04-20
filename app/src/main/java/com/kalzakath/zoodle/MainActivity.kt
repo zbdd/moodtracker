@@ -322,7 +322,10 @@ class MainActivity : AppCompatActivity() {
         val type = object : TypeToken<Array<Settings>>() {}.type
         val data = gson.fromJson<Array<Settings>>(jsonSettings, type)
         if (data.isNotEmpty()) settings = data[0]
-        else settings = Settings()
+        else {
+            settings = Settings()
+            writeEntrytoFile(settings, "settings.json")
+        }
     }
 
     private fun initButtons() {
@@ -554,7 +557,7 @@ class MainActivity : AppCompatActivity() {
                     MoodEntryModel(
                         "$randomYear-$randMonth-$randDay",
                         "12:34",
-                        Mood("Average", Mood.MOOD_MODE_FACES),
+                        Mood("3", Mood.MOOD_MODE_FACES),
                         feelings,
                         list,
                         UUID.randomUUID().toString()
@@ -574,7 +577,7 @@ class MainActivity : AppCompatActivity() {
                 else -> MoodEntryModel(
                     date,
                     time,
-                    Mood("Average", Mood.MOOD_MODE_FACES),
+                    Mood("3", Mood.MOOD_MODE_FACES),
                     feelings,
                     list,
                     UUID.randomUUID().toString()
