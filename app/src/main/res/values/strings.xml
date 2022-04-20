@@ -8,6 +8,7 @@
     <string name="main_row_feelings">Feelings</string>
     <string name="main_row_activities">Activities</string>
     <string name="main_view_trend">View trend</string>
+    <string name="main_click_debug">Click here to create a random entry</string>
     <string name="calendar_button_description">Click to see Calendar box</string>
     <string name="click_button_text">Click here to add a new entry</string>
     <string name="click_to_login">Click to login ***PREMIUM ONLY***</string>
@@ -61,11 +62,16 @@
     <string name="settings_export">Export JSON</string>
 
     <string-array name="mood_faces">
-        <item>&#128557;</item> // terrible
-        <item>&#128577;</item> // unhappy
-        <item>&#128528;</item> // average
-        <item>&#128512;</item> // happy
-        <item>&#128513;</item> // ecstatic
+        <item>&#128557;</item>
+        // terrible
+        <item>&#128577;</item>
+        // unhappy
+        <item>&#128528;</item>
+        // average
+        <item>&#128512;</item>
+        // happy
+        <item>&#128513;</item>
+        // ecstatic
     </string-array>
 
     <string name="mood_ecstatic">&#128513;</string>

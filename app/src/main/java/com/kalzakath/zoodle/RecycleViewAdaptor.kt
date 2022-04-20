@@ -311,9 +311,8 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
 
                 if (settings.mood_numerals == "false") mHolder.moodText.text = mHolder.itemView.resources.getString(getEmoji(moodViewHolder.mood!!.toFaces(getSanitisedNumber(moodViewHolder.mood.value!!.toInt()).toString())))
                 else mHolder.moodText.text = moodViewHolder.mood!!.value
-
                 mHolder.activityText.text = when (moodViewHolder.activities.toString()) {
-                    "" ->  "Click to add an activity"
+                    "[]" ->  "Click to add an activity"
                     else -> moodViewHolder.activities.toString().removeSurrounding(
                         "[",
                         "]"
@@ -321,7 +320,7 @@ class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryMode
                 }
 
                 mHolder.feelingsText.text = when (moodViewHolder.feelings.toString()) {
-                    "" ->  "Click to add feelings"
+                    "[]" ->  "Click to add feelings"
                     else -> moodViewHolder.feelings.toString().removeSurrounding(
                         "[",
                         "]"

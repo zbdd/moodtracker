@@ -578,8 +578,8 @@ class MainActivity : AppCompatActivity() {
                     date,
                     time,
                     Mood("3", Mood.MOOD_MODE_FACES),
-                    feelings,
-                    list,
+                    ArrayList(),
+                    ArrayList(),
                     UUID.randomUUID().toString()
                 )
             }

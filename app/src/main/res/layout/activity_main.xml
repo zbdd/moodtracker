@@ -74,6 +74,16 @@
         app:layout_constraintEnd_toStartOf="@+id/addNewButton"
         app:layout_constraintTop_toTopOf="@+id/addNewButton" />
 
+    <TextView
+        android:id="@+id/tvButtonClick2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/main_click_debug"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="@+id/ibAddNewDebug"
+        app:layout_constraintEnd_toStartOf="@+id/ibAddNewDebug"
+        app:layout_constraintTop_toTopOf="@+id/ibAddNewDebug" />
+
     <ImageButton
         android:id="@+id/ibLogin"
         android:layout_width="wrap_content"
@@ -91,11 +101,11 @@
         android:id="@+id/ibAddNewDebug"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="344dp"
-        android:layout_marginBottom="72dp"
+        android:layout_marginBottom="5dp"
         android:backgroundTint="#F31010"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/addNewButton"
+        app:layout_constraintEnd_toEndOf="@+id/addNewButton"
+        app:layout_constraintStart_toStartOf="@+id/addNewButton"
         app:srcCompat="@android:drawable/ic_input_add"
         tools:ignore="SpeakableTextPresentCheck,ImageContrastCheck" />
 
