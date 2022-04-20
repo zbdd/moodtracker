@@ -320,7 +320,8 @@ class MainActivity : AppCompatActivity() {
     private fun readSettingsDataFromJson(jsonSettings: String) {
         val gson = Gson()
         val type = object : TypeToken<Array<Settings>>() {}.type
-        settings = gson.fromJson<Array<Settings>>(jsonSettings, type)[0]
+        val data = gson.fromJson<Array<Settings>>(jsonSettings, type)
+        if (data.isNotEmpty()) settings = data[0]
     }
 
     private fun initButtons() {
