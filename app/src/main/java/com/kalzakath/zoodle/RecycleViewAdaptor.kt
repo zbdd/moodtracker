@@ -409,18 +409,6 @@ class RecyclerViewAdaptor(
         return moodList.size
     }
 
-    class MoodEntryViewHolder(itemView: View): ViewHolder(itemView) {
-        val dateText: TextView = itemView.findViewById(R.id.tvMoodDate)
-        val timeText: TextView = itemView.findViewById(R.id.tvMoodTime)
-        val moodText: TextView = itemView.findViewById(R.id.tvMoodRating)
-        val activityText: TextView = itemView.findViewById(R.id.etActivityText)
-        val feelingsText: TextView = itemView.findViewById(R.id.tvMainRowFeelings)
-    }
-
-    class FilterViewHolder(itemView: View): ViewHolder(itemView) {
-        val tvFilterTitle: TextView = itemView.findViewById(R.id.tvFilterTitle)
-    }
-
     override fun onItemMove(fromPosition: Int, toPosition: Int): Boolean {
         return false
     }
