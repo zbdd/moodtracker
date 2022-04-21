@@ -364,7 +364,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun addNewMoodEntry(isDebug: Boolean) {
-        val moodEntry = createNewMoodEntry(isDebug)
+        val moodEntry = createNewMoodEntry(isDebug, LocalDateTime.now())
 
         val data: ArrayList<MoodEntryModel> = ArrayList()
         data.add(moodEntry)
@@ -511,7 +511,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun createNewMoodEntry(isDebug: Boolean): MoodEntryModel {
+    private fun createNewMoodEntry(isDebug: Boolean, dateTimeNow: LocalDateTime): MoodEntryModel {
         val random = Random(System.currentTimeMillis())
 
         val choices: MutableList<String> = ArrayList()
@@ -566,7 +566,6 @@ class MainActivity : AppCompatActivity() {
             }
         } else {
             var dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-            val dateTimeNow = LocalDateTime.now()
             val date = dateTimeNow.format(dateTimeFormatter)
 
             dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")

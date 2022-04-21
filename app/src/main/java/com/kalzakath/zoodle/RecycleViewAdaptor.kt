@@ -15,9 +15,13 @@ import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.math.ceil
 
-class RecyclerViewAdaptor(val onSwiped: (MoodEntryModel, ArrayList<MoodEntryModel>) -> Unit, val onListUpdated: (ArrayList<MoodEntryModel>) -> Unit, val onMoodValueClicked: (MoodEntryModel) -> Unit,
+class RecyclerViewAdaptor(
+    val onSwiped: (MoodEntryModel, ArrayList<MoodEntryModel>) -> Unit,
+    val onListUpdated: (ArrayList<MoodEntryModel>) -> Unit,
+    val onMoodValueClicked: (MoodEntryModel) -> Unit,
     val onStartActivitiesActivity: (MoodEntryModel) -> Unit,
-    val startFeelingsActivity: (MoodEntryModel) -> Unit, var settings: Settings = Settings()):
+    val startFeelingsActivity: (MoodEntryModel) -> Unit,
+    var settings: Settings = Settings()):
     Adapter<ViewHolder>(), SwipeHelperCallback.ItemTouchHelperAdaptor {
 
     private var moodList: ArrayList<RowEntryModel> = ArrayList()
