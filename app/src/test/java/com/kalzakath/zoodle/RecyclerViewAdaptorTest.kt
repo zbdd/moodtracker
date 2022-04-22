@@ -13,6 +13,7 @@ import io.mockk.*
 import io.mockk.impl.annotations.MockK
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.*
@@ -72,6 +73,21 @@ class RecyclerViewAdaptorTest {
             { moodEntry -> startActivityFeelings(moodEntry) },
             settings)
 
+
+        mockkStatic(Looper::class)
+        val looper = mockk<Looper> {
+            every { thread } returns Thread.currentThread()
+        }
+
+        every { Looper.getMainLooper() } returns looper
+        every { LayoutInflater.from(context) } returns layoutInflater
+
+        mockAdapter.updateList(arrayMood)
+
+    }
+
+    @BeforeEach
+    fun setupBeforeEach() {
         mockAdapter = spyk(RecyclerViewAdaptor(
             { moodEntry, moodList -> onItemDismissed(moodEntry, moodList) },
             { moodEntries -> writeEntrytoFile(moodEntries); updateDatabaseEntry(moodEntries) },
@@ -82,15 +98,6 @@ class RecyclerViewAdaptorTest {
             every { notifyDataSetChanged() } returns Unit
             every { notifyItemChanged(any<Int>()) } returns Unit
         }
-        mockkStatic(Looper::class)
-        val looper = mockk<Looper> {
-            every { thread } returns Thread.currentThread()
-        }
-        every { Looper.getMainLooper() } returns looper
-        every { LayoutInflater.from(context) } returns layoutInflater
-
-        mockAdapter.updateList(arrayMood)
-
     }
 
     @Test
@@ -108,13 +115,22 @@ class RecyclerViewAdaptorTest {
 
     @Test
     fun `can correctly GET moodlist array`() {
-        verify(atLeast = 5) { mockAdapter.notifyDataSetChanged() }
-        assertEquals(5, mockAdapter.getMoodList().size)
+        assertEquals(0, mockAdapter.getMoodList().size)
+        mockAdapter.updateList(arrayListOf(MoodEntryModel(), MoodEntryModel()))
+        assertEquals(2, mockAdapter.getMoodList().size)
     }
 
     @Test
-    fun onCreateViewHolder() {
-        //Too difficult to Unit Test at this time
+    fun `create FileViewHolder`() {
+        val cntx = mockk<Context>()
+        val view = mockk<ViewGroup> {
+            every { context } returns cntx
+            every { findViewById<TextView>(any<Int>()) } returns mockk<TextView>()
+        }
+        every { LayoutInflater.from(cntx).inflate(any<Int>(), view, false) } returns view
+        val position = 1
+        val holder = mockAdapter.onCreateViewHolder(view, position)
+        assertEquals(FilterViewHolder::class, holder::class)
 
     }
 
@@ -145,6 +161,10 @@ class RecyclerViewAdaptorTest {
 
     @Test
     fun `can successfully update a mood entry row`() {
+
+        assert(mockAdapter.getMoodList().size == 0)
+        mockAdapter.updateList(arrayListOf(MoodEntryModel()))
+        mockAdapter.getMoodList()[0].key = "testkey"
 
         val moodVal = "3"
         val viewHolder = mockk<MoodEntryViewHolder>()
@@ -184,6 +204,9 @@ class RecyclerViewAdaptorTest {
 
     @Test
     fun `can get two items from moodList, one of each RowEntryType`() {
+
+        mockAdapter.updateList(arrayListOf(MoodEntryModel()))
+
         val anyMood = mockAdapter.getMoodList()[0]
         // Filter type because a FilterRow would have been thrown in by now
         assertEquals(RowEntryModel.FILTER_ENTRY_TYPE, mockAdapter.getItemViewType(0))
