@@ -38,6 +38,13 @@ class RecyclerViewAdaptorTest {
 
         mockkStatic(LayoutInflater::class)
 
+        val arrayMood = arrayListOf<MoodEntryModel>()
+        arrayMood.add(MoodEntryModel())
+        arrayMood.add(MoodEntryModel())
+        arrayMood.add(MoodEntryModel())
+        arrayMood.add(MoodEntryModel())
+        arrayMood.add(MoodEntryModel())
+
         recyclerViewAdaptor = RecyclerViewAdaptor(
             { moodEntry, moodList -> onItemDismissed(moodEntry, moodList) },
             { moodEntries -> writeEntrytoFile(moodEntries); updateDatabaseEntry(moodEntries) },
@@ -53,14 +60,17 @@ class RecyclerViewAdaptorTest {
             { moodEntry -> startActivityActivities(moodEntry) },
             { moodEntry -> startActivityFeelings(moodEntry) },
             settings))
-        every { mockAdapter.notifyDataSetChanged() } returns Unit
 
+        every { mockAdapter.notifyDataSetChanged() } returns Unit
+        every { mockAdapter.notifyItemChanged(any<Int>()) } returns Unit
         mockkStatic(Looper::class)
         val looper = mockk<Looper> {
             every { thread } returns Thread.currentThread()
         }
         every { Looper.getMainLooper() } returns looper
         every { LayoutInflater.from(context) } returns layoutInflater
+
+        mockAdapter.updateList(arrayMood)
 
     }
 
@@ -77,15 +87,7 @@ class RecyclerViewAdaptorTest {
 
     @Test
     fun getMoodList() {
-        val arrayMood = arrayListOf<MoodEntryModel>()
-        arrayMood.add(MoodEntryModel())
-        arrayMood.add(MoodEntryModel())
-        arrayMood.add(MoodEntryModel())
-        arrayMood.add(MoodEntryModel())
-        arrayMood.add(MoodEntryModel())
-
-        mockAdapter.updateList(arrayMood)
-        verify(exactly = 5) { mockAdapter.notifyDataSetChanged() }
+        verify(atLeast = 5) { mockAdapter.notifyDataSetChanged() }
         assertEquals(5, mockAdapter.getMoodList().size)
     }
 
@@ -101,13 +103,23 @@ class RecyclerViewAdaptorTest {
         testSettings.mood_max = "100"
         testSettings.mood_numerals = "test"
 
-        mockAdapter.updateListConfig(testSettings)
-        assertEquals("100", mockAdapter.settings.mood_max)
-        assertEquals("test", mockAdapter.settings.mood_numerals)
+        recyclerViewAdaptor.updateListConfig(testSettings)
+        assertEquals("100", recyclerViewAdaptor.settings.mood_max)
+        assertEquals("test", recyclerViewAdaptor.settings.mood_numerals)
     }
 
     @Test
     fun updateList() {
+        val arrayMood = arrayListOf<MoodEntryModel>()
+        arrayMood.add(MoodEntryModel())
+        arrayMood.add(MoodEntryModel())
+        arrayMood.add(MoodEntryModel())
+        arrayMood.add(MoodEntryModel())
+        arrayMood.add(MoodEntryModel())
+
+        mockAdapter.updateList(arrayMood)
+        verify(atLeast = 5) { mockAdapter.notifyDataSetChanged() }
+        assertEquals(5, mockAdapter.getMoodList().size)
     }
 
     @Test
