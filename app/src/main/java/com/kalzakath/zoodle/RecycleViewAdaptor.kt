@@ -302,101 +302,106 @@ class RecyclerViewAdaptor(
         }
     }
 
+    private fun bindToMoodViewHolder(mHolder: MoodEntryViewHolder, position: Int) {
+        val moodViewHolder = moodList[position] as MoodEntryModel
+        if (moodViewHolder.key == "default_row_key") return
+
+        mHolder.dateText.text = moodViewHolder.date
+        mHolder.timeText.text = moodViewHolder.time
+
+        if (settings.mood_numerals == "false")
+            mHolder.moodText.text = mHolder.itemView.resources.getString(
+                getEmoji(
+                    moodViewHolder.mood!!.toFaces(
+                        getSanitisedNumber(moodViewHolder.mood.value!!.toInt()).toString())))
+        else mHolder.moodText.text = moodViewHolder.mood!!.value
+        mHolder.activityText.text = when (moodViewHolder.activities.toString()) {
+            "[]" ->  "Click to add an activity"
+            else -> moodViewHolder.activities.toString().removeSurrounding(
+                "[",
+                "]"
+            )
+        }
+
+        mHolder.feelingsText.text = when (moodViewHolder.feelings.toString()) {
+            "[]" ->  "Click to add feelings"
+            else -> moodViewHolder.feelings.toString().removeSurrounding(
+                "[",
+                "]"
+            )
+        }
+
+        if (settings.mood_numerals == "true") {
+            when {
+                mHolder.moodText.text.toString()
+                    .toInt() > 3 -> mHolder.moodText.setBackgroundResource(R.drawable.mood_rating_colour_high)
+                mHolder.moodText.text.toString()
+                    .toInt() < 3 -> mHolder.moodText.setBackgroundResource(R.drawable.mood_rating_colour_low)
+                mHolder.moodText.text.toString()
+                    .toInt() == 3 -> mHolder.moodText.setBackgroundResource(R.drawable.mood_rating_colour)
+            }
+        } else mHolder.moodText.setBackgroundResource(0)
+
+        val calendar
+                : Calendar = Calendar.getInstance(TimeZone.getDefault())
+
+        mHolder.moodText.setOnClickListener {
+            onMoodValueClicked(moodList[position] as MoodEntryModel)
+        }
+
+        val timeSetListener = TimePickerDialog.OnTimeSetListener { _, hour, minute ->
+            calendar.set(Calendar.HOUR_OF_DAY, hour)
+            calendar.set(Calendar.MINUTE, minute)
+            updateDateText(calendar, mHolder, moodViewHolder)
+        }
+
+        val dateSetListener =
+            DatePickerDialog.OnDateSetListener { _, year, month, day ->
+                calendar.set(Calendar.YEAR, year)
+                calendar.set(Calendar.MONTH, month)
+                calendar.set(Calendar.DAY_OF_MONTH, day)
+
+                TimePickerDialog(
+                    mHolder.itemView.context,
+                    timeSetListener,
+                    calendar.get(Calendar.HOUR_OF_DAY),
+                    calendar.get(Calendar.MINUTE),
+                    true
+                ).show()
+
+            }
+
+        mHolder.dateText.setOnClickListener {
+            DatePickerDialog(
+                mHolder.itemView.context, dateSetListener,
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+            ).show()
+        }
+
+        mHolder.timeText.setOnClickListener {
+            DatePickerDialog(
+                mHolder.itemView.context, dateSetListener,
+                calendar.get(Calendar.YEAR),
+                calendar.get(Calendar.MONTH),
+                calendar.get(Calendar.DAY_OF_MONTH)
+            ).show()
+        }
+
+        mHolder.activityText.setOnClickListener {
+            onStartActivitiesActivity(moodList[position] as MoodEntryModel)
+        }
+
+        mHolder.feelingsText.setOnClickListener {
+            startFeelingsActivity(moodList[position] as MoodEntryModel)
+        }
+    }
+
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
         when (holder.itemViewType) {
-            RowEntryModel.MOOD_ENTRY_TYPE -> {
-                val mHolder = holder as MoodEntryViewHolder
-                val moodViewHolder = moodList[position] as MoodEntryModel
-                if (moodViewHolder.key == "default_row_key") return
-
-                mHolder.dateText.text = moodViewHolder.date
-                mHolder.timeText.text = moodViewHolder.time
-
-                if (settings.mood_numerals == "false") mHolder.moodText.text = mHolder.itemView.resources.getString(getEmoji(moodViewHolder.mood!!.toFaces(getSanitisedNumber(moodViewHolder.mood.value!!.toInt()).toString())))
-                else mHolder.moodText.text = moodViewHolder.mood!!.value
-                mHolder.activityText.text = when (moodViewHolder.activities.toString()) {
-                    "[]" ->  "Click to add an activity"
-                    else -> moodViewHolder.activities.toString().removeSurrounding(
-                        "[",
-                        "]"
-                    )
-                }
-
-                mHolder.feelingsText.text = when (moodViewHolder.feelings.toString()) {
-                    "[]" ->  "Click to add feelings"
-                    else -> moodViewHolder.feelings.toString().removeSurrounding(
-                        "[",
-                        "]"
-                    )
-                }
-
-                if (settings.mood_numerals == "true") {
-                    when {
-                        mHolder.moodText.text.toString()
-                            .toInt() > 3 -> mHolder.moodText.setBackgroundResource(R.drawable.mood_rating_colour_high)
-                        mHolder.moodText.text.toString()
-                            .toInt() < 3 -> mHolder.moodText.setBackgroundResource(R.drawable.mood_rating_colour_low)
-                        mHolder.moodText.text.toString()
-                            .toInt() == 3 -> mHolder.moodText.setBackgroundResource(R.drawable.mood_rating_colour)
-                    }
-                } else mHolder.moodText.setBackgroundResource(0)
-
-                val calendar
-                        : Calendar = Calendar.getInstance(TimeZone.getDefault())
-
-                mHolder.moodText.setOnClickListener {
-                    onMoodValueClicked(moodList[position] as MoodEntryModel)
-                }
-
-                val timeSetListener = TimePickerDialog.OnTimeSetListener { _, hour, minute ->
-                    calendar.set(Calendar.HOUR_OF_DAY, hour)
-                    calendar.set(Calendar.MINUTE, minute)
-                    updateDateText(calendar, mHolder, moodViewHolder)
-                }
-
-                val dateSetListener =
-                    DatePickerDialog.OnDateSetListener { _, year, month, day ->
-                        calendar.set(Calendar.YEAR, year)
-                        calendar.set(Calendar.MONTH, month)
-                        calendar.set(Calendar.DAY_OF_MONTH, day)
-
-                        TimePickerDialog(
-                            mHolder.itemView.context,
-                            timeSetListener,
-                            calendar.get(Calendar.HOUR_OF_DAY),
-                            calendar.get(Calendar.MINUTE),
-                            true
-                        ).show()
-
-                    }
-
-                mHolder.dateText.setOnClickListener {
-                    DatePickerDialog(
-                        holder.itemView.context, dateSetListener,
-                        calendar.get(Calendar.YEAR),
-                        calendar.get(Calendar.MONTH),
-                        calendar.get(Calendar.DAY_OF_MONTH)
-                    ).show()
-                }
-
-                mHolder.timeText.setOnClickListener {
-                    DatePickerDialog(
-                        holder.itemView.context, dateSetListener,
-                        calendar.get(Calendar.YEAR),
-                        calendar.get(Calendar.MONTH),
-                        calendar.get(Calendar.DAY_OF_MONTH)
-                    ).show()
-                }
-
-                mHolder.activityText.setOnClickListener {
-                    onStartActivitiesActivity(moodList[position] as MoodEntryModel)
-                }
-
-                mHolder.feelingsText.setOnClickListener {
-                    startFeelingsActivity(moodList[position] as MoodEntryModel)
-                }
-            }
+            RowEntryModel.MOOD_ENTRY_TYPE -> bindToMoodViewHolder(holder as MoodEntryViewHolder, position)
             RowEntryModel.FILTER_ENTRY_TYPE -> {
                 val vHolder = holder as FilterViewHolder
                 val filterEntry = moodList[position] as FilterEntryModel
