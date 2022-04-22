@@ -128,10 +128,22 @@ class RecyclerViewAdaptorTest {
             every { findViewById<TextView>(any<Int>()) } returns mockk<TextView>()
         }
         every { LayoutInflater.from(cntx).inflate(any<Int>(), view, false) } returns view
-        val position = 1
-        val holder = mockAdapter.onCreateViewHolder(view, position)
+        val viewType = RowEntryModel.FILTER_ENTRY_TYPE
+        val holder = mockAdapter.onCreateViewHolder(view, viewType)
         assertEquals(FilterViewHolder::class, holder::class)
+    }
 
+    @Test
+    fun `create MoodViewHolder`() {
+        val cntx = mockk<Context>()
+        val view = mockk<ViewGroup> {
+            every { context } returns cntx
+            every { findViewById<TextView>(any<Int>()) } returns mockk<TextView>()
+        }
+        every { LayoutInflater.from(cntx).inflate(any<Int>(), view, false) } returns view
+        val viewType = RowEntryModel.MOOD_ENTRY_TYPE
+        val holder = mockAdapter.onCreateViewHolder(view, viewType)
+        assertEquals(MoodEntryViewHolder::class, holder::class)
     }
 
     @Test
@@ -215,6 +227,9 @@ class RecyclerViewAdaptorTest {
 
     @Test
     fun `can bind viewHolder to MoodEntryHolder then FilterViewHolder`() {
+
+        mockAdapter.updateList(arrayListOf(MoodEntryModel()))
+
         val viewHolder = mockk<MoodEntryViewHolder> {
             every { itemViewType } returns RowEntryModel.MOOD_ENTRY_TYPE
         }
@@ -225,7 +240,7 @@ class RecyclerViewAdaptorTest {
             mockAdapter.onBindViewHolder(viewHolder, position)
             assert(true)
         } catch (e: Exception) {
-            // Not expected!
+            fail("Not meant to reach this!")
         }
 
         val viewHolderTest2 = mockk<FilterViewHolder> {
@@ -233,10 +248,11 @@ class RecyclerViewAdaptorTest {
             every { tvFilterTitle.text = any<CharSequence>() } returns Unit
         }
         position = 0
+
         try {
             mockAdapter.onBindViewHolder(viewHolderTest2, position)
         } catch (e: Exception) {
-
+            fail("Not meant to reach this!")
         }
 
         verify { mockAdapter.onBindViewHolder(viewHolder, 1) }
