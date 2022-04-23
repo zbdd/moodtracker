@@ -36,8 +36,6 @@ import java.nio.charset.Charset
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
 import kotlin.math.ceil
 import kotlin.random.Random
 
@@ -56,7 +54,7 @@ class MainActivity : AppCompatActivity() {
     private var isPremiumEdition = false
 
     private val isDebugMode = true
-    lateinit private var settings: Settings
+    private lateinit var settings: Settings
 
     private val signInLauncher =
         registerForActivityResult(FirebaseAuthUIActivityResultContract()) { res ->
@@ -66,7 +64,7 @@ class MainActivity : AppCompatActivity() {
     private fun setupRecycleView() {
         recyclerViewAdaptor = RecyclerViewAdaptor(
             { moodEntry, moodList -> onItemDismissed(moodEntry, moodList) },
-            { moodEntries -> writeEntrytoFile(moodEntries); updateDatabaseEntry(moodEntries) },
+            { moodEntries -> writeEntryToFile(moodEntries); updateDatabaseEntry(moodEntries) },
             { mood -> setupMoodPicker(mood) },
             { moodEntry -> startActivityActivities(moodEntry) },
             { moodEntry -> startActivityFeelings(moodEntry) },
@@ -106,7 +104,7 @@ class MainActivity : AppCompatActivity() {
         val intent = Intent(this, SettingsActivity::class.java)
 
         intent.putExtra("Settings", settings)
-        val data = recyclerViewAdaptor.getMoodList() as java.util.ArrayList<out Parcelable>
+        val data = recyclerViewAdaptor.getMoodList() as ArrayList<out Parcelable>
         if (data.isNotEmpty()) intent.putParcelableArrayListExtra("MoodEntries", data)
 
         getSettingsActivityResult.launch(intent)
@@ -116,7 +114,7 @@ class MainActivity : AppCompatActivity() {
         val intent = Intent(this, TrendViewActivity::class.java)
 
         intent.putExtra("Settings", settings)
-        val data = recyclerViewAdaptor.getMoodList() as java.util.ArrayList<out Parcelable>
+        val data = recyclerViewAdaptor.getMoodList() as ArrayList<out Parcelable>
         if (data.isNotEmpty()) intent.putParcelableArrayListExtra("MoodEntries", data)
 
         getTrendViewActivitiesResult.launch(intent)
@@ -142,7 +140,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun getSanitisedNumber(value: Int): Int {
         return (ceil(
-            value?.toDouble()?.div(settings.mood_max!!.toInt() / 5) as Double
+            value.toDouble().div(settings.mood_max!!.toInt() / 5)
         ).toInt())
     }
 
@@ -164,12 +162,12 @@ class MainActivity : AppCompatActivity() {
     private fun onItemDismissed(moodEntry: MoodEntryModel, moodList: ArrayList<MoodEntryModel>) {
         if (user != null) myRef.child(user?.uid ?: "").child("moodEntries")
             .child("${moodEntry.key}").removeValue()
-        writeEntrytoFile(moodList)
+        writeEntryToFile(moodList)
     }
 
     private fun setupMoodPicker(moodEntry: MoodEntryModel) {
         val numberPicker: NumberPicker = findViewById(R.id.npNumberPicker)
-        val numberArray = Array(settings!!.mood_max!!.toInt()) { (it + 1).toString() }
+        val numberArray = Array(settings.mood_max!!.toInt()) { (it + 1).toString() }
 
         when (settings.mood_numerals) {
             "true" -> {
@@ -196,7 +194,7 @@ class MainActivity : AppCompatActivity() {
         val bNpConfirm: Button = findViewById(R.id.bNpConfirm)
 
         bNpConfirm.setOnClickListener {
-            var moodValue: Mood = when (settings.mood_numerals) {
+            val moodValue: Mood = when (settings.mood_numerals) {
                 "true" -> Mood((numberPicker.value + 1).toString(), Mood.MOOD_MODE_NUMBERS)
                 else -> Mood(getUnsanitisedNumber(numberPicker.value + 1).toString(), Mood.MOOD_MODE_FACES)
             }
@@ -235,55 +233,24 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun runMainLoop() {
+    private fun collectMoodData() {
 
-        var moodData = ArrayList<MoodEntryModel>()
-        /* Please ignore this horror
-        var stringArray = ArrayList<String>()
-        stringArray.add("Boxing")
-        stringArray.add("Dancing")
-        stringArray.add("Gaming")
-
-        writeEntrytoFile(stringArray,"available.json")
-         */
-
-        //settings.mood_numerals = "false"
-        //writeEntrytoFile(settings, "settings.json")
-
-        initButtons()
-
-        if (user != null) {
+        val moodData: ArrayList<MoodEntryModel> = if (user != null) {
             checkDatabasePathExists()
-            moodData = readDatabaseForNewData()
+            readDatabaseForNewData()
         } else {
-            moodData = readFromLocalStore()
+            readFromLocalStore()
         }
 
         recyclerViewAdaptor.updateList(moodData)
+    }
 
-        val ibLogin: ImageButton = findViewById(R.id.ibLogin)
-        if (user == null) ibLogin.background.setTint(Color.LTGRAY)
-        else ibLogin.background.setTint(Color.GREEN)
-
-        ibLogin.setOnClickListener {
-            if (!isPremiumEdition) {
-                Toast.makeText(
-                    applicationContext,
-                    "Premium edition feature only",
-                    Toast.LENGTH_SHORT
-                ).show()
-            } else if (user == null) {
-                launchSignInEvent()
-            } else {
-                Toast.makeText(applicationContext, "Already signed in", Toast.LENGTH_SHORT).show()
-            }
-        }
-
+    private fun setActivityListeners() {
         getActivitiesActivityResult =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
                 val data = it.data?.getStringArrayListExtra("AvailableActivities")
                 if (data != null) {
-                    writeEntrytoFile(data as ArrayList<*>, "available.json")
+                    writeEntryToFile(data as ArrayList<*>, "available.json")
                     recyclerViewAdaptor.updateMoodEntry(it.data?.getSerializableExtra("MoodEntry") as MoodEntryModel)
                 }
             }
@@ -295,7 +262,7 @@ class MainActivity : AppCompatActivity() {
         getFeelingsActivityResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             val data = it.data?.getStringArrayListExtra("AvailableFeelings")
             if (data != null) {
-                writeEntrytoFile(data as ArrayList<*>, "feelings.json")
+                writeEntryToFile(data as ArrayList<*>, "feelings.json")
                 recyclerViewAdaptor.updateMoodEntry(it.data?.getSerializableExtra("MoodEntry") as MoodEntryModel)
             }
         }
@@ -308,7 +275,7 @@ class MainActivity : AppCompatActivity() {
                 if (moodEntries != null) moodData = it.data?.getParcelableArrayListExtra<Parcelable>("MoodEntries") as ArrayList<MoodEntryModel>
 
                 if (data != null) {
-                    writeEntrytoFile(data, "settings.json")
+                    writeEntryToFile(data)
                     recyclerViewAdaptor.updateListConfig(data)
                     settings = data
                 }
@@ -324,7 +291,7 @@ class MainActivity : AppCompatActivity() {
         if (data.isNotEmpty()) settings = data[0]
         else {
             settings = Settings()
-            writeEntrytoFile(settings, "settings.json")
+            writeEntryToFile(settings)
         }
     }
 
@@ -349,6 +316,24 @@ class MainActivity : AppCompatActivity() {
             val ibAddNewDebug: ImageButton = findViewById(R.id.ibAddNewDebug)
             ibAddNewDebug.setOnClickListener {
                 addNewMoodEntry(isDebugMode)
+            }
+        }
+
+        val ibLogin: ImageButton = findViewById(R.id.ibLogin)
+        if (user == null) ibLogin.background.setTint(Color.LTGRAY)
+        else ibLogin.background.setTint(Color.GREEN)
+
+        ibLogin.setOnClickListener {
+            if (!isPremiumEdition) {
+                Toast.makeText(
+                    applicationContext,
+                    "Premium edition feature only",
+                    Toast.LENGTH_SHORT
+                ).show()
+            } else if (user == null) {
+                launchSignInEvent()
+            } else {
+                Toast.makeText(applicationContext, "Already signed in", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -444,7 +429,9 @@ class MainActivity : AppCompatActivity() {
             recyclerView.adapter = recyclerViewAdaptor
 
             user = null
-            runMainLoop()
+            collectMoodData()
+            initButtons()
+            setActivityListeners()
         }
     }
 
@@ -464,9 +451,7 @@ class MainActivity : AppCompatActivity() {
         signInLauncher.launch(signInIntent)
     }
 
-    private fun writeEntrytoFile(data: ArrayList<*>, filename: String = "testData.json") {
-        val gson = Gson()
-        val jsonString: String = gson.toJson(data)
+    private fun writeEntryToFile(jsonString: String, filename: String) {
         val fileout: FileOutputStream = openFileOutput(filename, MODE_PRIVATE)
         val outwrite = OutputStreamWriter(fileout)
         outwrite.write(jsonString)
@@ -474,16 +459,16 @@ class MainActivity : AppCompatActivity() {
         fileout.close()
     }
 
-    private fun writeEntrytoFile(data: Settings, filename: String = "") {
-        if (filename == "") return
-
+    private fun writeEntryToFile(data: ArrayList<*>, filename: String = "testData.json") {
         val gson = Gson()
         val jsonString: String = gson.toJson(data)
-        val fileout: FileOutputStream = openFileOutput(filename, MODE_PRIVATE)
-        val outwrite = OutputStreamWriter(fileout)
-        outwrite.write(jsonString)
-        outwrite.close()
-        fileout.close()
+        writeEntryToFile(jsonString, filename)
+    }
+
+    private fun writeEntryToFile(data: Settings, filename: String = "settings.json") {
+        val gson = Gson()
+        val jsonString: String = gson.toJson(data)
+        writeEntryToFile(jsonString, filename)
     }
 
     private fun loadFromJSONAsset(filename: String = "testData.json"): String {
