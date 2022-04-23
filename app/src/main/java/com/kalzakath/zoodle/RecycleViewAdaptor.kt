@@ -1,18 +1,17 @@
 package com.kalzakath.zoodle
 
+import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import androidx.recyclerview.widget.RecyclerView.*
+import androidx.recyclerview.widget.RecyclerView.Adapter
+import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.*
-import kotlin.collections.ArrayList
 import kotlin.math.ceil
 
 class RecyclerViewAdaptor(
@@ -73,7 +72,6 @@ class RecyclerViewAdaptor(
                 if (moodList[i].viewType == RowEntryModel.MOOD_ENTRY_TYPE) {
                     val moodListItem = moodList[i] as MoodEntryModel
                     if (moodListItem.key.equals(moodEntry.key)) {
-                        val moodListItem = moodList[i] as MoodEntryModel
                         if (LocalDate.parse(moodListItem.lastUpdated?.substring(0,19), format) < LocalDate.parse(
                                 moodEntry.lastUpdated?.substring(0,19),
                                 format
@@ -152,7 +150,7 @@ class RecyclerViewAdaptor(
         val timeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm", Locale.ENGLISH)
         val comparator = compareBy({ mood: MoodEntryModel -> LocalDate.parse(mood.date, dateFormatter) }, { mood: MoodEntryModel -> LocalTime.parse(mood.time, timeFormatter) }).reversed()
 
-        var moods: ArrayList<MoodEntryModel> = ArrayList()
+        val moods: ArrayList<MoodEntryModel> = ArrayList()
 
         for(i in moodList.indices) {
             if (moodList[i].viewType == RowEntryModel.MOOD_ENTRY_TYPE) moods.add(moodList[i] as MoodEntryModel)
@@ -183,6 +181,7 @@ class RecyclerViewAdaptor(
         addFilterView("Years Ago")
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun addFilterView(title: String) {
         val moods: ArrayList<MoodEntryModel> = ArrayList()
         val format = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH)
@@ -210,7 +209,7 @@ class RecyclerViewAdaptor(
         if (moods.size == 0) return
 
         var maxDate: LocalDate = LocalDate.now()
-        var minDate: LocalDate = LocalDate.now()
+        val minDate: LocalDate
         var pos: Int = -1
         var posLast = -1
 
@@ -287,7 +286,7 @@ class RecyclerViewAdaptor(
 
     private fun getSanitisedNumber(value: Int): Int {
         return (ceil(
-            value?.toDouble()?.div(settings.mood_max!!.toInt() / 5) as Double
+            value.toDouble().div(settings.mood_max!!.toInt() / 5)
         ).toInt())
     }
 
