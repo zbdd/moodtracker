@@ -292,31 +292,20 @@ class RecyclerViewAdaptorTest {
     }
 
     @Test
-    fun getOnSwiped() {
+    fun `can retrieve settings`() {
+        assertEquals(Settings::class, mockAdapter.settings::class)
+        assertEquals(Settings().mood_max, mockAdapter.settings.mood_max)
+        assertEquals(Settings().mood_numerals, mockAdapter.settings.mood_numerals)
     }
 
     @Test
-    fun getOnListUpdated() {
-    }
-
-    @Test
-    fun getOnMoodValueClicked() {
-    }
-
-    @Test
-    fun getOnStartActivitiesActivity() {
-    }
-
-    @Test
-    fun getStartFeelingsActivity() {
-    }
-
-    @Test
-    fun getSettings() {
-    }
-
-    @Test
-    fun setSettings() {
+    fun `can change settings`() {
+        val testMax = "42"
+        val testNumerals = "test"
+        val newSettings = Settings(testNumerals, testMax)
+        mockAdapter.settings = newSettings
+        assertEquals(testMax, mockAdapter.settings.mood_max)
+        assertEquals(testNumerals, mockAdapter.settings.mood_numerals)
     }
 
     private fun startActivityFeelings(moodEntry: MoodEntryModel) {
