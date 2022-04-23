@@ -260,15 +260,35 @@ class RecyclerViewAdaptorTest {
     }
 
     @Test
-    fun getItemCount() {
+    fun `count the size of the MoodList array`() {
+        assertEquals(mockAdapter.getItemCount(), mockAdapter.getMoodList().size)
+        mockAdapter.updateList(arrayListOf(MoodEntryModel()))
+        // Why 2? Well, in creating a valid MoodEntry, a FilterView will be added (because it'll detect the TODAY condition)
+        assertEquals(2, mockAdapter.itemCount)
     }
 
     @Test
-    fun onItemMove() {
+    fun `assert onItemMove is always returning false`() {
+        assertFalse(mockAdapter.onItemMove(Random.nextInt(),Random.nextInt()))
     }
 
     @Test
-    fun onItemDismiss() {
+    fun `dismissing an MoodEntry calls removal and notify functions`() {
+        val data = arrayListOf<MoodEntryModel>()
+        for (i in 1..Random.nextInt(1,12)) {
+            data.add(MoodEntryModel())
+        }
+        mockAdapter.updateList(data)
+
+        var index = -1
+        every { mockAdapter.notifyItemRemoved(any()) } returns Unit
+        do {
+            index = Random.nextInt(mockAdapter.itemCount - 1)
+        } while (mockAdapter.getItem(index)!!.viewType != RowEntryModel.MOOD_ENTRY_TYPE)
+
+        mockAdapter.onItemDismiss(index)
+
+        verify { mockAdapter.notifyItemRemoved(index) }
     }
 
     @Test
@@ -320,6 +340,6 @@ class RecyclerViewAdaptorTest {
     }
 
     private fun onItemDismissed(moodEntry: MoodEntryModel, moodList: ArrayList<MoodEntryModel>) {
-
+        assert(true)
     }
 }

@@ -418,6 +418,11 @@ class RecyclerViewAdaptor(
         return false
     }
 
+    fun getItem(position: Int): RowEntryModel? {
+        if (position < moodList.size) return moodList[position]
+        return null
+    }
+
     override fun onItemDismiss(position: Int) {
         val moodEntry = moodList[position]
         moodList.removeAt(position)
