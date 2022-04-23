@@ -1,14 +1,12 @@
 package com.kalzakath.zoodle
 
 import android.content.Context
-import android.content.res.Resources
 import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.firebase.ui.auth.data.model.Resource
 import io.mockk.*
 import io.mockk.impl.annotations.MockK
 import org.junit.jupiter.api.Assertions.*
@@ -16,20 +14,15 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import org.junit.jupiter.api.TestInstance.*
-import java.lang.Exception
+import org.junit.jupiter.api.TestInstance.Lifecycle
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.util.*
-import kotlin.concurrent.thread
 import kotlin.random.Random
-import kotlin.random.nextInt
 
 @TestInstance(Lifecycle.PER_CLASS)
 class RecyclerViewAdaptorTest {
 
-    class TestViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
-    }
+    class TestViewHolder(itemView: View): RecyclerView.ViewHolder(itemView)
 
     companion object {
         private var settings = Settings()
@@ -66,11 +59,11 @@ class RecyclerViewAdaptorTest {
         ))
 
         recyclerViewAdaptor = RecyclerViewAdaptor(
-            { moodEntry, moodList -> onItemDismissed(moodEntry, moodList) },
-            { moodEntries -> writeEntrytoFile(moodEntries); updateDatabaseEntry(moodEntries) },
-            { mood -> setupMoodPicker(mood) },
-            { moodEntry -> startActivityActivities(moodEntry) },
-            { moodEntry -> startActivityFeelings(moodEntry) },
+            { _, _ -> onItemDismissed() },
+            { writeEntrytoFile(); updateDatabaseEntry() },
+            { setupMoodPicker() },
+            { startActivityActivities() },
+            { startActivityFeelings() },
             settings)
 
 
@@ -89,14 +82,14 @@ class RecyclerViewAdaptorTest {
     @BeforeEach
     fun setupBeforeEach() {
         mockAdapter = spyk(RecyclerViewAdaptor(
-            { moodEntry, moodList -> onItemDismissed(moodEntry, moodList) },
-            { moodEntries -> writeEntrytoFile(moodEntries); updateDatabaseEntry(moodEntries) },
-            { mood -> setupMoodPicker(mood) },
-            { moodEntry -> startActivityActivities(moodEntry) },
-            { moodEntry -> startActivityFeelings(moodEntry) },
+            { _, _ -> onItemDismissed() },
+            { writeEntrytoFile(); updateDatabaseEntry() },
+            { setupMoodPicker() },
+            { startActivityActivities() },
+            { startActivityFeelings() },
             settings)) {
             every { notifyDataSetChanged() } returns Unit
-            every { notifyItemChanged(any<Int>()) } returns Unit
+            every { notifyItemChanged(any()) } returns Unit
         }
     }
 
@@ -108,7 +101,7 @@ class RecyclerViewAdaptorTest {
 
     @Test
     fun `can check viewHolder was assigned as TestViewHolder`() {
-        var itmView = mockk<View>()
+        val itmView = mockk<View>()
         every { mockAdapter.viewHolder } returns TestViewHolder(itmView)
         assertEquals(TestViewHolder::class.java,mockAdapter.viewHolder::class.java)
     }
@@ -125,7 +118,7 @@ class RecyclerViewAdaptorTest {
         val cntx = mockk<Context>()
         val view = mockk<ViewGroup> {
             every { context } returns cntx
-            every { findViewById<TextView>(any<Int>()) } returns mockk<TextView>()
+            every { findViewById<TextView>(any()) } returns mockk()
         }
         every { LayoutInflater.from(cntx).inflate(any<Int>(), view, false) } returns view
         val viewType = RowEntryModel.FILTER_ENTRY_TYPE
@@ -138,7 +131,7 @@ class RecyclerViewAdaptorTest {
         val cntx = mockk<Context>()
         val view = mockk<ViewGroup> {
             every { context } returns cntx
-            every { findViewById<TextView>(any<Int>()) } returns mockk<TextView>()
+            every { findViewById<TextView>(any()) } returns mockk()
         }
         every { LayoutInflater.from(cntx).inflate(any<Int>(), view, false) } returns view
         val viewType = RowEntryModel.MOOD_ENTRY_TYPE
@@ -148,7 +141,7 @@ class RecyclerViewAdaptorTest {
 
     @Test
     fun `can update settings`() {
-        var testSettings = Settings()
+        val testSettings = Settings()
         testSettings.mood_max = "100"
         testSettings.mood_numerals = "test"
 
@@ -218,8 +211,6 @@ class RecyclerViewAdaptorTest {
     fun `can get two items from moodList, one of each RowEntryType`() {
 
         mockAdapter.updateList(arrayListOf(MoodEntryModel()))
-
-        val anyMood = mockAdapter.getMoodList()[0]
         // Filter type because a FilterRow would have been thrown in by now
         assertEquals(RowEntryModel.FILTER_ENTRY_TYPE, mockAdapter.getItemViewType(0))
         assertEquals(RowEntryModel.MOOD_ENTRY_TYPE, mockAdapter.getItemViewType(1))
@@ -245,7 +236,7 @@ class RecyclerViewAdaptorTest {
 
         val viewHolderTest2 = mockk<FilterViewHolder> {
             every { itemViewType } returns RowEntryModel.FILTER_ENTRY_TYPE
-            every { tvFilterTitle.text = any<CharSequence>() } returns Unit
+            every { tvFilterTitle.text = any() } returns Unit
         }
         position = 0
 
@@ -261,7 +252,7 @@ class RecyclerViewAdaptorTest {
 
     @Test
     fun `count the size of the MoodList array`() {
-        assertEquals(mockAdapter.getItemCount(), mockAdapter.getMoodList().size)
+        assertEquals(mockAdapter.itemCount, mockAdapter.getMoodList().size)
         mockAdapter.updateList(arrayListOf(MoodEntryModel()))
         // Why 2? Well, in creating a valid MoodEntry, a FilterView will be added (because it'll detect the TODAY condition)
         assertEquals(2, mockAdapter.itemCount)
@@ -280,7 +271,7 @@ class RecyclerViewAdaptorTest {
         }
         mockAdapter.updateList(data)
 
-        var index = -1
+        var index: Int
         every { mockAdapter.notifyItemRemoved(any()) } returns Unit
         do {
             index = Random.nextInt(mockAdapter.itemCount - 1)
@@ -308,27 +299,27 @@ class RecyclerViewAdaptorTest {
         assertEquals(testNumerals, mockAdapter.settings.mood_numerals)
     }
 
-    private fun startActivityFeelings(moodEntry: MoodEntryModel) {
+    private fun startActivityFeelings() {
 
     }
 
-    private fun startActivityActivities(moodEntry: MoodEntryModel) {
+    private fun startActivityActivities() {
 
     }
 
-    private fun updateDatabaseEntry(moodEntries: ArrayList<MoodEntryModel>) {
+    private fun updateDatabaseEntry() {
 
     }
 
-    private fun setupMoodPicker(mood: MoodEntryModel) {
+    private fun setupMoodPicker() {
 
     }
 
-    private fun writeEntrytoFile(moodEntries: ArrayList<MoodEntryModel>) {
+    private fun writeEntrytoFile() {
 
     }
 
-    private fun onItemDismissed(moodEntry: MoodEntryModel, moodList: ArrayList<MoodEntryModel>) {
+    private fun onItemDismissed() {
         assert(true)
     }
 }
