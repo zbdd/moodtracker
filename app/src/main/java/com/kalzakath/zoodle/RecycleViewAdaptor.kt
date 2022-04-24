@@ -53,8 +53,8 @@ class RecyclerViewAdaptor(
             if (moodList[i].viewType == RowEntryModel.MOOD_ENTRY_TYPE) {
                 val mood = moodList[i] as MoodEntryModel
                 when (settings.mood_numerals) {
-                    "false" ->  mood.mood?.toFaces()
-                    "true" -> mood.mood?.toNumber()
+                    "false" ->  mood.mood!!.moodMode = Mood.MOOD_MODE_FACES
+                    "true" -> mood.mood!!.moodMode = Mood.MOOD_MODE_NUMBERS
                 }
                 notifyItemChanged(i)
             }

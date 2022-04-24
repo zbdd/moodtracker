@@ -2,9 +2,16 @@ package com.kalzakath.zoodle
 
 import java.io.Serializable
 
-class Mood (nValue: String = "5", mode: Int = MOOD_MODE_NUMBERS): Serializable {
+class Mood (nValue: String = "5", mode: Int = MOOD_MODE_FACES): Serializable {
     var value: String? = nValue
     var moodMode: Int = mode
+        get() = field
+        set(value) {
+            when (value) {
+                MOOD_MODE_NUMBERS -> { toNumber(); field = MOOD_MODE_NUMBERS }
+                MOOD_MODE_FACES -> { toFaces(); field = MOOD_MODE_FACES }
+            }
+        }
 
     fun toFaces(convertValue: String? = value): String {
         val num = when (convertValue) {

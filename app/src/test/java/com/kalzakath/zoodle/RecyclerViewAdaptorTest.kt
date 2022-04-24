@@ -140,14 +140,23 @@ class RecyclerViewAdaptorTest {
     }
 
     @Test
-    fun `can update settings`() {
+    fun `can update settings and this updates mood entries`() {
         val testSettings = Settings()
         testSettings.mood_max = "100"
-        testSettings.mood_numerals = "test"
+        testSettings.mood_numerals = "true"
 
-        recyclerViewAdaptor.updateListConfig(testSettings)
-        assertEquals("100", recyclerViewAdaptor.settings.mood_max)
-        assertEquals("test", recyclerViewAdaptor.settings.mood_numerals)
+        val data = arrayListOf<MoodEntryModel>()
+        for (i in 1..Random.nextInt(1,12)) {
+            data.add(MoodEntryModel())
+        }
+        mockAdapter.updateList(data)
+        val moodToTest = mockAdapter.getMoodList()[Random.nextInt(mockAdapter.itemCount -1)]
+        assertEquals(Mood.MOOD_MODE_FACES, moodToTest.mood!!.moodMode)
+
+        mockAdapter.updateListConfig(testSettings)
+        assertEquals(testSettings.mood_max, mockAdapter.settings.mood_max)
+        assertEquals(testSettings.mood_numerals, mockAdapter.settings.mood_numerals)
+        assertEquals(Mood.MOOD_MODE_NUMBERS, moodToTest.mood!!.moodMode)
     }
 
     @Test
