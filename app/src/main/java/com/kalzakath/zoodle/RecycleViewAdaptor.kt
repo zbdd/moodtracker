@@ -393,7 +393,9 @@ class RecyclerViewAdaptor(
         }
 
         mHolder.feelingsText.setOnClickListener {
-            startFeelingsActivity(moodList[position] as MoodEntryModel)
+            if (moodList[position].viewType == RowEntryModel.MOOD_ENTRY_TYPE) {
+                startFeelingsActivity(moodList[position] as MoodEntryModel)
+            }
         }
     }
 
@@ -426,7 +428,7 @@ class RecyclerViewAdaptor(
         val moodEntry = moodList[position]
         moodList.removeAt(position)
 
-        notifyItemRemoved(position)
+        run { notifyItemRemoved(position) }
         val listToSave = ArrayList<MoodEntryModel>()
         for(item in moodList) { if (item.javaClass == MoodEntryModel::class.java) listToSave.add(item as MoodEntryModel) }
         onSwiped(moodEntry as MoodEntryModel, listToSave)
