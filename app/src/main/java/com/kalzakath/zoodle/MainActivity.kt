@@ -1,6 +1,7 @@
 package com.kalzakath.zoodle
 
 import android.content.Intent
+import android.content.SharedPreferences
 import android.graphics.Color
 import android.os.Bundle
 import android.os.Parcelable
@@ -28,14 +29,16 @@ import com.google.firebase.ktx.Firebase
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
-import java.io.File
-import java.io.FileOutputStream
-import java.io.FileReader
-import java.io.OutputStreamWriter
-import java.nio.charset.Charset
+import java.io.*
+import java.security.SecureRandom
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
+import javax.crypto.Cipher
+import javax.crypto.KeyGenerator
+import javax.crypto.SecretKey
+import javax.crypto.spec.IvParameterSpec
+import javax.crypto.spec.SecretKeySpec
 import kotlin.math.ceil
 import kotlin.random.Random
 
@@ -52,6 +55,7 @@ class MainActivity : AppCompatActivity() {
     private var user: FirebaseUser? = null
     private var mItemTouchHelper: ItemTouchHelper? = null
     private var isPremiumEdition = false
+    private val SHARED_PREF_SECRET_KEY = "secretKey"
 
     private val isDebugMode = true
     private lateinit var settings: Settings
@@ -83,10 +87,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun startActivityActivities(moodEntry: MoodEntryModel) {
         val intent = Intent(this, ActivitiesActivity::class.java)
-        val jsonArray = loadFromJSONAsset("available.json")
+        val jsonArray = createJSONFromFile("available.json")
 
         // Get activities that are stored in local json file
-        if (jsonArray.isNotEmpty()) {
+        if (jsonArray?.isNotEmpty() == true) {
             val gson = GsonBuilder().create()
             val activities = gson.fromJson(jsonArray, ArrayList::class.java)
             if (activities.isNotEmpty()) {
@@ -122,10 +126,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun startActivityFeelings(moodEntry: MoodEntryModel) {
         val intent = Intent(this, FeelingsActivity::class.java)
-        val jsonArray = loadFromJSONAsset("feelings.json")
+        val jsonArray = createJSONFromFile("feelings.json")
 
         // Get activities that are stored in local json file
-        if (jsonArray.isNotEmpty()) {
+        if (jsonArray?.isNotEmpty() == true) {
             val gson = GsonBuilder().create()
             val feelings = gson.fromJson(jsonArray, ArrayList::class.java)
             var data = ArrayList<String>()
@@ -241,7 +245,9 @@ class MainActivity : AppCompatActivity() {
         } else {
             readFromLocalStore()
         }
-
+        /*for (i in 1..1000) {
+            moodData.add(MoodEntryModel())
+        }*/
         recyclerViewAdaptor.updateList(moodData)
     }
 
@@ -286,13 +292,25 @@ class MainActivity : AppCompatActivity() {
 
     private fun readSettingsDataFromJson(jsonSettings: String) {
         val gson = Gson()
-        val type = object : TypeToken<Array<Settings>>() {}.type
-        val data = gson.fromJson<Array<Settings>>(jsonSettings, type)
-        if (data.isNotEmpty()) settings = data[0]
+        val type = object : TypeToken<Settings>() {}.type
+        val data = gson.fromJson<Settings>(jsonSettings, type)
+        if (data != null) settings = data
         else {
             settings = Settings()
             writeEntryToFile(settings)
         }
+    }
+
+    private fun generateSecretKey(): SecretKey {
+        val secureRandom = SecureRandom()
+        val keyGen = KeyGenerator.getInstance("AES")
+        keyGen.init(256, secureRandom)
+        return keyGen.generateKey()
+    }
+
+    private fun saveSecretKey(sharedPref: SharedPreferences, secretKey: SecretKey) {
+        val encodedKey = Base64.getEncoder().encodeToString(secretKey.encoded)
+        sharedPref.edit().putString(SHARED_PREF_SECRET_KEY, encodedKey).apply()
     }
 
     private fun initButtons() {
@@ -393,21 +411,21 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun readFromLocalStore(): ArrayList<MoodEntryModel> {
-        val jsonArray = loadFromJSONAsset()
+        val jsonArray = createJSONFromFile()
         val moodData = ArrayList<MoodEntryModel>()
 
-        if (jsonArray.isNotEmpty()) {
+        if (jsonArray?.isNotEmpty() == true) {
             val gson = GsonBuilder().create()
-            val type = object : TypeToken<Array<Array<MoodEntryModel>>>() {}.type
-            val moodEntries = gson.fromJson<Array<Array<MoodEntryModel>>>(jsonArray, type)
+            val type = object : TypeToken<Array<MoodEntryModel>>() {}.type
+            val moodEntries = gson.fromJson<Array<MoodEntryModel>>(jsonArray, type)
             if (moodEntries.isEmpty()) return moodData
 
-            for (x in moodEntries[0].indices) {
+            for (x in moodEntries.indices) {
                 when (settings.mood_numerals) {
-                    "true" -> moodEntries[0][x].mood!!.moodMode = Mood.MOOD_MODE_NUMBERS
-                    else -> moodEntries[0][x].mood!!.moodMode = Mood.MOOD_MODE_FACES
+                    "true" -> moodEntries[x].mood!!.moodMode = Mood.MOOD_MODE_NUMBERS
+                    else -> moodEntries[x].mood!!.moodMode = Mood.MOOD_MODE_FACES
                 }
-                moodData.add(moodEntries[0][x])
+                moodData.add(moodEntries[x])
             }
         }
 
@@ -418,8 +436,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val jsonSettings = loadFromJSONAsset("settings.json")
-        readSettingsDataFromJson(jsonSettings)
+        val jsonSettings = createJSONFromFile("settings.json")
+        if (jsonSettings != null) readSettingsDataFromJson(jsonSettings)
+        else settings = Settings()
 
         if(::settings.isInitialized)  setupRecycleView()
 
@@ -451,12 +470,39 @@ class MainActivity : AppCompatActivity() {
         signInLauncher.launch(signInIntent)
     }
 
+    private fun getSecretKey(): SecretKey {
+        val mPrefs = applicationContext.getSharedPreferences("Pref", MODE_PRIVATE)
+        val key = mPrefs.getString(SHARED_PREF_SECRET_KEY, null)
+
+        if (key == null) {
+            val secretKey = generateSecretKey()
+            saveSecretKey(mPrefs, secretKey)
+            return secretKey
+        }
+
+        val decodeKey = Base64.getDecoder().decode(key)
+
+        return SecretKeySpec(decodeKey, 0, decodeKey.size, "AES")
+    }
+
+    private fun encryptData(secretKey: SecretKey, fileData: ByteArray): ByteArray {
+        val data = secretKey.encoded
+        val sKeySpec = SecretKeySpec(data, 0, data.size, "AES")
+        val cipher = Cipher.getInstance("AES", "BC")
+        cipher.init(Cipher.ENCRYPT_MODE, sKeySpec, IvParameterSpec(ByteArray(cipher.blockSize)))
+        return cipher.doFinal(fileData)
+    }
+
     private fun writeEntryToFile(jsonString: String, filename: String) {
-        val fileout: FileOutputStream = openFileOutput(filename, MODE_PRIVATE)
-        val outwrite = OutputStreamWriter(fileout)
-        outwrite.write(jsonString)
-        outwrite.close()
-        fileout.close()
+        val secretKey = getSecretKey()
+        val fileData = jsonString.toByteArray(Charsets.UTF_32)
+        val encoded = encryptData(secretKey, fileData)
+
+        val fos: FileOutputStream = openFileOutput(filename, MODE_PRIVATE)
+        val bos = BufferedOutputStream(fos)
+        bos.write(encoded)
+        bos.flush()
+        bos.close()
     }
 
     private fun writeEntryToFile(data: ArrayList<*>, filename: String = "testData.json") {
@@ -471,29 +517,35 @@ class MainActivity : AppCompatActivity() {
         writeEntryToFile(jsonString, filename)
     }
 
-    private fun loadFromJSONAsset(filename: String = "testData.json"): String {
-        val json: String
-
+    private fun readDataFromFile(filename: String): ByteArray? {
         val path = this.filesDir.absoluteFile
 
         val file = File("$path/$filename")
-        if (!file.isFile) file.createNewFile()
+        if (file != null && file.isFile) {
+            val fileContents = file.readBytes()
+            val inputBuffer = BufferedInputStream(FileInputStream(file))
+            inputBuffer.read(fileContents)
+            inputBuffer.close()
 
-        if (file.isFile) {
-            val fileReader = FileReader("$path/$filename")
-            json = fileReader.readLines().toString()
-            fileReader.close()
-            return json
-        } else {
-            val inputStream = assets.open(filename)
-            val size = inputStream.available()
-            val buffer = ByteArray(size)
-            val charset: Charset = Charsets.UTF_8
-            inputStream.read(buffer)
-            inputStream.close()
-            json = String(buffer, charset)
-            return json
+            return fileContents
         }
+        return null
+    }
+
+    private fun decrypt(secretKey: SecretKey, fileData: ByteArray): ByteArray {
+        val cipher = Cipher.getInstance("AES", "BC")
+        cipher.init(Cipher.DECRYPT_MODE, secretKey, IvParameterSpec(ByteArray(cipher.blockSize)))
+        return cipher.doFinal(fileData)
+    }
+
+    private fun createJSONFromFile(filename: String = "testData.json"): String? {
+        val data = readDataFromFile(filename)
+        if (data?.isNotEmpty() == true) {
+            val secretKey = getSecretKey()
+            val decryptedData = decrypt(secretKey, data)
+            return decryptedData.toString(Charsets.UTF_32)
+        }
+        return null
     }
 
     private fun createNewMoodEntry(isDebug: Boolean, dateTimeNow: LocalDateTime): MoodEntryModel {
