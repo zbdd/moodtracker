@@ -111,8 +111,6 @@ class MainActivity : AppCompatActivity() {
         val intent = Intent(this, TrendViewActivity::class.java)
 
         intent.putExtra("Settings", settings)
-        val data = recyclerViewAdaptor.getMoodList() as ArrayList<out Parcelable>
-        if (data.isNotEmpty()) intent.putParcelableArrayListExtra("MoodEntries", data)
 
         getTrendViewActivitiesResult.launch(intent)
     }
