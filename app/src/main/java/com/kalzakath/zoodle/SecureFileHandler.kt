@@ -73,16 +73,16 @@ class SecureFileHandler(val context: Context) {
          return true
     }
 
-     fun write(data: ArrayList<*>, filename: String = "testData.json") {
-        val gson = Gson()
-        val jsonString: String = gson.toJson(data)
-         write(jsonString, filename)
+     fun write(data: ArrayList<*>, filename: String = "testData.json"): Boolean {
+         val gson = Gson()
+         val jsonString: String = gson.toJson(data)
+         return write(jsonString, filename)
     }
 
-     fun write(data: Settings, filename: String = "settings.json") {
+     fun write(data: Settings, filename: String = "settings.json"): Boolean {
         val gson = Gson()
         val jsonString: String = gson.toJson(data)
-         write(jsonString, filename)
+         return write(jsonString, filename)
     }
 
     private fun readDataFromFile(filename: String): ByteArray? {
