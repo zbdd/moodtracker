@@ -46,8 +46,8 @@ class SecureFileHandler(val context: Context) {
 
     private fun encryptData(secretKey: SecretKey, fileData: ByteArray): ByteArray {
         val data = secretKey.encoded
-        val sKeySpec = SecretKeySpec(data, 0, data.size, "AES")
-        val cipher = Cipher.getInstance("AES", "BC")
+        val sKeySpec = SecretKeySpec(data, 0, data.size, "AES/CBC/PKCS5Padding")
+        val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
         cipher.init(Cipher.ENCRYPT_MODE, sKeySpec, IvParameterSpec(ByteArray(cipher.blockSize)))
         return cipher.doFinal(fileData)
     }
@@ -92,7 +92,7 @@ class SecureFileHandler(val context: Context) {
     }
 
     private fun decrypt(secretKey: SecretKey, fileData: ByteArray): ByteArray {
-        val cipher = Cipher.getInstance("AES", "BC")
+        val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
         cipher.init(Cipher.DECRYPT_MODE, secretKey, IvParameterSpec(ByteArray(cipher.blockSize)))
         return cipher.doFinal(fileData)
     }
