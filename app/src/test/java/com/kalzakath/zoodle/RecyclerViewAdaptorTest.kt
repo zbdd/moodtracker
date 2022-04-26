@@ -275,7 +275,7 @@ class RecyclerViewAdaptorTest {
     @Test
     fun `dismissing an MoodEntry calls removal and notify functions`() {
         val data = arrayListOf<MoodEntryModel>()
-        for (i in 1..Random.nextInt(1,12)) {
+        for (i in 1..Random.nextInt(4,12)) {
             data.add(MoodEntryModel())
         }
         mockAdapter.updateList(data)
