@@ -4,7 +4,10 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import com.google.gson.Gson
-import java.io.*
+import java.io.BufferedInputStream
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
 import java.security.SecureRandom
 import java.util.*
 import javax.crypto.Cipher
@@ -52,16 +55,22 @@ class SecureFileHandler(val context: Context) {
         return cipher.doFinal(fileData)
     }
 
-     fun write(jsonString: String, filename: String) {
-        val secretKey = getSecretKey()
-        val fileData = jsonString.toByteArray(Charsets.UTF_32)
-        val encoded = encryptData(secretKey, fileData)
+     fun write(jsonString: String, filename: String): Boolean {
+         //try {
+             val secretKey = getSecretKey()
+             val fileData = jsonString.toByteArray(Charsets.UTF_32)
+             val encoded = encryptData(secretKey, fileData)
 
-        val fos: FileOutputStream = context.openFileOutput(filename, AppCompatActivity.MODE_PRIVATE)
-        val bos = BufferedOutputStream(fos)
-        bos.write(encoded)
-        bos.flush()
-        bos.close()
+             val fos: FileOutputStream =
+                 context.openFileOutput(filename, AppCompatActivity.MODE_PRIVATE)
+             //val bos = BufferedOutputStream(fos)
+             fos.write(encoded)
+             fos.flush()
+             fos.close()
+        //} catch (e: Exception) {
+          //   return false
+        // }
+         return true
     }
 
      fun write(data: ArrayList<*>, filename: String = "testData.json") {
