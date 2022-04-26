@@ -24,14 +24,17 @@ class MoodTest {
     @org.junit.jupiter.api.Test
     fun getMoodMode() {
         val mood = Mood()
-        assertEquals(Mood.MOOD_MODE_NUMBERS, mood.moodMode)
+        assertEquals(Mood.MOOD_MODE_FACES, mood.moodMode)
     }
 
     @org.junit.jupiter.api.Test
     fun setMoodMode() {
         val mood = Mood()
         mood.moodMode = 123
-        assertEquals(123, mood.moodMode)
+        // Setting moodMode will only accept defined values else returns -1
+        assertEquals(-1, mood.moodMode)
+        mood.moodMode = Mood.MOOD_MODE_FACES
+        assertEquals(Mood.MOOD_MODE_FACES, mood.moodMode)
     }
 
     @org.junit.jupiter.api.Test

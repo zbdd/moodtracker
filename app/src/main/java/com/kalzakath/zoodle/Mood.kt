@@ -7,9 +7,12 @@ class Mood (nValue: String = "5", mode: Int = MOOD_MODE_FACES): Serializable {
     var moodMode: Int = mode
         get() = field
         set(value) {
-            when (value) {
-                MOOD_MODE_NUMBERS -> { toNumber(); field = MOOD_MODE_NUMBERS }
-                MOOD_MODE_FACES -> { toFaces(); field = MOOD_MODE_FACES }
+            field = when (value) {
+                MOOD_MODE_NUMBERS -> { toNumber(); MOOD_MODE_NUMBERS
+                }
+                MOOD_MODE_FACES -> { toFaces(); MOOD_MODE_FACES
+                }
+                else -> -1
             }
         }
 
