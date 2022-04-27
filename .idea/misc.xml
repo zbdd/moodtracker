@@ -7,6 +7,7 @@
         <entry key="..\:/Users/zdurb/AndroidStudioProjects/Rows/app/src/main/res/drawable/activities_recycle_view_row_cross.xml" value="0.336" />
         <entry key="..\:/Users/zdurb/AndroidStudioProjects/Rows/app/src/main/res/drawable/activity_row_rounded_corner.xml" value="0.423" />
         <entry key="..\:/Users/zdurb/AndroidStudioProjects/Rows/app/src/main/res/drawable/ic_launcher_background.xml" value="0.423" />
+        <entry key="..\:/Users/zdurb/AndroidStudioProjects/Rows/app/src/main/res/drawable/mood_picker_layout_round.xml" value="0.2345" />
         <entry key="..\:/Users/zdurb/AndroidStudioProjects/Rows/app/src/main/res/drawable/mood_rating_colour.xml" value="0.3165" />
         <entry key="..\:/Users/zdurb/AndroidStudioProjects/Rows/app/src/main/res/drawable/mood_rating_colour_high.xml" value="0.315" />
         <entry key="..\:/Users/zdurb/AndroidStudioProjects/Rows/app/src/main/res/drawable/mood_rating_colour_low.xml" value="0.3165" />
@@ -23,6 +24,7 @@
         <entry key="..\:/Users/zdurb/AndroidStudioProjects/Rows/app/src/main/res/layout/feelings_recycle_view_row.xml" value="0.31197916666666664" />
         <entry key="..\:/Users/zdurb/AndroidStudioProjects/Rows/app/src/main/res/layout/filter_entry_layout.xml" value="0.31197916666666664" />
         <entry key="..\:/Users/zdurb/AndroidStudioProjects/Rows/app/src/main/res/layout/mood_entry_layout.xml" value="0.5" />
+        <entry key="..\:/Users/zdurb/AndroidStudioProjects/Rows/app/src/main/res/layout/mood_picker.xml" value="0.33" />
         <entry key="..\:/Users/zdurb/AndroidStudioProjects/Rows/app/src/main/res/layout/recycle_view_row_date.xml" value="0.31197916666666664" />
         <entry key="..\:/Users/zdurb/AndroidStudioProjects/Rows/app/src/main/res/layout/rounded_corner.xml" value="0.5541666666666667" />
       </map>

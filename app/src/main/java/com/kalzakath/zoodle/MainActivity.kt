@@ -230,8 +230,8 @@ class MainActivity : AppCompatActivity() {
         } else {
             readFromLocalStore()
         }
-        /*for (i in 1..1000) {
-            moodData.add(MoodEntryModel())
+        /*for (i in 1..10000) {
+            moodData.add(createNewMoodEntry(true))
         }*/
         recyclerViewAdaptor.updateList(moodData)
     }
@@ -275,6 +275,11 @@ class MainActivity : AppCompatActivity() {
             }
     }
 
+    private fun createMoodPicker() {
+        val moodPicker = MoodPickerDialog(this) { moodEntry -> addNewMoodEntry(moodEntry) }
+        moodPicker.showPopup()
+    }
+
     private fun readSettingsDataFromJson(jsonSettings: String) {
         val gson = Gson()
         val type = object : TypeToken<Settings>() {}.type
@@ -290,7 +295,8 @@ class MainActivity : AppCompatActivity() {
         val addNewButton: ImageButton = findViewById(R.id.addNewButton)
 
         addNewButton.setOnClickListener {
-            addNewMoodEntry(false)
+            //addNewMoodEntry(false)
+            createMoodPicker()
         }
 
         val bViewTrend: Button = findViewById(R.id.bViewTrend)
@@ -340,8 +346,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun addNewMoodEntry(isDebug: Boolean) {
-        val moodEntry = createNewMoodEntry(isDebug, LocalDateTime.now())
+        addNewMoodEntry(createNewMoodEntry(isDebug, LocalDateTime.now()))
+    }
 
+    private fun addNewMoodEntry(moodEntry: MoodEntryModel) {
         val data: ArrayList<MoodEntryModel> = ArrayList()
         data.add(moodEntry)
         recyclerViewAdaptor.updateList(data)
@@ -444,7 +452,7 @@ class MainActivity : AppCompatActivity() {
         signInLauncher.launch(signInIntent)
     }
 
-    private fun createNewMoodEntry(isDebug: Boolean, dateTimeNow: LocalDateTime): MoodEntryModel {
+    private fun createNewMoodEntry(isDebug: Boolean, dateTimeNow: LocalDateTime = LocalDateTime.now()): MoodEntryModel {
         val random = Random(System.currentTimeMillis())
 
         val choices: MutableList<String> = ArrayList()
