@@ -1,5 +1,6 @@
 package com.kalzakath.zoodle
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
@@ -39,6 +40,157 @@ import kotlin.random.Random
 
 class MainActivity : AppCompatActivity() {
 
+    class DebugDataHandler (private var settings: Settings,
+                            private var secureFileHandler: SecureFileHandler,
+                            private var context: Context): DataHandler(settings, secureFileHandler, context) {
+
+        override fun getMoodData(): ArrayList<MoodEntryModel> {
+            val debugArrayList = arrayListOf<MoodEntryModel>()
+            for (i in 1..12) {
+                debugArrayList.add(createNewMoodEntry(LocalDateTime.now()))
+            }
+            return debugArrayList
+        }
+
+        override fun createNewMoodEntry(dateTimeNow: LocalDateTime): MoodEntryModel  {
+            val random = Random
+            val randomYear = random.nextInt(2010, 2021).toString()
+            var randMonth = random.nextInt(1, 12).toString()
+            if (randMonth.toInt() < 10) randMonth = "0$randMonth"
+            var randDay = random.nextInt(1, 28).toString()
+            if (randDay.toInt() < 10) randDay = "0$randDay"
+            val randMood = random.nextInt(1, 5).toString()
+
+            val availFeelings = context.resources.getStringArray(R.array.available_feelings)
+
+            val choices: MutableList<String> = ArrayList()
+            choices.add("Programming")
+            choices.add("Gaming")
+            choices.add("Reading")
+            choices.add("Going out")
+            choices.add("School")
+            choices.add("Rugby")
+            choices.add("DnD")
+            choices.add("Hanging out")
+
+            val list: MutableList<String> = ArrayList()
+            for (i in 1..random.nextInt(4)) {
+                list.add(choices[random.nextInt(0, choices.size - 1)])
+            }
+
+            val feelings: MutableList<String> = ArrayList()
+            for (i in 1..random.nextInt(4)) {
+                feelings.add(availFeelings[random.nextInt(0, availFeelings.size - 1)])
+            }
+
+            return when (settings.mood_numerals) {
+                "true" -> MoodEntryModel(
+                    "$randomYear-$randMonth-$randDay",
+                    "12:34",
+                    Mood(randMood),
+                    feelings,
+                    list,
+                    UUID.randomUUID().toString()
+                )
+                else -> {
+                    MoodEntryModel(
+                        "$randomYear-$randMonth-$randDay",
+                        "12:34",
+                        Mood("3", Mood.MOOD_MODE_FACES),
+                        feelings,
+                        list,
+                        UUID.randomUUID().toString()
+                    )
+                }
+            }
+        }
+    }
+
+
+    open class DataHandler(private var settings: Settings,
+                           private var secureFileHandler: SecureFileHandler,
+                           private var context: Context
+    ) {
+
+        private fun readFromLocalStore(): ArrayList<MoodEntryModel> {
+            val jsonArray = secureFileHandler.read()
+            val moodData = ArrayList<MoodEntryModel>()
+
+            if (jsonArray?.isNotEmpty() == true) {
+                val gson = GsonBuilder().create()
+                val type = object : TypeToken<Array<MoodEntryModel>>() {}.type
+                val moodEntries = gson.fromJson<Array<MoodEntryModel>>(jsonArray, type)
+                if (moodEntries.isEmpty()) return moodData
+
+                for (x in moodEntries.indices) {
+                    when (settings.mood_numerals) {
+                        "true" -> moodEntries[x].mood!!.moodMode = Mood.MOOD_MODE_NUMBERS
+                        else -> moodEntries[x].mood!!.moodMode = Mood.MOOD_MODE_FACES
+                    }
+                    moodData.add(moodEntries[x])
+                }
+            }
+
+            return moodData
+        }
+
+        open fun getMoodData(): ArrayList<MoodEntryModel> {
+            var moodData = arrayListOf<MoodEntryModel>()
+            return readFromLocalStore()
+        }
+
+        open fun createNewMoodEntry(dateTimeNow: LocalDateTime = LocalDateTime.now()): MoodEntryModel {
+            val random = Random(System.currentTimeMillis())
+
+            val choices: MutableList<String> = ArrayList()
+            choices.add("Programming")
+            choices.add("Gaming")
+            choices.add("Reading")
+            choices.add("Going out")
+            choices.add("School")
+            choices.add("Rugby")
+            choices.add("DnD")
+            choices.add("Hanging out")
+
+            val availFeelings = context.resources.getStringArray(R.array.available_feelings)
+
+            val list: MutableList<String> = ArrayList()
+            for (i in 1..random.nextInt(4)) {
+                list.add(choices[random.nextInt(0, choices.size - 1)])
+            }
+
+            val feelings: MutableList<String> = ArrayList()
+            for (i in 1..random.nextInt(4)) {
+                feelings.add(availFeelings[random.nextInt(0, availFeelings.size - 1)])
+            }
+
+            var dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+            val date = dateTimeNow.format(dateTimeFormatter)
+
+            dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+            val time = dateTimeNow.format(dateTimeFormatter)
+
+            return when (settings.mood_numerals) {
+                "true" -> MoodEntryModel(
+                    date,
+                    time,
+                    Mood("3"),
+                    feelings,
+                    list,
+                    UUID.randomUUID().toString()
+                )
+                else -> MoodEntryModel(
+                    date,
+                    time,
+                    Mood("3", Mood.MOOD_MODE_FACES),
+                    ArrayList(),
+                    ArrayList(),
+                    UUID.randomUUID().toString()
+                )
+            }
+        }
+    }
+
     private lateinit var recyclerViewAdaptor: RecyclerViewAdaptor
     private lateinit var recyclerView: RecyclerView
     private lateinit var myRef: DatabaseReference
@@ -47,6 +199,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var getFeelingsActivityResult: ActivityResultLauncher<Intent>
     private lateinit var getTrendViewActivitiesResult: ActivityResultLauncher<Intent>
     private lateinit var secureFileHandler: SecureFileHandler
+    private lateinit var dataHandler: DataHandler
 
     private var user: FirebaseUser? = null
     private var isPremiumEdition = false
@@ -71,12 +224,17 @@ class MainActivity : AppCompatActivity() {
 
         setupRecycleView()
 
-        if (isDebugMode) isPremiumEdition = true
-
         user = null
-        collectMoodData()
+        dataHandler = DataHandler(settings, secureFileHandler, applicationContext)
         initButtons()
         setActivityListeners()
+
+        if (isDebugMode) {
+            isPremiumEdition = true
+            dataHandler = DebugDataHandler(settings, secureFileHandler, applicationContext)
+        }
+
+        recyclerViewAdaptor.updateList(dataHandler.getMoodData())
     }
 
     private fun setupRecycleView() {
@@ -241,20 +399,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun collectMoodData() {
-
-        val moodData: ArrayList<MoodEntryModel> = if (user != null) {
-            checkDatabasePathExists()
-            readDatabaseForNewData()
-        } else {
-            readFromLocalStore()
-        }
-        /*for (i in 1..10000) {
-            moodData.add(createNewMoodEntry(true))
-        }*/
-        recyclerViewAdaptor.updateList(moodData)
-    }
-
     private fun setActivityListeners() {
         getActivitiesActivityResult =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
@@ -365,7 +509,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun addNewMoodEntry(isDebug: Boolean) {
-        addNewMoodEntry(createNewMoodEntry(isDebug, LocalDateTime.now()))
+        addNewMoodEntry(dataHandler.createNewMoodEntry(LocalDateTime.now()))
     }
 
     private fun addNewMoodEntry(moodEntry: MoodEntryModel) {
@@ -410,27 +554,7 @@ class MainActivity : AppCompatActivity() {
             .child("moodEntries").setValue("")
     }
 
-    private fun readFromLocalStore(): ArrayList<MoodEntryModel> {
-        val jsonArray = secureFileHandler.read()
-        val moodData = ArrayList<MoodEntryModel>()
 
-        if (jsonArray?.isNotEmpty() == true) {
-            val gson = GsonBuilder().create()
-            val type = object : TypeToken<Array<MoodEntryModel>>() {}.type
-            val moodEntries = gson.fromJson<Array<MoodEntryModel>>(jsonArray, type)
-            if (moodEntries.isEmpty()) return moodData
-
-            for (x in moodEntries.indices) {
-                when (settings.mood_numerals) {
-                    "true" -> moodEntries[x].mood!!.moodMode = Mood.MOOD_MODE_NUMBERS
-                    else -> moodEntries[x].mood!!.moodMode = Mood.MOOD_MODE_FACES
-                }
-                moodData.add(moodEntries[x])
-            }
-        }
-
-        return moodData
-    }
 
     private fun launchSignInEvent() {
         // Choose authentication providers
@@ -446,79 +570,5 @@ class MainActivity : AppCompatActivity() {
             .setAvailableProviders(providers)
             .build()
         signInLauncher.launch(signInIntent)
-    }
-
-    private fun createNewMoodEntry(isDebug: Boolean, dateTimeNow: LocalDateTime = LocalDateTime.now()): MoodEntryModel {
-        val random = Random(System.currentTimeMillis())
-
-        val choices: MutableList<String> = ArrayList()
-        choices.add("Programming")
-        choices.add("Gaming")
-        choices.add("Reading")
-        choices.add("Going out")
-        choices.add("School")
-        choices.add("Rugby")
-        choices.add("DnD")
-        choices.add("Hanging out")
-
-        val availFeelings = resources.getStringArray(R.array.available_feelings)
-
-        val list: MutableList<String> = ArrayList()
-        for (i in 1..random.nextInt(4)) {
-            list.add(choices[random.nextInt(0, choices.size - 1)])
-        }
-
-        val feelings: MutableList<String> = ArrayList()
-        for (i in 1..random.nextInt(4)) {
-            feelings.add(availFeelings[random.nextInt(0, availFeelings.size - 1)])
-        }
-
-        return if (isDebug) {
-            val randomYear = random.nextInt(2010, 2021).toString()
-            var randMonth = random.nextInt(1, 12).toString()
-            if (randMonth.toInt() < 10) randMonth = "0$randMonth"
-            var randDay = random.nextInt(1, 28).toString()
-            if (randDay.toInt() < 10) randDay = "0$randDay"
-            val randMood = random.nextInt(1, 5).toString()
-
-            when (settings.mood_numerals) {
-                "true" -> MoodEntryModel(
-                    "$randomYear-$randMonth-$randDay",
-                    "12:34",
-                    Mood(randMood),
-                    feelings,
-                    list,
-                    UUID.randomUUID().toString()
-                )
-                else -> {
-                    MoodEntryModel(
-                        "$randomYear-$randMonth-$randDay",
-                        "12:34",
-                        Mood("3", Mood.MOOD_MODE_FACES),
-                        feelings,
-                        list,
-                        UUID.randomUUID().toString()
-                    )
-                }
-            }
-        } else {
-            var dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-            val date = dateTimeNow.format(dateTimeFormatter)
-
-            dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
-            val time = dateTimeNow.format(dateTimeFormatter)
-
-            when (settings.mood_numerals) {
-                "true" -> MoodEntryModel(date, time, Mood("3"), feelings, list, UUID.randomUUID().toString())
-                else -> MoodEntryModel(
-                    date,
-                    time,
-                    Mood("3", Mood.MOOD_MODE_FACES),
-                    ArrayList(),
-                    ArrayList(),
-                    UUID.randomUUID().toString()
-                )
-            }
-        }
     }
 }
