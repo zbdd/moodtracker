@@ -48,7 +48,12 @@ class MainActivity : AppCompatActivity() {
 
     private var user: FirebaseUser? = null
     private var isPremiumEdition = false
-    private val isDebugMode = true
+    private val debug = object {
+        fun debugDataHandler(boolean: Boolean) {
+            dataHandler = if (boolean) DebugDataHandler(settings, secureFileHandler, applicationContext)
+            else DataHandler(settings, secureFileHandler, applicationContext)
+        }
+    }
     private lateinit var settings: Settings
 
     private val signInLauncher =
@@ -72,11 +77,7 @@ class MainActivity : AppCompatActivity() {
         initButtons()
         setActivityListeners()
 
-        if (isDebugMode) {
-            isPremiumEdition = true
-            dataHandler = DebugDataHandler(settings, secureFileHandler, applicationContext)
-        }
-
+        debug.debugDataHandler(true)
         recyclerViewAdaptor.updateList(dataHandler.getMoodData())
     }
 
@@ -315,12 +316,12 @@ class MainActivity : AppCompatActivity() {
             startActivitySettings()
         }
 
-        if (isDebugMode) {
+        //if (isDebugMode) {
             val ibAddNewDebug: ImageButton = findViewById(R.id.ibAddNewDebug)
             ibAddNewDebug.setOnClickListener {
-                addNewMoodEntry(isDebugMode)
+                addNewMoodEntry()
             }
-        }
+       // }
 
         val ibLogin: ImageButton = findViewById(R.id.ibLogin)
         if (user == null) ibLogin.background.setTint(Color.LTGRAY)
@@ -351,7 +352,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun addNewMoodEntry(isDebug: Boolean) {
+    private fun addNewMoodEntry() {
         addNewMoodEntry(dataHandler.createNewMoodEntry(LocalDateTime.now()))
     }
 
