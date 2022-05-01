@@ -6,7 +6,10 @@ import android.os.Bundle
 import android.os.Parcelable
 import android.util.Log
 import android.view.View
-import android.widget.*
+import android.widget.Button
+import android.widget.ImageButton
+import android.widget.NumberPicker
+import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -46,7 +49,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var secureFileHandler: SecureFileHandler
 
     private var user: FirebaseUser? = null
-    private var mItemTouchHelper: ItemTouchHelper? = null
     private var isPremiumEdition = false
 
 
@@ -58,6 +60,25 @@ class MainActivity : AppCompatActivity() {
             this.onSignInResult(res)
         }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        secureFileHandler = SecureFileHandler(applicationContext)
+        val jsonSettings = secureFileHandler.read("settings.json")
+        if (jsonSettings != null) readSettingsDataFromJson(jsonSettings)
+        else settings = Settings()
+
+        setupRecycleView()
+
+        if (isDebugMode) isPremiumEdition = true
+
+        user = null
+        collectMoodData()
+        initButtons()
+        setActivityListeners()
+    }
+
     private fun setupRecycleView() {
         recyclerViewAdaptor = RecyclerViewAdaptor(
             { moodEntry, moodList -> onItemDismissed(moodEntry, moodList) },
@@ -68,14 +89,12 @@ class MainActivity : AppCompatActivity() {
             settings)
 
         val callback: ItemTouchHelper.Callback = SwipeHelperCallback(recyclerViewAdaptor)
-        mItemTouchHelper = ItemTouchHelper(callback)
-        mItemTouchHelper?.attachToRecyclerView(findViewById(R.id.recyclerViewMain))
+        val mItemTouchHelper = ItemTouchHelper(callback)
+        mItemTouchHelper.attachToRecyclerView(findViewById(R.id.recyclerViewMain))
 
         recyclerView = findViewById(R.id.recyclerViewMain)
         recyclerView.layoutManager = LinearLayoutManager(this)
-
-        val tvLoading: TextView = findViewById(R.id.tv_loading)
-        tvLoading.visibility = View.INVISIBLE
+        recyclerView.adapter = recyclerViewAdaptor
     }
 
     private fun startActivityActivities(moodEntry: MoodEntryModel) {
@@ -411,29 +430,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         return moodData
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
-        secureFileHandler = SecureFileHandler(applicationContext)
-        val jsonSettings = secureFileHandler.read("settings.json")
-        if (jsonSettings != null) readSettingsDataFromJson(jsonSettings)
-        else settings = Settings()
-
-        if(::settings.isInitialized)  setupRecycleView()
-
-        if (isDebugMode) isPremiumEdition = true
-
-        if (::recyclerViewAdaptor.isInitialized) {
-            recyclerView.adapter = recyclerViewAdaptor
-
-            user = null
-            collectMoodData()
-            initButtons()
-            setActivityListeners()
-        }
     }
 
     private fun launchSignInEvent() {
