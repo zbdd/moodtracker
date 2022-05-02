@@ -33,7 +33,6 @@ import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import com.kalzakath.zoodle.debug.DebugDataHandler
 import java.time.LocalDateTime
-import kotlin.math.ceil
 
 class MainActivity : AppCompatActivity() {
     private lateinit var recyclerViewAdaptor: RecyclerViewAdaptor
@@ -45,6 +44,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var getTrendViewActivitiesResult: ActivityResultLauncher<Intent>
     private lateinit var secureFileHandler: SecureFileHandler
     private lateinit var dataHandler: DataHandler
+    private lateinit var settings: Settings
 
     private var user: FirebaseUser? = null
     private var isPremiumEdition = false
@@ -54,7 +54,8 @@ class MainActivity : AppCompatActivity() {
             else DataHandler(settings, secureFileHandler, applicationContext)
         }
     }
-    private lateinit var settings: Settings
+
+    private val mvHelper: MoodValueHelper = MoodValueHelper()
 
     private val signInLauncher =
         registerForActivityResult(FirebaseAuthUIActivityResultContract()) { res ->
@@ -148,26 +149,7 @@ class MainActivity : AppCompatActivity() {
         getFeelingsActivityResult.launch(intent)
     }
 
-    private fun getSanitisedNumber(value: Int): Int {
-        return (ceil(
-            value.toDouble().div(settings.mood_max!!.toInt() / 5)
-        ).toInt())
-    }
 
-    private fun getUnsanitisedNumber(value: Int): Int {
-        return value.times(settings.mood_max!!.toInt()/ 5)
-    }
-
-
-    private fun getEmoji(convertValue: String): Int {
-        return when (convertValue) {
-            "Ecstatic" -> R.string.mood_ecstatic
-            "Happy" -> R.string.mood_happy
-            "Unhappy" -> R.string.mood_unhappy
-            "Terrible" -> R.string.mood_terrible
-            else -> R.string.mood_average
-        }
-    }
 
     private fun onItemDismissed(moodEntry: MoodEntryModel, moodList: ArrayList<MoodEntryModel>) {
         if (user != null) myRef.child(user?.uid ?: "").child("moodEntries")
@@ -194,7 +176,7 @@ class MainActivity : AppCompatActivity() {
                 numberPicker.minValue = 0
                 numberPicker.maxValue = resources.getStringArray(R.array.mood_faces).size - 1
                 numberPicker.value =
-                    getSanitisedNumber(moodEntry.mood!!.value!!.toInt()).minus(1)
+                    mvHelper.getSanitisedNumber(moodEntry.mood!!.value!!.toInt(), settings.mood_max!!.toInt()).minus(1)
             }
         }
 
@@ -206,7 +188,7 @@ class MainActivity : AppCompatActivity() {
         bNpConfirm.setOnClickListener {
             val moodValue: Mood = when (settings.mood_numerals) {
                 "true" -> Mood((numberPicker.value + 1).toString(), Mood.MOOD_MODE_NUMBERS)
-                else -> Mood(getUnsanitisedNumber(numberPicker.value + 1).toString(), Mood.MOOD_MODE_FACES)
+                else -> Mood(mvHelper.getUnsanitisedNumber(numberPicker.value + 1, settings.mood_max!!.toInt()).toString(), Mood.MOOD_MODE_FACES)
             }
             val newMood = MoodEntryModel(
                 moodEntry.date,
