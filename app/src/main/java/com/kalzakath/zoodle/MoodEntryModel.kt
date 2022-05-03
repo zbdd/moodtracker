@@ -12,12 +12,11 @@ class MoodEntryModel(
     val mood: Mood? = Mood(),
     val feelings: MutableList<String> = ArrayList(),
     val activities: MutableList<String> = ArrayList(),
-    override var key: String? = "mood_entry_key",
-    var lastUpdated: String? = LocalDateTime.now().toString()
-):RowEntryModel(),
-    Serializable {
-
+    override var key: String = "mood_entry_key",
+    var lastUpdated: String? = LocalDateTime.now().toString(),
     override var viewType: Int = MOOD_ENTRY_TYPE
+):RowEntryModel(key, viewType),
+    Serializable {
 
     @Exclude
     fun toMap(): Map<String, Any?> {

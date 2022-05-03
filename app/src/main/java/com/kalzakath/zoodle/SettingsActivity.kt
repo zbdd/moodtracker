@@ -15,13 +15,10 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
-import java.lang.Exception
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
 
 
 class SettingsActivity() : AppCompatActivity() {
@@ -181,7 +178,7 @@ class SettingsActivity() : AppCompatActivity() {
                                     Mood(mood["mood"].toString()),
                                     moodFeelings,
                                     moodActivities,
-                                    key,
+                                    key.toString(),
                                     lastUpdated
                                 )
                             )
