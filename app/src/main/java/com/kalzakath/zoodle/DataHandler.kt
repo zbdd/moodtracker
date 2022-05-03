@@ -24,10 +24,7 @@ open class DataHandler(private var settings: Settings,
             if (moodEntries.isEmpty()) return moodData
 
             for (x in moodEntries.indices) {
-                when (settings.mood_numerals) {
-                    "true" -> moodEntries[x].mood!!.moodMode = Mood.MOOD_MODE_NUMBERS
-                    else -> moodEntries[x].mood!!.moodMode = Mood.MOOD_MODE_FACES
-                }
+                moodEntries[x].mood!!.moodMode = settings.moodMode
                 moodData.add(moodEntries[x])
             }
         }
@@ -71,8 +68,8 @@ open class DataHandler(private var settings: Settings,
         dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
         val time = dateTimeNow.format(dateTimeFormatter)
 
-        return when (settings.mood_numerals) {
-            "true" -> MoodEntryModel(
+        return when (settings.moodMode) {
+            Mood.MOOD_MODE_NUMBERS -> MoodEntryModel(
                 date,
                 time,
                 Mood("3"),

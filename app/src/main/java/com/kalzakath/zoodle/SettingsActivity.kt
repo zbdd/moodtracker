@@ -42,12 +42,11 @@ class SettingsActivity() : AppCompatActivity() {
         if (moodEntries != null) moodData = intent.getParcelableArrayListExtra<Parcelable>("MoodEntries") as ArrayList<MoodEntryModel>
 
         val settings = intent.getParcelableExtra<Settings>("Settings")
-        sMoodNumerals.isChecked = settings?.mood_numerals?.equals("true") ?: false
+        sMoodNumerals.isChecked = settings?.moodMode?.equals(Mood.MOOD_MODE_NUMBERS) ?: false
 
         sMoodNumerals.setOnCheckedChangeListener { compoundButton, isChecked ->
-            run {
-                settings?.mood_numerals = isChecked.toString()
-            }
+            if (isChecked) settings?.moodMode = Mood.MOOD_MODE_NUMBERS
+            else settings?.moodMode = Mood.MOOD_MODE_FACES
         }
 
         tvSettingsExport.setOnClickListener {
@@ -167,8 +166,8 @@ class SettingsActivity() : AppCompatActivity() {
                             }
 
                             if (mood["mood"] != null) {
-                                if (mood["mood"]!!.toInt() in 6..10) settings!!.mood_max = "10"
-                                else if (mood["mood"]!!.toInt() > settings!!.mood_max!!.toInt()) settings!!.mood_max = mood["mood"]
+                                if (mood["mood"]!!.toInt() in 6..10) settings!!.moodMax = 10
+                                else if (mood["mood"]!!.toInt() > settings!!.moodMax) settings.moodMax = mood["mood"]?.toInt() ?: 5
                             }
 
                             dataImport.add(

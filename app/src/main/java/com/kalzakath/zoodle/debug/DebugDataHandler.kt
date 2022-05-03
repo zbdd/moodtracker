@@ -53,8 +53,8 @@ class DebugDataHandler (private var settings: Settings,
             feelings.add(availFeelings[random.nextInt(0, availFeelings.size - 1)])
         }
 
-        return when (settings.mood_numerals) {
-            "true" -> MoodEntryModel(
+        return when (settings.moodMode) {
+            Mood.MOOD_MODE_NUMBERS -> MoodEntryModel(
                 "$randomYear-$randMonth-$randDay",
                 "12:34",
                 Mood(randMood),

@@ -27,8 +27,8 @@ class TrendViewActivity : AppCompatActivity() {
 
     class MyFormat(val context: Context, val settings: Settings): ValueFormatter() {
         override fun getAxisLabel(value: Float, axis: AxisBase?): String {
-           when (settings.mood_numerals) {
-               "true" -> return value.toString()
+           when (settings.moodMode) {
+               Mood.MOOD_MODE_NUMBERS -> return value.toString()
            }
             return ""
         }
@@ -100,7 +100,7 @@ class TrendViewActivity : AppCompatActivity() {
             var moodNumber = moods.mood?.value
             var timePeriod = ""
 
-            if (settings?.mood_numerals == "true") moodNumber = moods.mood?.toNumber() ?: "3"
+            if (settings?.moodMode == Mood.MOOD_MODE_NUMBERS) moodNumber = moods.mood?.toNumber() ?: "3"
 
             if (filter == "month") {
                 format = "yyyy-MM"
@@ -176,10 +176,10 @@ class TrendViewActivity : AppCompatActivity() {
 
         val yAxis = chart.axisLeft
         yAxis.textColor = Color.WHITE
-        yAxis.axisMaximum = settings!!.mood_max?.toFloat() ?: 5f
+        yAxis.axisMaximum = settings!!.moodMax.toFloat() ?: 5f
         yAxis.axisMinimum = 0f
         yAxis.granularity = 1f
-        if (moodData.isNotEmpty()) if (settings!!.mood_numerals == "false") yAxis.valueFormatter = MyFormat(applicationContext,
+        if (moodData.isNotEmpty()) if (settings!!.moodMode == Mood.MOOD_MODE_FACES) yAxis.valueFormatter = MyFormat(applicationContext,
             settings!!
         )
         yAxis.setDrawGridLines(false)

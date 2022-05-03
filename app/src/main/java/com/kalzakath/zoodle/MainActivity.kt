@@ -159,24 +159,24 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupMoodPicker(moodEntry: MoodEntryModel) {
         val numberPicker: NumberPicker = findViewById(R.id.npNumberPicker)
-        val numberArray = Array(settings.mood_max!!.toInt()) { (it + 1).toString() }
+        val numberArray = Array(settings.moodMax) { (it + 1).toString() }
 
-        when (settings.mood_numerals) {
-            "true" -> {
+        when (settings.moodMode) {
+            Mood.MOOD_MODE_NUMBERS -> {
                 numberPicker.displayedValues = numberArray
-                numberPicker.maxValue = settings.mood_max?.toInt()?.minus(1)?: 4
+                numberPicker.maxValue = settings.moodMax.minus(1)?: 4
                 numberPicker.minValue = 0
                 numberPicker.wrapSelectorWheel = true
                 numberPicker.textColor = Color.WHITE
                 numberPicker.value = moodEntry.mood!!.value!!.toInt().minus(1)
 
             }
-            "false" -> {
+            Mood.MOOD_MODE_FACES -> {
                 numberPicker.displayedValues = resources.getStringArray(R.array.mood_faces)
                 numberPicker.minValue = 0
                 numberPicker.maxValue = resources.getStringArray(R.array.mood_faces).size - 1
                 numberPicker.value =
-                    mvHelper.getSanitisedNumber(moodEntry.mood!!.value!!.toInt(), settings.mood_max!!.toInt()).minus(1)
+                    mvHelper.getSanitisedNumber(moodEntry.mood!!.value!!.toInt(), settings.moodMax).minus(1)
             }
         }
 
@@ -186,9 +186,9 @@ class MainActivity : AppCompatActivity() {
         val bNpConfirm: Button = findViewById(R.id.bNpConfirm)
 
         bNpConfirm.setOnClickListener {
-            val moodValue: Mood = when (settings.mood_numerals) {
-                "true" -> Mood((numberPicker.value + 1).toString(), Mood.MOOD_MODE_NUMBERS)
-                else -> Mood(mvHelper.getUnsanitisedNumber(numberPicker.value + 1, settings.mood_max!!.toInt()).toString(), Mood.MOOD_MODE_FACES)
+            val moodValue: Mood = when (settings.moodMode) {
+                Mood.MOOD_MODE_NUMBERS -> Mood((numberPicker.value + 1).toString(), Mood.MOOD_MODE_NUMBERS)
+                else -> Mood(mvHelper.getUnsanitisedNumber(numberPicker.value + 1, settings.moodMax).toString(), Mood.MOOD_MODE_FACES)
             }
             val newMood = MoodEntryModel(
                 moodEntry.date,

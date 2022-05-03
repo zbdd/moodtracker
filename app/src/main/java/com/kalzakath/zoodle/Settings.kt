@@ -4,20 +4,18 @@ import android.os.Parcel
 import android.os.Parcelable
 
 class Settings(
-    var mood_numerals: String? = "false",
-    var mood_max: String? = "5"
-
-
+    var moodMode: Int = Mood.MOOD_MODE_NUMBERS,
+    var moodMax: Int = 5
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
-        parcel.readString(),
-        parcel.readString()
+        parcel.readInt(),
+        parcel.readInt()
     ) {
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeString(mood_numerals)
-        parcel.writeString(mood_max)
+        parcel.writeInt(moodMode)
+        parcel.writeInt(moodMax)
     }
 
     override fun describeContents(): Int {
@@ -33,5 +31,4 @@ class Settings(
             return arrayOfNulls(size)
         }
     }
-
 }

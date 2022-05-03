@@ -52,10 +52,7 @@ class RecyclerViewAdaptor(
         for(i in moodList.indices) {
             if (moodList[i].viewType == RowEntryModel.MOOD_ENTRY_TYPE) {
                 val mood = moodList[i] as MoodEntryModel
-                when (settings.mood_numerals) {
-                    "false" ->  mood.mood!!.moodMode = Mood.MOOD_MODE_FACES
-                    "true" -> mood.mood!!.moodMode = Mood.MOOD_MODE_NUMBERS
-                }
+                mood.mood!!.moodMode = settings.moodMode
                 notifyItemChanged(i)
             }
         }
@@ -286,7 +283,7 @@ class RecyclerViewAdaptor(
 
     private fun getSanitisedNumber(value: Int): Int {
         return (ceil(
-            value.toDouble().div(settings.mood_max!!.toInt() / 5)
+            value.toDouble().div(settings.moodMax / 5)
         ).toInt())
     }
 
@@ -308,7 +305,7 @@ class RecyclerViewAdaptor(
         mHolder.dateText.text = moodViewHolder.date
         mHolder.timeText.text = moodViewHolder.time
 
-        if (settings.mood_numerals == "false")
+        if (settings.moodMode == Mood.MOOD_MODE_FACES)
             mHolder.moodText.text = mHolder.itemView.resources.getString(
                 getEmoji(
                     moodViewHolder.mood!!.toFaces(
@@ -330,7 +327,7 @@ class RecyclerViewAdaptor(
             )
         }
 
-        if (settings.mood_numerals == "true") {
+        if (settings.moodMode == Mood.MOOD_MODE_NUMBERS) {
             when {
                 mHolder.moodText.text.toString()
                     .toInt() > 3 -> mHolder.moodText.setBackgroundResource(R.drawable.mood_rating_colour_high)
