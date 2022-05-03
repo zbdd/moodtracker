@@ -284,21 +284,24 @@ class RecyclerViewAdaptor(
         }
     }
 
-    private fun bindToMoodViewHolder(mHolder: MoodViewHolder, position: Int) {
-        val moodViewHolder = moodList[position] as MoodEntryModel
-        if (moodViewHolder.key == "default_row_key") return
+    private fun initButtons(viewHolder: ViewHolder, row: RowEntryModel) {
+
+        if (row.viewType != MoodEntryModel().viewType) return
+
+        val moodEntry = row as MoodEntryModel
+        val mHolder = viewHolder as MoodViewHolder
 
         val calendar
                 : Calendar = Calendar.getInstance(TimeZone.getDefault())
 
         mHolder.moodText.setOnClickListener {
-            onMoodValueClicked(moodList[position] as MoodEntryModel)
+            onMoodValueClicked(moodEntry as MoodEntryModel)
         }
 
         val timeSetListener = TimePickerDialog.OnTimeSetListener { _, hour, minute ->
             calendar.set(Calendar.HOUR_OF_DAY, hour)
             calendar.set(Calendar.MINUTE, minute)
-            updateDateText(calendar, mHolder, moodViewHolder)
+            updateDateText(calendar, mHolder, moodEntry)
         }
 
         val dateSetListener =
@@ -314,7 +317,6 @@ class RecyclerViewAdaptor(
                     calendar.get(Calendar.MINUTE),
                     true
                 ).show()
-
             }
 
         mHolder.dateText.setOnClickListener {
@@ -336,19 +338,17 @@ class RecyclerViewAdaptor(
         }
 
         mHolder.activityText.setOnClickListener {
-            onStartActivitiesActivity(moodList[position] as MoodEntryModel)
+            onStartActivitiesActivity(moodEntry)
         }
 
         mHolder.feelingsText.setOnClickListener {
-            if (moodList[position].viewType == MoodEntryModel().viewType) {
-                startFeelingsActivity(moodList[position] as MoodEntryModel)
-            }
+                startFeelingsActivity(moodEntry)
         }
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-
         moodList[position].bindToViewHolder(holder)
+        initButtons(holder, moodList[position])
     }
 
     override fun getItemCount(): Int {

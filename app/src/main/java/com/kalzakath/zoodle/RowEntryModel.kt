@@ -6,7 +6,9 @@ interface RowEntryModel {
     var key: String
     var viewType: Int
 
-    abstract fun bindToViewHolder(holder: RecyclerView.ViewHolder)
+    fun bindToViewHolder(holder: RecyclerView.ViewHolder)
 
-    abstract fun update()
+    fun getViewHolder(): RecyclerView.ViewHolder
+
+    fun update()
 }
