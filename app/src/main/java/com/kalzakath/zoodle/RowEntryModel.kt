@@ -1,6 +1,8 @@
 package com.kalzakath.zoodle
 
-open class RowEntryModel (
+import androidx.recyclerview.widget.RecyclerView
+
+abstract class RowEntryModel (
     @Transient open var key: String,
     @Transient open var viewType: Int
 ) {
@@ -8,4 +10,8 @@ open class RowEntryModel (
         const val MOOD_ENTRY_TYPE: Int = 0
         const val FILTER_ENTRY_TYPE: Int = 1
     }
+
+    abstract fun bindToViewHolder(holder: RecyclerView.ViewHolder)
+
+    abstract fun update()
 }

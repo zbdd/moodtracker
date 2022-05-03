@@ -302,42 +302,6 @@ class RecyclerViewAdaptor(
         val moodViewHolder = moodList[position] as MoodEntryModel
         if (moodViewHolder.key == "default_row_key") return
 
-        mHolder.dateText.text = moodViewHolder.date
-        mHolder.timeText.text = moodViewHolder.time
-
-        if (settings.moodMode == Mood.MOOD_MODE_FACES)
-            mHolder.moodText.text = mHolder.itemView.resources.getString(
-                getEmoji(
-                    moodViewHolder.mood!!.toFaces(
-                        getSanitisedNumber(moodViewHolder.mood.value!!.toInt()).toString())))
-        else mHolder.moodText.text = moodViewHolder.mood!!.value
-        mHolder.activityText.text = when (moodViewHolder.activities.toString()) {
-            "[]" ->  "Click to add an activity"
-            else -> moodViewHolder.activities.toString().removeSurrounding(
-                "[",
-                "]"
-            )
-        }
-
-        mHolder.feelingsText.text = when (moodViewHolder.feelings.toString()) {
-            "[]" ->  "Click to add feelings"
-            else -> moodViewHolder.feelings.toString().removeSurrounding(
-                "[",
-                "]"
-            )
-        }
-
-        if (settings.moodMode == Mood.MOOD_MODE_NUMBERS) {
-            when {
-                mHolder.moodText.text.toString()
-                    .toInt() > 3 -> mHolder.moodText.setBackgroundResource(R.drawable.mood_rating_colour_high)
-                mHolder.moodText.text.toString()
-                    .toInt() < 3 -> mHolder.moodText.setBackgroundResource(R.drawable.mood_rating_colour_low)
-                mHolder.moodText.text.toString()
-                    .toInt() == 3 -> mHolder.moodText.setBackgroundResource(R.drawable.mood_rating_colour)
-            }
-        } else mHolder.moodText.setBackgroundResource(0)
-
         val calendar
                 : Calendar = Calendar.getInstance(TimeZone.getDefault())
 
@@ -398,14 +362,8 @@ class RecyclerViewAdaptor(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
-        when (holder.itemViewType) {
-            RowEntryModel.MOOD_ENTRY_TYPE -> bindToMoodViewHolder(holder as MoodEntryViewHolder, position)
-            RowEntryModel.FILTER_ENTRY_TYPE -> {
-                val vHolder = holder as FilterViewHolder
-                val filterEntry = moodList[position] as FilterEntryModel
-                vHolder.tvFilterTitle.text = filterEntry.title
-            }
-        }
+        moodList[position].bindToViewHolder(holder)
+        if (moodList[position].viewType == RowEntryModel.MOOD_ENTRY_TYPE) bindToMoodViewHolder(holder as MoodEntryViewHolder, position)
     }
 
     override fun getItemCount(): Int {

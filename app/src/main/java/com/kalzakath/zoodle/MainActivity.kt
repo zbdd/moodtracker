@@ -161,14 +161,14 @@ class MainActivity : AppCompatActivity() {
         val numberPicker: NumberPicker = findViewById(R.id.npNumberPicker)
         val numberArray = Array(settings.moodMax) { (it + 1).toString() }
 
-        when (settings.moodMode) {
+        when (moodEntry.mood!!.moodMode) {
             Mood.MOOD_MODE_NUMBERS -> {
                 numberPicker.displayedValues = numberArray
                 numberPicker.maxValue = settings.moodMax.minus(1)?: 4
                 numberPicker.minValue = 0
                 numberPicker.wrapSelectorWheel = true
                 numberPicker.textColor = Color.WHITE
-                numberPicker.value = moodEntry.mood!!.value!!.toInt().minus(1)
+                numberPicker.value = moodEntry.mood.value!!.toInt().minus(1)
 
             }
             Mood.MOOD_MODE_FACES -> {
@@ -176,7 +176,7 @@ class MainActivity : AppCompatActivity() {
                 numberPicker.minValue = 0
                 numberPicker.maxValue = resources.getStringArray(R.array.mood_faces).size - 1
                 numberPicker.value =
-                    mvHelper.getSanitisedNumber(moodEntry.mood!!.value!!.toInt(), settings.moodMax).minus(1)
+                    mvHelper.getSanitisedNumber(moodEntry.mood.value!!.toInt(), settings.moodMax).minus(1)
             }
         }
 
@@ -186,7 +186,7 @@ class MainActivity : AppCompatActivity() {
         val bNpConfirm: Button = findViewById(R.id.bNpConfirm)
 
         bNpConfirm.setOnClickListener {
-            val moodValue: Mood = when (settings.moodMode) {
+            val moodValue: Mood = when (moodEntry.mood.moodMode) {
                 Mood.MOOD_MODE_NUMBERS -> Mood((numberPicker.value + 1).toString(), Mood.MOOD_MODE_NUMBERS)
                 else -> Mood(mvHelper.getUnsanitisedNumber(numberPicker.value + 1, settings.moodMax).toString(), Mood.MOOD_MODE_FACES)
             }
