@@ -10,5 +10,5 @@ interface RowEntryModel {
 
     fun getViewHolder(): RecyclerView.ViewHolder
 
-    fun update()
+    fun update(settings: Settings)
 }

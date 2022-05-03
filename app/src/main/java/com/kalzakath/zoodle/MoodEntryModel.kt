@@ -94,7 +94,7 @@ class MoodEntryModel(
         viewHolder = holder
     }
 
-    override fun update() {
-        TODO("Not yet implemented")
+    override fun update(settings: Settings) {
+        mood!!.moodMode = settings.moodMode
     }
 }

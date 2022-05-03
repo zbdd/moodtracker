@@ -34,14 +34,10 @@ class RecyclerViewAdaptor(
 
     fun updateListConfig(config: Settings) {
         settings = config
-
-        /*for(i in moodList.indices) {
-            if (moodList[i].viewType == RowEntryModel.MOOD_ENTRY_TYPE) {
-                val mood = moodList[i] as MoodEntryModel
-                mood.mood!!.moodMode = settings.moodMode
-                notifyItemChanged(i)
-            }
-        }*/
+        for (i in moodList.indices) {
+            moodList[i].update(settings)
+            notifyItemChanged(i)
+        }
     }
 
     fun updateList(data: ArrayList<MoodEntryModel> = ArrayList(0)) {

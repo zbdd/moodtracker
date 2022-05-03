@@ -20,7 +20,7 @@ class FilterEntryModel (
         return viewHolder
     }
 
-    override fun update() {
-        TODO("Not yet implemented")
+    override fun update(settings: Settings) {
+        //do nothing
     }
 }
