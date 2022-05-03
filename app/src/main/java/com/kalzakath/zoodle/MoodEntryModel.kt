@@ -80,18 +80,22 @@ class MoodEntryModel(
             )
         }
 
-        if (mood.moodMode == Mood.MOOD_MODE_NUMBERS) {
-            when {
-                mood.value
-                !!.toInt() > 3 -> mViewHolder.moodText.setBackgroundResource(R.drawable.mood_rating_colour_high)
-                mood.value
-                !!.toInt() < 3 -> mViewHolder.moodText.setBackgroundResource(R.drawable.mood_rating_colour_low)
-                mood.value
-                !!.toInt() == 3 -> mViewHolder.moodText.setBackgroundResource(R.drawable.mood_rating_colour)
-            }
-        } else mViewHolder.moodText.setBackgroundResource(0)
-
         viewHolder = holder
+        applyDrawable()
+    }
+
+    fun applyDrawable() {
+        val mViewHolder = viewHolder as MoodViewHolder
+        if (mood == null) return
+
+        when {
+            mood.value
+            !!.toInt() > 3 -> mViewHolder.moodText.setBackgroundResource(R.drawable.mood_rating_colour_high)
+            mood.value
+            !!.toInt() < 3 -> mViewHolder.moodText.setBackgroundResource(R.drawable.mood_rating_colour_low)
+            mood.value
+            !!.toInt() == 3 -> mViewHolder.moodText.setBackgroundResource(R.drawable.mood_rating_colour)
+        }
     }
 
     override fun update(settings: Settings) {

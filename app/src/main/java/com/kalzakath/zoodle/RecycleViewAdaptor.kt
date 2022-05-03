@@ -111,14 +111,7 @@ class RecyclerViewAdaptor(
                 val mHolder = viewHolder as MoodViewHolder
                 val moodE = moodList[position] as MoodEntryModel
                 if (moodE.mood!!.moodMode == Mood.MOOD_MODE_NUMBERS) {
-                    when {
-                        mHolder.moodText.text.toString()
-                            .toInt() > 3 -> mHolder.moodText.setBackgroundResource(R.drawable.mood_rating_colour_high)
-                        mHolder.moodText.text.toString()
-                            .toInt() < 3 -> mHolder.moodText.setBackgroundResource(R.drawable.mood_rating_colour_low)
-                        mHolder.moodText.text.toString()
-                            .toInt() == 3 -> mHolder.moodText.setBackgroundResource(0)
-                    }
+                    moodE.applyDrawable()
                 } else mHolder.moodText.setBackgroundResource(0)
             }
         }
