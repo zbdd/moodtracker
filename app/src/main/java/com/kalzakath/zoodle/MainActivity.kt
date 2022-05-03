@@ -80,6 +80,7 @@ class MainActivity : AppCompatActivity() {
 
         debug.debugDataHandler(true)
         recyclerViewAdaptor.updateList(dataHandler.getMoodData())
+        recyclerViewAdaptor.updateListConfig(settings)
     }
 
     private fun setupRecycleView() {
