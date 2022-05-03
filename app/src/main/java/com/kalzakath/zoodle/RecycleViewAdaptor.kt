@@ -3,7 +3,6 @@ package com.kalzakath.zoodle
 import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
-import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView.Adapter
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
@@ -27,35 +26,22 @@ class RecyclerViewAdaptor(
     private var sortBy = "date"
     lateinit var viewHolder: ViewHolder
 
-    fun getMoodList(): ArrayList<MoodEntryModel> {
-        val moodArray = ArrayList<MoodEntryModel>()
-
-        for(item in moodList) {
-            when (item.viewType) {
-                RowEntryModel.MOOD_ENTRY_TYPE -> moodArray.add(item as MoodEntryModel)
-            }
-        }
-        return moodArray
-    }
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        viewHolder = when (viewType) {
-            RowEntryModel.FILTER_ENTRY_TYPE -> FilterViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.filter_entry_layout, parent, false))
-            else -> MoodEntryViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.mood_entry_layout, parent, false))
-        }
+        val viewFactory = RowViewFactory()
+        viewHolder = viewFactory.createView(parent, viewType)
         return viewHolder
     }
 
     fun updateListConfig(config: Settings) {
         settings = config
 
-        for(i in moodList.indices) {
+        /*for(i in moodList.indices) {
             if (moodList[i].viewType == RowEntryModel.MOOD_ENTRY_TYPE) {
                 val mood = moodList[i] as MoodEntryModel
                 mood.mood!!.moodMode = settings.moodMode
                 notifyItemChanged(i)
             }
-        }
+        }*/
     }
 
     fun updateList(data: ArrayList<MoodEntryModel> = ArrayList(0)) {
@@ -66,7 +52,7 @@ class RecyclerViewAdaptor(
 
         for (moodEntry in data) {
             for (i in moodList.indices) {
-                if (moodList[i].viewType == RowEntryModel.MOOD_ENTRY_TYPE) {
+                if (moodList[i].viewType == MoodEntryModel().viewType) {
                     val moodListItem = moodList[i] as MoodEntryModel
                     if (moodListItem.key.equals(moodEntry.key)) {
                         if (LocalDate.parse(moodListItem.lastUpdated?.substring(0,19), format) < LocalDate.parse(
@@ -111,7 +97,7 @@ class RecyclerViewAdaptor(
         var position = -1
 
         for(i in moodList.indices) {
-            if (moodList[i].viewType == RowEntryModel.MOOD_ENTRY_TYPE) {
+            if (moodList[i].viewType == MoodEntryModel().viewType) {
                 val row = moodList[i] as MoodEntryModel
                 if (row.key == mood.key) { position = i; break }
             }
@@ -125,8 +111,8 @@ class RecyclerViewAdaptor(
             for(item in moodList) { if (item.javaClass == MoodEntryModel::class.java) listToSave.add(item as MoodEntryModel) }
             onListUpdated(listToSave)
 
-            if (viewHolder.itemViewType == RowEntryModel.MOOD_ENTRY_TYPE) {
-                val mHolder = viewHolder as MoodEntryViewHolder
+            if (viewHolder.itemViewType == MoodEntryModel().viewType) {
+                val mHolder = viewHolder as MoodViewHolder
                 val moodE = moodList[position] as MoodEntryModel
                 if (moodE.mood!!.moodMode == Mood.MOOD_MODE_NUMBERS) {
                     when {
@@ -150,7 +136,7 @@ class RecyclerViewAdaptor(
         val moods: ArrayList<MoodEntryModel> = ArrayList()
 
         for(i in moodList.indices) {
-            if (moodList[i].viewType == RowEntryModel.MOOD_ENTRY_TYPE) moods.add(moodList[i] as MoodEntryModel)
+            if (moodList[i].viewType == MoodEntryModel().viewType) moods.add(moodList[i] as MoodEntryModel)
         }
 
         val sorted = when (sortBy) {
@@ -187,8 +173,8 @@ class RecyclerViewAdaptor(
 
         for(i in moodList.indices) {
             when (moodList[i].viewType) {
-                RowEntryModel.MOOD_ENTRY_TYPE -> { moods.add(moodList[i] as MoodEntryModel) }
-                RowEntryModel.FILTER_ENTRY_TYPE -> {
+                MoodEntryModel().viewType -> { moods.add(moodList[i] as MoodEntryModel) }
+                FilterEntryModel().viewType -> {
                     val filterRow = moodList[i] as FilterEntryModel
                     moods.add (MoodEntryModel(
                     "2222-01-01",
@@ -257,15 +243,15 @@ class RecyclerViewAdaptor(
             }
             // Prevent two filter rows one after the other
             if (i < moodList.size)
-                if( moodList[i].viewType == RowEntryModel.FILTER_ENTRY_TYPE)
+                if( moodList[i].viewType == FilterEntryModel().viewType)
                     if (i > 0)
                         if (moodList[i - 1].key != "")
-                            if (moodList[i -1].viewType == RowEntryModel.FILTER_ENTRY_TYPE) moodList.removeAt(i - 1)
+                            if (moodList[i -1].viewType == FilterEntryModel().viewType) moodList.removeAt(i - 1)
         }
         notifyDataSetChanged()
     }
 
-    private fun updateDateText(calendar: Calendar, holder: MoodEntryViewHolder, mood: MoodEntryModel) {
+    private fun updateDateText(calendar: Calendar, holder: MoodViewHolder, mood: MoodEntryModel) {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
         holder.dateText.text = dateFormat.format(calendar.time)
 
@@ -298,7 +284,7 @@ class RecyclerViewAdaptor(
         }
     }
 
-    private fun bindToMoodViewHolder(mHolder: MoodEntryViewHolder, position: Int) {
+    private fun bindToMoodViewHolder(mHolder: MoodViewHolder, position: Int) {
         val moodViewHolder = moodList[position] as MoodEntryModel
         if (moodViewHolder.key == "default_row_key") return
 
@@ -354,7 +340,7 @@ class RecyclerViewAdaptor(
         }
 
         mHolder.feelingsText.setOnClickListener {
-            if (moodList[position].viewType == RowEntryModel.MOOD_ENTRY_TYPE) {
+            if (moodList[position].viewType == MoodEntryModel().viewType) {
                 startFeelingsActivity(moodList[position] as MoodEntryModel)
             }
         }
@@ -363,7 +349,6 @@ class RecyclerViewAdaptor(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
         moodList[position].bindToViewHolder(holder)
-        if (moodList[position].viewType == RowEntryModel.MOOD_ENTRY_TYPE) bindToMoodViewHolder(holder as MoodEntryViewHolder, position)
     }
 
     override fun getItemCount(): Int {

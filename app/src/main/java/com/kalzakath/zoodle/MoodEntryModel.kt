@@ -14,13 +14,12 @@ class MoodEntryModel(
     val feelings: MutableList<String> = ArrayList(),
     val activities: MutableList<String> = ArrayList(),
     override var key: String = "mood_entry_key",
-    var lastUpdated: String? = LocalDateTime.now().toString(),
-    override var viewType: Int = MOOD_ENTRY_TYPE
-):RowEntryModel(key, viewType),
+    var lastUpdated: String? = LocalDateTime.now().toString()
+):RowEntryModel,
     Serializable {
 
-    @Transient private lateinit var viewHolder: MoodEntryViewHolder
     private var modelHelper = MoodValueHelper()
+    override var viewType: Int = 1
 
     @Exclude
     fun toMap(): Map<String, Any?> {
@@ -47,7 +46,7 @@ class MoodEntryModel(
     }
 
     override fun bindToViewHolder(holder: RecyclerView.ViewHolder) {
-        viewHolder = holder as MoodEntryViewHolder
+        val viewHolder = holder as MoodViewHolder
         viewHolder.dateText.text = date
         viewHolder.timeText.text = time
 
@@ -55,10 +54,13 @@ class MoodEntryModel(
             viewHolder.moodText.text = viewHolder.itemView.resources.getString(
                 modelHelper.getEmoji(
                     mood.toFaces(
-                        modelHelper.getSanitisedNumber(mood.value!!.toInt(), 5).toString())))
+                        modelHelper.getSanitisedNumber(mood.value!!.toInt(), 5).toString()
+                    )
+                )
+            )
         else viewHolder.moodText.text = mood.value
         viewHolder.activityText.text = when (activities.toString()) {
-            "[]" ->  "Click to add an activity"
+            "[]" -> "Click to add an activity"
             else -> activities.toString().removeSurrounding(
                 "[",
                 "]"
@@ -66,7 +68,7 @@ class MoodEntryModel(
         }
 
         viewHolder.feelingsText.text = when (feelings.toString()) {
-            "[]" ->  "Click to add feelings"
+            "[]" -> "Click to add feelings"
             else -> feelings.toString().removeSurrounding(
                 "[",
                 "]"
@@ -76,13 +78,14 @@ class MoodEntryModel(
         if (mood.moodMode == Mood.MOOD_MODE_NUMBERS) {
             when {
                 mood.value
-                    !!.toInt() > 3 -> viewHolder.moodText.setBackgroundResource(R.drawable.mood_rating_colour_high)
+                !!.toInt() > 3 -> viewHolder.moodText.setBackgroundResource(R.drawable.mood_rating_colour_high)
                 mood.value
                 !!.toInt() < 3 -> viewHolder.moodText.setBackgroundResource(R.drawable.mood_rating_colour_low)
                 mood.value
                 !!.toInt() == 3 -> viewHolder.moodText.setBackgroundResource(R.drawable.mood_rating_colour)
             }
         } else viewHolder.moodText.setBackgroundResource(0)
+
     }
 
     override fun update() {

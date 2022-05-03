@@ -136,7 +136,7 @@ class RecyclerViewAdaptorTest {
         every { LayoutInflater.from(cntx).inflate(any<Int>(), view, false) } returns view
         val viewType = RowEntryModel.MOOD_ENTRY_TYPE
         val holder = mockAdapter.onCreateViewHolder(view, viewType)
-        assertEquals(MoodEntryViewHolder::class, holder::class)
+        assertEquals(MoodViewHolder::class, holder::class)
     }
 
     @Test
@@ -181,7 +181,7 @@ class RecyclerViewAdaptorTest {
         mockAdapter.getMoodList()[0].key = "testkey"
 
         val moodVal = "3"
-        val viewHolder = mockk<MoodEntryViewHolder>()
+        val viewHolder = mockk<MoodViewHolder>()
         every { mockAdapter.viewHolder } returns viewHolder
         every { viewHolder.itemViewType } returns RowEntryModel.MOOD_ENTRY_TYPE
         every { viewHolder.moodText.text } returns moodVal
@@ -230,7 +230,7 @@ class RecyclerViewAdaptorTest {
 
         mockAdapter.updateList(arrayListOf(MoodEntryModel()))
 
-        val viewHolder = mockk<MoodEntryViewHolder> {
+        val viewHolder = mockk<MoodViewHolder> {
             every { itemViewType } returns RowEntryModel.MOOD_ENTRY_TYPE
         }
         var position = 1

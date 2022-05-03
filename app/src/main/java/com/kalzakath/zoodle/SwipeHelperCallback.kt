@@ -68,7 +68,7 @@ class SwipeHelperCallback(val adaptor: ItemTouchHelperAdaptor): ItemTouchHelper.
         recyclerView: RecyclerView,
         viewHolder: RecyclerView.ViewHolder
     ): Int {
-        if (viewHolder.itemViewType == RowEntryModel.MOOD_ENTRY_TYPE) {
+        if (viewHolder.itemViewType == MoodEntryModel().viewType) {
             val dragFlags = ItemTouchHelper.UP or ItemTouchHelper.DOWN
             val swipeFlags = ItemTouchHelper.RIGHT
             return makeMovementFlags(dragFlags, swipeFlags)

@@ -4,11 +4,11 @@ import androidx.recyclerview.widget.RecyclerView
 
 class FilterEntryModel (
     var title: String = "",
-    override var key: String = "default_row_key",
-    override var viewType: Int = FILTER_ENTRY_TYPE
-        ): RowEntryModel(key, viewType) {
+    override var key: String = "default_row_key"
+        ): RowEntryModel {
 
-    @Transient private lateinit var viewHolder: FilterViewHolder
+    @Transient lateinit var viewHolder: FilterViewHolder
+    override var viewType: Int = 2
 
     override fun bindToViewHolder(holder: RecyclerView.ViewHolder) {
         viewHolder = holder as FilterViewHolder
