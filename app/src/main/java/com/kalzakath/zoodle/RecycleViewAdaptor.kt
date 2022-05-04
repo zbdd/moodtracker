@@ -11,6 +11,7 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.*
+import java.util.stream.IntStream
 import kotlin.math.ceil
 
 class RecyclerViewAdaptor(
@@ -157,44 +158,37 @@ class RecyclerViewAdaptor(
     private fun addFilterView(title: String) {
         val moods: ArrayList<MoodEntryModel> = ArrayList()
         val format = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH)
-        val validKeys: ArrayList<String> = ArrayList()
-        validKeys.add("")
-
-        for(i in moodList.indices) {
-            when (moodList[i].viewType) {
-                MoodEntryModel().viewType -> { moods.add(moodList[i] as MoodEntryModel) }
-                FilterEntryModel().viewType -> {
-                    val filterRow = moodList[i] as FilterEntryModel
-                    moods.add (MoodEntryModel(
-                    "2222-01-01",
-                    "00:01",
-                        Mood("5"),
-                        ArrayList(),
-                        ArrayList(),
-                        filterRow.title
-                ))
-                    validKeys.add(filterRow.title)
-                }
-            }
-        }
-
-        if (moods.size == 0) return
 
         var maxDate: LocalDate = LocalDate.now()
         val minDate: LocalDate
-        var pos: Int = -1
-        var posLast = -1
+        var pos: OptionalInt = OptionalInt.empty()
+        var posLast: OptionalInt = OptionalInt.empty()
 
         when (title) {
             "Today" -> {
-                pos = moods.indexOfFirst { LocalDate.parse(it.date!!, format) == maxDate }
-                posLast = moods.indexOfLast { LocalDate.parse(it.date!!, format) == maxDate }
+                pos = IntStream.range(0, moodList.size-1)
+                    .filter { moodList[it].viewType == MoodEntryModel().viewType }
+                    .filter { LocalDate.parse((moodList[it] as MoodEntryModel).date!!, format) == maxDate }
+                    .findFirst()
+                posLast = IntStream.range(0, moodList.size-1)
+                    .filter { moodList[it].viewType == MoodEntryModel().viewType }
+                    .filter { LocalDate.parse((moodList[it] as MoodEntryModel).date!!, format) != maxDate }
+                    .findFirst()
             }
             "Last Week" -> {
                 maxDate = LocalDate.parse("${LocalDate.now().minusWeeks(1)}", format)
                 minDate = LocalDate.parse("${LocalDate.now().minusWeeks(2)}", format)
-                pos = moods.indexOfFirst { LocalDate.parse(it.date!!, format) < maxDate && LocalDate.parse(it.date, format) > minDate }
-                posLast = moods.indexOfLast { LocalDate.parse(it.date!!, format) < maxDate && LocalDate.parse(it.date, format) > minDate }
+
+                pos = IntStream.range(0, moodList.size-1)
+                    .filter { moodList[it].viewType == MoodEntryModel().viewType }
+                    .filter { LocalDate.parse((moodList[it] as MoodEntryModel).date!!, format) < maxDate
+                            && LocalDate.parse((moodList[it] as MoodEntryModel).date!!, format) > minDate }
+                    .findFirst()
+                posLast = IntStream.range(0, moodList.size-1)
+                    .filter { moodList[it].viewType == MoodEntryModel().viewType }
+                    .filter { LocalDate.parse((moodList[it] as MoodEntryModel).date!!, format) >= maxDate
+                            && LocalDate.parse((moodList[it] as MoodEntryModel).date!!, format) <= minDate }
+                    .findFirst()
             }
             "Last Month" -> {
                 var date: String = LocalDate.now().minusMonths(0).format(DateTimeFormatter.ofPattern("yyyy-MM")) + "-01"
@@ -202,34 +196,54 @@ class RecyclerViewAdaptor(
 
                 date = LocalDate.now().minusMonths(2).format(DateTimeFormatter.ofPattern("yyyy-MM")) + "-" + LocalDate.now().minusMonths(1).lengthOfMonth()
                 minDate = LocalDate.parse(date, format)
-                pos = moods.indexOfFirst { LocalDate.parse(it.date!!, format) < maxDate && LocalDate.parse(it.date, format) > minDate }
-                posLast = moods.indexOfLast { LocalDate.parse(it.date!!, format) < maxDate && LocalDate.parse(it.date, format) > minDate }
+                pos = IntStream.range(0, moodList.size-1)
+                    .filter { moodList[it].viewType == MoodEntryModel().viewType }
+                    .filter { LocalDate.parse((moodList[it] as MoodEntryModel).date!!, format) < maxDate
+                            && LocalDate.parse((moodList[it] as MoodEntryModel).date!!, format) > minDate }
+                    .findFirst()
+                posLast = IntStream.range(0, moodList.size-1)
+                    .filter { moodList[it].viewType == MoodEntryModel().viewType }
+                    .filter { LocalDate.parse((moodList[it] as MoodEntryModel).date!!, format) >= maxDate
+                            && LocalDate.parse((moodList[it] as MoodEntryModel).date!!, format) <= minDate }
+                    .findFirst()
             }
             "Last Year" -> {
                 maxDate = LocalDate.parse("${LocalDate.now().year}-01-01", format)
                 minDate = LocalDate.parse("${LocalDate.now().year - 2}-12-31", format)
-                pos = moods.indexOfFirst { LocalDate.parse(it.date!!, format) < maxDate && LocalDate.parse(it.date, format) > minDate }
-                posLast = moods.indexOfLast { LocalDate.parse(it.date!!, format) < maxDate && LocalDate.parse(it.date, format) > minDate }
+                pos = IntStream.range(0, moodList.size-1)
+                    .filter { moodList[it].viewType == MoodEntryModel().viewType }
+                    .filter { LocalDate.parse((moodList[it] as MoodEntryModel).date!!, format) < maxDate
+                            && LocalDate.parse((moodList[it] as MoodEntryModel).date!!, format) > minDate }
+                    .findFirst()
+                posLast = IntStream.range(0, moodList.size-1)
+                    .filter { moodList[it].viewType == MoodEntryModel().viewType }
+                    .filter { LocalDate.parse((moodList[it] as MoodEntryModel).date!!, format) >= maxDate
+                            && LocalDate.parse((moodList[it] as MoodEntryModel).date!!, format) <= minDate }
+                    .findFirst()
             }
             "Years Ago" -> {
                 maxDate = LocalDate.parse("${LocalDate.now().year - 1}-01-01", format)
-                pos = moods.indexOfFirst { LocalDate.parse(it.date!!, format) < maxDate }
+                pos = IntStream.range(0, moodList.size-1)
+                    .filter { moodList[it].viewType == MoodEntryModel().viewType }
+                    .filter { LocalDate.parse((moodList[it] as MoodEntryModel).date!!, format) < maxDate }
+                    .findFirst()
             }
         }
 
-        if (pos != -1) {
-            moods.add(pos, MoodEntryModel("2222-01-01","12:01",Mood("5"),ArrayList(),ArrayList(),title))
-            if (posLast != -1) moods.add((posLast + 2), MoodEntryModel("2222-01-01","12:01",Mood("5"),ArrayList(),ArrayList(),""))
+        if (pos != OptionalInt.empty()) {
+            moodList.add(pos.asInt, FilterEntryModel(title))
+            pos = OptionalInt.of(pos.asInt + 1)
+
+            if (posLast != OptionalInt.empty()) {
+
+                posLast = OptionalInt.of(posLast.asInt + 1)
+                if (posLast == OptionalInt.of(pos.asInt + 1)) posLast = OptionalInt.of(pos.asInt + 1)
+
+                moodList.add(posLast.asInt, FilterEntryModel(""))
+            } else moodList.add(FilterEntryModel(""))
         }
 
-        moodList.clear()
-        for (i in moods.indices) {
-            when {
-                moods[i].key == title -> moodList.add(FilterEntryModel(title))
-                moods[i].key == "" -> moodList.add(FilterEntryModel(""))
-                validKeys.contains(moods[i].key) -> moodList.add(FilterEntryModel(moods[i].key.toString()))
-                else -> moodList.add(moods[i])
-            }
+        for (i in moodList.indices) {
             // Prevent two filter rows one after the other
             if (i < moodList.size)
                 if( moodList[i].viewType == FilterEntryModel().viewType)
