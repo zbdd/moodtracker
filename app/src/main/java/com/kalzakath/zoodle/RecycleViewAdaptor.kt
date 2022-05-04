@@ -370,8 +370,7 @@ class RecyclerViewAdaptor(
     override fun onItemDismiss(position: Int) {
         val moodEntry = moodList[position]
         moodList.removeAt(position)
-
-        run { notifyItemRemoved(position) }
+        sortList()
         val listToSave = ArrayList<MoodEntryModel>()
         for(item in moodList) { if (item.javaClass == MoodEntryModel::class.java) listToSave.add(item as MoodEntryModel) }
         onSwiped(moodEntry as MoodEntryModel, listToSave)
