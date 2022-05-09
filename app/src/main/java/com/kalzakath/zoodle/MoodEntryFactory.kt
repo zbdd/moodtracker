@@ -46,7 +46,7 @@ class MoodEntryFactory: RowEntryFactory() {
         dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
         val time = dateTime.format(dateTimeFormatter)
 
-        return when (settings.moodMode) {
+        return when (Settings.moodMode) {
             Mood.MOOD_MODE_NUMBERS -> MoodEntryModel(
                 date,
                 time,

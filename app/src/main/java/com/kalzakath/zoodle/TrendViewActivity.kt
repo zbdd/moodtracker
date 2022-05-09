@@ -23,11 +23,10 @@ class TrendViewActivity : AppCompatActivity() {
 
     private var moodData = ArrayList<MoodEntryModel>()
     private var filter = "default"
-    private var settings: Settings? = null
 
-    class MyFormat(val context: Context, val settings: Settings): ValueFormatter() {
+    class MyFormat(val context: Context): ValueFormatter() {
         override fun getAxisLabel(value: Float, axis: AxisBase?): String {
-           when (settings.moodMode) {
+           when (Settings.moodMode) {
                Mood.MOOD_MODE_NUMBERS -> return value.toString()
            }
             return ""
@@ -58,7 +57,7 @@ class TrendViewActivity : AppCompatActivity() {
         val jsonString = secureFileHandler.read()
         if (jsonString != null) moodData = getMoodListFromJSON(jsonString)
 
-        settings = intent.getParcelableExtra("Settings")
+        //settings = intent.getParcelableExtra("Settings")
         if (moodData.isNotEmpty()) setLineChartData()
 
         val bViewData: Button = findViewById(R.id.bViewData)
@@ -100,7 +99,7 @@ class TrendViewActivity : AppCompatActivity() {
             var moodNumber = moods.mood?.value
             var timePeriod = ""
 
-            if (settings?.moodMode == Mood.MOOD_MODE_NUMBERS) moodNumber = moods.mood?.toNumber() ?: "3"
+            if (Settings.moodMode == Mood.MOOD_MODE_NUMBERS) moodNumber = moods.mood?.toNumber() ?: "3"
 
             if (filter == "month") {
                 format = "yyyy-MM"
@@ -176,11 +175,10 @@ class TrendViewActivity : AppCompatActivity() {
 
         val yAxis = chart.axisLeft
         yAxis.textColor = Color.WHITE
-        yAxis.axisMaximum = settings!!.moodMax.toFloat() ?: 5f
+        yAxis.axisMaximum = Settings.moodMax.toFloat() ?: 5f
         yAxis.axisMinimum = 0f
         yAxis.granularity = 1f
-        if (moodData.isNotEmpty()) if (settings!!.moodMode == Mood.MOOD_MODE_FACES) yAxis.valueFormatter = MyFormat(applicationContext,
-            settings!!
+        if (moodData.isNotEmpty()) if (Settings.moodMode == Mood.MOOD_MODE_FACES) yAxis.valueFormatter = MyFormat(applicationContext
         )
         yAxis.setDrawGridLines(false)
     }

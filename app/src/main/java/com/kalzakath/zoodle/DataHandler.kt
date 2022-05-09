@@ -8,8 +8,7 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.random.Random
 
-open class DataHandler(private var settings: Settings,
-                       private var secureFileHandler: SecureFileHandler,
+open class DataHandler(private var secureFileHandler: SecureFileHandler,
                        private var context: Context
 ) {
 
@@ -24,7 +23,7 @@ open class DataHandler(private var settings: Settings,
             if (moodEntries.isEmpty()) return moodData
 
             for (x in moodEntries.indices) {
-                moodEntries[x].mood!!.moodMode = settings.moodMode
+                moodEntries[x].mood!!.moodMode = Settings.moodMode
                 moodData.add(moodEntries[x])
             }
         }
@@ -68,7 +67,7 @@ open class DataHandler(private var settings: Settings,
         dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
         val time = dateTimeNow.format(dateTimeFormatter)
 
-        return when (settings.moodMode) {
+        return when (Settings.moodMode) {
             Mood.MOOD_MODE_NUMBERS -> MoodEntryModel(
                 date,
                 time,

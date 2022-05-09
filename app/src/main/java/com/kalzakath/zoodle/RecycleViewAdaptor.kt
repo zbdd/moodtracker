@@ -18,8 +18,7 @@ class RecyclerViewAdaptor(
     val onListUpdated: (ArrayList<MoodEntryModel>) -> Unit,
     val onMoodValueClicked: (MoodEntryModel) -> Unit,
     val onStartActivitiesActivity: (MoodEntryModel) -> Unit,
-    val startFeelingsActivity: (MoodEntryModel) -> Unit,
-    var settings: Settings = Settings()):
+    val startFeelingsActivity: (MoodEntryModel) -> Unit):
     Adapter<ViewHolder>(), SwipeHelperCallback.ItemTouchHelperAdaptor {
 
     private var moodList: ArrayList<RowEntryModel> = ArrayList()
@@ -32,10 +31,9 @@ class RecyclerViewAdaptor(
         return viewHolder
     }
 
-    fun updateListConfig(config: Settings) {
-        settings = config
+    fun updateListConfig() {
         for (i in moodList.indices) {
-            moodList[i].update(settings)
+            moodList[i].update(Settings)
             notifyItemChanged(i)
         }
     }

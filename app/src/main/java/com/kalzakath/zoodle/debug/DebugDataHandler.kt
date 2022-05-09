@@ -7,10 +7,9 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.random.Random
 
-class DebugDataHandler (private var settings: Settings,
-                        secureFileHandler: SecureFileHandler,
+class DebugDataHandler (secureFileHandler: SecureFileHandler,
                         private var context: Context
-): DataHandler(settings, secureFileHandler, context) {
+): DataHandler(secureFileHandler, context) {
 
     override fun getMoodData(): ArrayList<MoodEntryModel> {
         val debugArrayList = arrayListOf<MoodEntryModel>()
@@ -53,8 +52,9 @@ class DebugDataHandler (private var settings: Settings,
             feelings.add(availFeelings[random.nextInt(0, availFeelings.size - 1)])
         }
 
-        return when (settings.moodMode) {
-            Mood.MOOD_MODE_NUMBERS -> MoodEntryModel(
+        var mood = MoodEntryModel()
+        when (Settings.moodMode) {
+            Mood.MOOD_MODE_NUMBERS -> mood = MoodEntryModel(
                 "$randomYear-$randMonth-$randDay",
                 "12:34",
                 Mood(randMood),
@@ -62,8 +62,8 @@ class DebugDataHandler (private var settings: Settings,
                 list,
                 UUID.randomUUID().toString()
             )
-            else -> {
-                MoodEntryModel(
+            Mood.MOOD_MODE_FACES -> {
+                mood = MoodEntryModel(
                     "$randomYear-$randMonth-$randDay",
                     "12:34",
                     Mood("3", Mood.MOOD_MODE_FACES),
@@ -73,5 +73,6 @@ class DebugDataHandler (private var settings: Settings,
                 )
             }
         }
+        return mood
     }
 }

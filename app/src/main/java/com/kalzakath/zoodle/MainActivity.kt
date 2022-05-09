@@ -44,14 +44,13 @@ class MainActivity : AppCompatActivity() {
     private lateinit var getTrendViewActivitiesResult: ActivityResultLauncher<Intent>
     private lateinit var secureFileHandler: SecureFileHandler
     private lateinit var dataHandler: DataHandler
-    private lateinit var settings: Settings
 
     private var user: FirebaseUser? = null
     private var isPremiumEdition = false
     private val debug = object {
         fun debugDataHandler(boolean: Boolean) {
-            dataHandler = if (boolean) DebugDataHandler(settings, secureFileHandler, applicationContext)
-            else DataHandler(settings, secureFileHandler, applicationContext)
+            dataHandler = if (boolean) DebugDataHandler(secureFileHandler, applicationContext)
+            else DataHandler(secureFileHandler, applicationContext)
         }
     }
 
@@ -67,20 +66,19 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         secureFileHandler = SecureFileHandler(applicationContext)
-        val jsonSettings = secureFileHandler.read("settings.json")
-        if (jsonSettings != null) readSettingsDataFromJson(jsonSettings)
-        else settings = Settings()
+        val settingsString = secureFileHandler.read("settings.json")
+        readSettingsDataFromJson(settingsString)
 
         setupRecycleView()
 
         user = null
-        dataHandler = DataHandler(settings, secureFileHandler, applicationContext)
+        dataHandler = DataHandler(secureFileHandler, applicationContext)
         initButtons()
         setActivityListeners()
 
         //debug.debugDataHandler(true)
         recyclerViewAdaptor.updateList(dataHandler.getMoodData())
-        recyclerViewAdaptor.updateListConfig(settings)
+        recyclerViewAdaptor.updateListConfig()
     }
 
     private fun setupRecycleView() {
@@ -89,8 +87,7 @@ class MainActivity : AppCompatActivity() {
             { moodEntries -> secureFileHandler.write(moodEntries); updateDatabaseEntry(moodEntries) },
             { mood -> setupMoodPicker(mood) },
             { moodEntry -> startActivityActivities(moodEntry) },
-            { moodEntry -> startActivityFeelings(moodEntry) },
-            settings)
+            { moodEntry -> startActivityFeelings(moodEntry) })
 
         val callback: ItemTouchHelper.Callback = SwipeHelperCallback(recyclerViewAdaptor)
         val mItemTouchHelper = ItemTouchHelper(callback)
@@ -122,13 +119,13 @@ class MainActivity : AppCompatActivity() {
 
     private fun startActivitySettings() {
         val intent = Intent(this, SettingsActivity::class.java)
-        intent.putExtra("Settings", settings)
+        //intent.putExtra("Settings", settings)
         getSettingsActivityResult.launch(intent)
     }
 
     private fun startActivityTrendView() {
         val intent = Intent(this, TrendViewActivity::class.java)
-        intent.putExtra("Settings", settings)
+        //intent.putExtra("Settings", settings)
         getTrendViewActivitiesResult.launch(intent)
     }
 
@@ -160,12 +157,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupMoodPicker(moodEntry: MoodEntryModel) {
         val numberPicker: NumberPicker = findViewById(R.id.npNumberPicker)
-        val numberArray = Array(settings.moodMax) { (it + 1).toString() }
+        val numberArray = Array(Settings.moodMax) { (it + 1).toString() }
 
         when (moodEntry.mood!!.moodMode) {
             Mood.MOOD_MODE_NUMBERS -> {
                 numberPicker.displayedValues = numberArray
-                numberPicker.maxValue = settings.moodMax.minus(1)?: 4
+                numberPicker.maxValue = Settings.moodMax.minus(1)?: 4
                 numberPicker.minValue = 0
                 numberPicker.wrapSelectorWheel = true
                 numberPicker.textColor = Color.WHITE
@@ -177,7 +174,7 @@ class MainActivity : AppCompatActivity() {
                 numberPicker.minValue = 0
                 numberPicker.maxValue = resources.getStringArray(R.array.mood_faces).size - 1
                 numberPicker.value =
-                    mvHelper.getSanitisedNumber(moodEntry.mood.value!!.toInt(), settings.moodMax).minus(1)
+                    mvHelper.getSanitisedNumber(moodEntry.mood.value!!.toInt(), Settings.moodMax).minus(1)
             }
         }
 
@@ -189,7 +186,7 @@ class MainActivity : AppCompatActivity() {
         bNpConfirm.setOnClickListener {
             val moodValue: Mood = when (moodEntry.mood.moodMode) {
                 Mood.MOOD_MODE_NUMBERS -> Mood((numberPicker.value + 1).toString(), Mood.MOOD_MODE_NUMBERS)
-                else -> Mood(mvHelper.getUnsanitisedNumber(numberPicker.value + 1, settings.moodMax).toString(), Mood.MOOD_MODE_FACES)
+                else -> Mood(mvHelper.getUnsanitisedNumber(numberPicker.value + 1, Settings.moodMax).toString(), Mood.MOOD_MODE_FACES)
             }
             val newMood = MoodEntryModel(
                 moodEntry.date,
@@ -250,16 +247,13 @@ class MainActivity : AppCompatActivity() {
 
         getSettingsActivityResult =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-                val data = it.data?.getParcelableExtra<Settings>("Settings")
+                //val data = it.data?.getParcelableExtra<Settings>("Settings")
                 val moodEntries = it.data?.getParcelableArrayListExtra<Parcelable>("MoodEntries")
                 var moodData = ArrayList<MoodEntryModel>()
                 if (moodEntries != null) moodData = it.data?.getParcelableArrayListExtra<Parcelable>("MoodEntries") as ArrayList<MoodEntryModel>
 
-                if (data != null) {
-                    secureFileHandler.write(data)
-                    recyclerViewAdaptor.updateListConfig(data)
-                    settings = data
-                }
+                secureFileHandler.write(Settings)
+                recyclerViewAdaptor.updateListConfig()
 
                 recyclerViewAdaptor.updateList(moodData)
             }
@@ -270,14 +264,16 @@ class MainActivity : AppCompatActivity() {
         moodPicker.showPopup()
     }
 
-    private fun readSettingsDataFromJson(jsonSettings: String) {
+    private fun readSettingsDataFromJson(jsonSettings: String?) {
         val gson = Gson()
         val type = object : TypeToken<Settings>() {}.type
         val data = gson.fromJson<Settings>(jsonSettings, type)
-        if (data != null) settings = data
+        if (data != null) {
+            Settings.moodMode = data.moodMode
+            Settings.moodMax = data.moodMax
+        }
         else {
-            settings = Settings()
-            secureFileHandler.write(settings)
+            secureFileHandler.write(Settings)
         }
     }
 

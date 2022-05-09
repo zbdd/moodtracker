@@ -41,12 +41,13 @@ class SettingsActivity() : AppCompatActivity() {
         val moodEntries = intent.getParcelableArrayListExtra<Parcelable>("MoodEntries")
         if (moodEntries != null) moodData = intent.getParcelableArrayListExtra<Parcelable>("MoodEntries") as ArrayList<MoodEntryModel>
 
-        val settings = intent.getParcelableExtra<Settings>("Settings")
-        sMoodNumerals.isChecked = settings?.moodMode?.equals(Mood.MOOD_MODE_NUMBERS) ?: false
+        //val settings = intent.getParcelableExtra<Settings>("Settings")
+
+        sMoodNumerals.isChecked = Settings.moodMode == Mood.MOOD_MODE_NUMBERS
 
         sMoodNumerals.setOnCheckedChangeListener { compoundButton, isChecked ->
-            if (isChecked) settings?.moodMode = Mood.MOOD_MODE_NUMBERS
-            else settings?.moodMode = Mood.MOOD_MODE_FACES
+            if (isChecked) Settings.moodMode = Mood.MOOD_MODE_NUMBERS
+            else Settings.moodMode = Mood.MOOD_MODE_FACES
         }
 
         tvSettingsExport.setOnClickListener {
@@ -68,7 +69,7 @@ class SettingsActivity() : AppCompatActivity() {
 
         bSettingsConfirm.setOnClickListener {
             val finishIntent = Intent()
-            finishIntent.putExtra("Settings", settings)
+            //finishIntent.putExtra("Settings", settings)
             if (dataImport.isNotEmpty()) finishIntent.putParcelableArrayListExtra("MoodEntries", dataImport as java.util.ArrayList<out Parcelable>)
             setResult(RESULT_OK, finishIntent)
             finish()
@@ -166,8 +167,8 @@ class SettingsActivity() : AppCompatActivity() {
                             }
 
                             if (mood["mood"] != null) {
-                                if (mood["mood"]!!.toInt() in 6..10) settings!!.moodMax = 10
-                                else if (mood["mood"]!!.toInt() > settings!!.moodMax) settings.moodMax = mood["mood"]?.toInt() ?: 5
+                                if (mood["mood"]!!.toInt() in 6..10) Settings.moodMax = 10
+                                else if (mood["mood"]!!.toInt() > Settings.moodMax) Settings.moodMax = mood["mood"]?.toInt() ?: 5
                             }
 
                             dataImport.add(

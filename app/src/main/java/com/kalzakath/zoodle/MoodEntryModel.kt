@@ -105,6 +105,6 @@ class MoodEntryModel(
     }
 
     override fun update(settings: Settings) {
-        mood!!.moodMode = settings.moodMode
+        mood!!.moodMode = Settings.moodMode
     }
 }
