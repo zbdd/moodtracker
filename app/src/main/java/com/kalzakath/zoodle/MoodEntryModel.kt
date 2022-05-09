@@ -5,6 +5,7 @@ import com.google.firebase.database.Exclude
 import com.google.firebase.database.IgnoreExtraProperties
 import java.io.Serializable
 import java.time.LocalDateTime
+import java.util.*
 
 @IgnoreExtraProperties
 class MoodEntryModel(
@@ -13,7 +14,7 @@ class MoodEntryModel(
     val mood: Mood? = Mood(),
     val feelings: MutableList<String> = ArrayList(),
     val activities: MutableList<String> = ArrayList(),
-    override var key: String = "mood_entry_key",
+    override var key: String = "local_" + UUID.randomUUID().toString(),
     var lastUpdated: String? = LocalDateTime.now().toString()
 ):RowEntryModel,
     Serializable {
@@ -88,17 +89,18 @@ class MoodEntryModel(
 
     fun applyDrawable() {
         if (mood == null) return
-        if (viewHolder != null) viewHolder = getViewHolder()
 
-        val mViewHolder = viewHolder as MoodViewHolder
+        if (::viewHolder.isInitialized) {
+            val mViewHolder = viewHolder as MoodViewHolder
 
-        when {
-            mood.value
-            !!.toInt() > 3 -> mViewHolder.moodText.setBackgroundResource(R.drawable.mood_rating_colour_high)
-            mood.value
-            !!.toInt() < 3 -> mViewHolder.moodText.setBackgroundResource(R.drawable.mood_rating_colour_low)
-            mood.value
-            !!.toInt() == 3 -> mViewHolder.moodText.setBackgroundResource(R.drawable.mood_rating_colour)
+            when {
+                mood.value
+                !!.toInt() > 3 -> mViewHolder.moodText.setBackgroundResource(R.drawable.mood_rating_colour_high)
+                mood.value
+                !!.toInt() < 3 -> mViewHolder.moodText.setBackgroundResource(R.drawable.mood_rating_colour_low)
+                mood.value
+                !!.toInt() == 3 -> mViewHolder.moodText.setBackgroundResource(R.drawable.mood_rating_colour)
+            }
         }
     }
 

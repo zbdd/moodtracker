@@ -72,7 +72,7 @@ open class DataHandler(private var settings: Settings,
             Mood.MOOD_MODE_NUMBERS -> MoodEntryModel(
                 date,
                 time,
-                Mood("3"),
+                Mood("3", Mood.MOOD_MODE_NUMBERS),
                 feelings,
                 list,
                 UUID.randomUUID().toString()

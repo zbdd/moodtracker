@@ -78,7 +78,7 @@ class MainActivity : AppCompatActivity() {
         initButtons()
         setActivityListeners()
 
-        debug.debugDataHandler(true)
+        //debug.debugDataHandler(true)
         recyclerViewAdaptor.updateList(dataHandler.getMoodData())
         recyclerViewAdaptor.updateListConfig(settings)
     }
