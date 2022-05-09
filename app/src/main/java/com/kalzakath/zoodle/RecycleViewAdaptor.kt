@@ -12,7 +12,6 @@ import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.*
 import java.util.stream.IntStream
-import kotlin.math.ceil
 
 class RecyclerViewAdaptor(
     val onSwiped: (MoodEntryModel, ArrayList<MoodEntryModel>) -> Unit,
@@ -156,7 +155,6 @@ class RecyclerViewAdaptor(
 
     @SuppressLint("NotifyDataSetChanged")
     private fun addFilterView(title: String) {
-        val moods: ArrayList<MoodEntryModel> = ArrayList()
         val format = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH)
 
         var maxDate: LocalDate = LocalDate.now()
@@ -270,23 +268,6 @@ class RecyclerViewAdaptor(
         return moodList[position].viewType
     }
 
-    private fun getSanitisedNumber(value: Int): Int {
-        return (ceil(
-            value.toDouble().div(settings.moodMax / 5)
-        ).toInt())
-    }
-
-
-    private fun getEmoji(convertValue: String): Int {
-        return when (convertValue) {
-            "Ecstatic" -> R.string.mood_ecstatic
-            "Happy" -> R.string.mood_happy
-            "Unhappy" -> R.string.mood_unhappy
-            "Terrible" -> R.string.mood_terrible
-            else -> R.string.mood_average
-        }
-    }
-
     private fun initButtons(viewHolder: ViewHolder, row: RowEntryModel) {
 
         if (row.viewType != MoodEntryModel().viewType) return
@@ -298,7 +279,7 @@ class RecyclerViewAdaptor(
                 : Calendar = Calendar.getInstance(TimeZone.getDefault())
 
         mHolder.moodText.setOnClickListener {
-            onMoodValueClicked(moodEntry as MoodEntryModel)
+            onMoodValueClicked(moodEntry)
         }
 
         val timeSetListener = TimePickerDialog.OnTimeSetListener { _, hour, minute ->

@@ -23,7 +23,6 @@ class MoodEntryModel(
         return viewHolder
     }
 
-    private var modelHelper = MoodValueHelper()
     override var viewType: Int = 1
 
     @Exclude
@@ -54,22 +53,26 @@ class MoodEntryModel(
         val mViewHolder = holder as MoodViewHolder
         mViewHolder.dateText.text = date
         mViewHolder.timeText.text = time
+        val moodHelper = MoodValueHelper()
 
-        if (mood!!.moodMode == Mood.MOOD_MODE_FACES)
-            mViewHolder.moodText.text = mViewHolder.itemView.resources.getString(
-                modelHelper.getEmoji(
-                    mood.toFaces(
-                        modelHelper.getSanitisedNumber(mood.value!!.toInt(), 5).toString()
+        if (mood != null) {
+            if (mood.moodMode == Mood.MOOD_MODE_FACES)
+
+                mViewHolder.moodText.text = mViewHolder.itemView.resources.getString(
+                    moodHelper.getEmoji(
+                        mood.toFaces(
+                            moodHelper.getSanitisedNumber(mood.value!!.toInt(), 5).toString()
+                        )
                     )
                 )
-            )
-        else mViewHolder.moodText.text = mood.value
-        mViewHolder.activityText.text = when (activities.toString()) {
-            "[]" -> "Click to add an activity"
-            else -> activities.toString().removeSurrounding(
-                "[",
-                "]"
-            )
+            else mViewHolder.moodText.text = mood.value
+            mViewHolder.activityText.text = when (activities.toString()) {
+                "[]" -> "Click to add an activity"
+                else -> activities.toString().removeSurrounding(
+                    "[",
+                    "]"
+                )
+            }
         }
 
         mViewHolder.feelingsText.text = when (feelings.toString()) {
@@ -85,8 +88,10 @@ class MoodEntryModel(
     }
 
     fun applyDrawable() {
-        val mViewHolder = viewHolder as MoodViewHolder
         if (mood == null) return
+        if (viewHolder != null) viewHolder = getViewHolder()
+
+        val mViewHolder = viewHolder as MoodViewHolder
 
         when {
             mood.value

@@ -1,7 +1,7 @@
 package com.kalzakath.zoodle
 
-class RowEntryFactory {
-    fun create(viewType: Int): RowEntryModel {
+open class RowEntryFactory {
+    open fun create(viewType: Int): RowEntryModel {
         return when (viewType) {
             FilterEntryModel().viewType -> FilterEntryModel()
             else -> MoodEntryModel()
