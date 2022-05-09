@@ -50,7 +50,7 @@ class RecyclerViewAdaptor(
             for (i in moodList.indices) {
                 if (moodList[i].viewType == MoodEntryModel().viewType) {
                     val moodListItem = moodList[i] as MoodEntryModel
-                    if (moodListItem.key.equals(moodEntry.key)) {
+                    if (moodListItem.key == moodEntry.key) {
                         if (LocalDate.parse(moodListItem.lastUpdated?.substring(0,19), format) < LocalDate.parse(
                                 moodEntry.lastUpdated?.substring(0,19),
                                 format
