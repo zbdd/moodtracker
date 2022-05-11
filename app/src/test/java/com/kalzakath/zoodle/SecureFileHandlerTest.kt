@@ -83,7 +83,7 @@ class SecureFileHandlerTest {
 
     @Test
     fun `can write data as arraylist RowEntryModel to file`() {
-        val testList = arrayListOf(RowEntryModel())
+        val testList = arrayListOf(MoodEntryModel())
         val testFile = "cheese.json"
         val gson = Gson()
         val fileData = gson.toJson(testList).toByteArray(Charsets.UTF_32)
@@ -96,15 +96,14 @@ class SecureFileHandlerTest {
 
     @Test
     fun `can write settings data to file`() {
-        val testSettings = Settings()
         val testFile = "settingFile.json"
         val gson = Gson()
-        val fileData = gson.toJson(testSettings).toByteArray(Charsets.UTF_32)
+        val fileData = gson.toJson(Settings).toByteArray(Charsets.UTF_32)
 
         every { secureFileHandler.invoke("encryptData").withArguments(listOf(secretKey, fileData))} returns ByteArray(1)
 
-        assert(secureFileHandler.write(testSettings))
-        assert(secureFileHandler.write(testSettings, testFile))
+        assert(secureFileHandler.write(Settings))
+        assert(secureFileHandler.write(Settings, testFile))
     }
 
     @Test

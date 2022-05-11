@@ -327,11 +327,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun addNewMoodEntry(recyclerViewAdaptor: RecyclerViewAdaptor) {
-        val moodFactory = MoodEntryFactory()
-        addNewMoodEntry(moodFactory.create(), recyclerViewAdaptor)
-    }
-
     private fun addNewMoodEntry(moodEntry: MoodEntryModel, recyclerViewAdaptor: RecyclerViewAdaptor) {
         val data: ArrayList<MoodEntryModel> = ArrayList()
         data.add(moodEntry)
