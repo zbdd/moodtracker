@@ -4,10 +4,12 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import java.io.BufferedInputStream
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.lang.reflect.Modifier
 import java.security.SecureRandom
 import java.util.*
 import javax.crypto.Cipher
@@ -80,7 +82,7 @@ class SecureFileHandler(val context: Context) {
     }
 
      fun write(data: Settings, filename: String = "settings.json"): Boolean {
-        val gson = Gson()
+        val gson = GsonBuilder().excludeFieldsWithModifiers(Modifier.TRANSIENT).create()
         val jsonString: String = gson.toJson(data)
          return write(jsonString, filename)
     }

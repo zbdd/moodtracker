@@ -32,6 +32,7 @@ import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import com.kalzakath.zoodle.debug.DebugDataHandler
+import java.lang.reflect.Modifier
 import java.time.LocalDateTime
 
 class MainActivity : AppCompatActivity() {
@@ -51,8 +52,6 @@ class MainActivity : AppCompatActivity() {
             else DataHandler(secureFileHandler, applicationContext)
         }
     }
-
-    private val mvHelper: MoodValueHelper = MoodValueHelper()
 
     private val signInLauncher =
         registerForActivityResult(FirebaseAuthUIActivityResultContract()) { res ->
@@ -153,6 +152,7 @@ class MainActivity : AppCompatActivity() {
     private fun setupMoodPicker(moodEntry: MoodEntryModel, recyclerViewAdaptor: RecyclerViewAdaptor) {
         val numberPicker: NumberPicker = findViewById(R.id.npNumberPicker)
         val numberArray = Array(Settings.moodMax) { (it + 1).toString() }
+        val mvHelper = MoodValueHelper()
 
         when (moodEntry.mood!!.moodMode) {
             Mood.MOOD_MODE_NUMBERS -> {
@@ -263,7 +263,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun readSettingsDataFromJson(jsonSettings: String?) {
-        val gson = Gson()
+        val gson = GsonBuilder().excludeFieldsWithModifiers(Modifier.TRANSIENT).create()
         val type = object : TypeToken<Settings>() {}.type
         val data = gson.fromJson<Settings>(jsonSettings, type)
         if (data != null) {
