@@ -99,7 +99,6 @@ class SecureFileHandlerTest {
         val testFile = "settingFile.json"
         val gson = Gson()
         val fileData = gson.toJson(Settings).toByteArray(Charsets.UTF_32)
-
         every { secureFileHandler.invoke("encryptData").withArguments(listOf(secretKey, fileData))} returns ByteArray(1)
 
         assert(secureFileHandler.write(Settings))
