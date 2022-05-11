@@ -35,8 +35,6 @@ import com.kalzakath.zoodle.debug.DebugDataHandler
 import java.time.LocalDateTime
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var recyclerViewAdaptor: RecyclerViewAdaptor
-    private lateinit var recyclerView: RecyclerView
     private lateinit var myRef: DatabaseReference
     private lateinit var getActivitiesActivityResult: ActivityResultLauncher<Intent>
     private lateinit var getSettingsActivityResult: ActivityResultLauncher<Intent>
@@ -69,23 +67,23 @@ class MainActivity : AppCompatActivity() {
         val settingsString = secureFileHandler.read("settings.json")
         readSettingsDataFromJson(settingsString)
 
-        setupRecycleView()
+        val recyclerViewAdaptor = setupRecycleView()
 
         user = null
         dataHandler = DataHandler(secureFileHandler, applicationContext)
-        initButtons()
-        setActivityListeners()
+        initButtons(recyclerViewAdaptor)
+        setActivityListeners(recyclerViewAdaptor)
 
         //debug.debugDataHandler(true)
         recyclerViewAdaptor.updateList(dataHandler.getMoodData())
         recyclerViewAdaptor.updateListConfig()
     }
 
-    private fun setupRecycleView() {
-        recyclerViewAdaptor = RecyclerViewAdaptor(
+    private fun setupRecycleView(): RecyclerViewAdaptor {
+        val recyclerViewAdaptor = RecyclerViewAdaptor(
             { moodEntry, moodList -> onItemDismissed(moodEntry, moodList) },
-            { moodEntries -> secureFileHandler.write(moodEntries); updateDatabaseEntry(moodEntries) },
-            { mood -> setupMoodPicker(mood) },
+            { moodList -> secureFileHandler.write(moodList); updateDatabaseEntry(moodList) },
+            { moodEntry, recycleViewAdaptor -> setupMoodPicker(moodEntry, recycleViewAdaptor) },
             { moodEntry -> startActivityActivities(moodEntry) },
             { moodEntry -> startActivityFeelings(moodEntry) })
 
@@ -93,9 +91,11 @@ class MainActivity : AppCompatActivity() {
         val mItemTouchHelper = ItemTouchHelper(callback)
         mItemTouchHelper.attachToRecyclerView(findViewById(R.id.recyclerViewMain))
 
-        recyclerView = findViewById(R.id.recyclerViewMain)
+        val recyclerView: RecyclerView = findViewById(R.id.recyclerViewMain)
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = recyclerViewAdaptor
+
+        return recyclerViewAdaptor
     }
 
     private fun startActivityActivities(moodEntry: MoodEntryModel) {
@@ -107,25 +107,22 @@ class MainActivity : AppCompatActivity() {
             val gson = GsonBuilder().create()
             val activities = gson.fromJson(jsonArray, ArrayList::class.java)
             if (activities.isNotEmpty()) {
-                val data = activities as ArrayList<String>
+                val data = activities.filterIsInstance<String>() as ArrayList<String>
                 intent.putStringArrayListExtra("AvailableActivities", data)
             }
         }
 
         intent.putExtra("MoodEntry", moodEntry)
-
         getActivitiesActivityResult.launch(intent)
     }
 
     private fun startActivitySettings() {
         val intent = Intent(this, SettingsActivity::class.java)
-        //intent.putExtra("Settings", settings)
         getSettingsActivityResult.launch(intent)
     }
 
     private fun startActivityTrendView() {
         val intent = Intent(this, TrendViewActivity::class.java)
-        //intent.putExtra("Settings", settings)
         getTrendViewActivitiesResult.launch(intent)
     }
 
@@ -138,7 +135,7 @@ class MainActivity : AppCompatActivity() {
             val gson = GsonBuilder().create()
             val feelings = gson.fromJson(jsonArray, ArrayList::class.java)
             var data = ArrayList<String>()
-            if (feelings.isNotEmpty()) data = feelings as ArrayList<String>
+            if (feelings.isNotEmpty()) data = feelings.filterIsInstance<String>() as ArrayList<String>
             intent.putStringArrayListExtra("AvailableFeelings", data)
         }
 
@@ -147,22 +144,20 @@ class MainActivity : AppCompatActivity() {
         getFeelingsActivityResult.launch(intent)
     }
 
-
-
     private fun onItemDismissed(moodEntry: MoodEntryModel, moodList: ArrayList<MoodEntryModel>) {
         if (user != null) myRef.child(user?.uid ?: "").child("moodEntries")
-            .child("${moodEntry.key}").removeValue()
+            .child(moodEntry.key).removeValue()
         secureFileHandler.write(moodList)
     }
 
-    private fun setupMoodPicker(moodEntry: MoodEntryModel) {
+    private fun setupMoodPicker(moodEntry: MoodEntryModel, recyclerViewAdaptor: RecyclerViewAdaptor) {
         val numberPicker: NumberPicker = findViewById(R.id.npNumberPicker)
         val numberArray = Array(Settings.moodMax) { (it + 1).toString() }
 
         when (moodEntry.mood!!.moodMode) {
             Mood.MOOD_MODE_NUMBERS -> {
                 numberPicker.displayedValues = numberArray
-                numberPicker.maxValue = Settings.moodMax.minus(1)?: 4
+                numberPicker.maxValue = Settings.moodMax.minus(1)
                 numberPicker.minValue = 0
                 numberPicker.wrapSelectorWheel = true
                 numberPicker.textColor = Color.WHITE
@@ -223,7 +218,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setActivityListeners() {
+    private fun setActivityListeners(recyclerViewAdaptor: RecyclerViewAdaptor) {
         getActivitiesActivityResult =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
                 val data = it.data?.getStringArrayListExtra("AvailableActivities")
@@ -250,7 +245,10 @@ class MainActivity : AppCompatActivity() {
                 //val data = it.data?.getParcelableExtra<Settings>("Settings")
                 val moodEntries = it.data?.getParcelableArrayListExtra<Parcelable>("MoodEntries")
                 var moodData = ArrayList<MoodEntryModel>()
-                if (moodEntries != null) moodData = it.data?.getParcelableArrayListExtra<Parcelable>("MoodEntries") as ArrayList<MoodEntryModel>
+                if (moodEntries != null) {
+                    val data = it.data?.getParcelableArrayListExtra<Parcelable>("MoodEntries")
+                    if (data != null) moodData = data.filterIsInstance<MoodEntryModel>() as ArrayList<MoodEntryModel>
+                }
 
                 secureFileHandler.write(Settings)
                 recyclerViewAdaptor.updateListConfig()
@@ -259,8 +257,8 @@ class MainActivity : AppCompatActivity() {
             }
     }
 
-    private fun createMoodPicker() {
-        val moodPicker = MoodPickerDialog(this) { moodEntry -> addNewMoodEntry(moodEntry) }
+    private fun createMoodPicker(recyclerViewAdaptor: RecyclerViewAdaptor) {
+        val moodPicker = MoodPickerDialog(this) { moodEntry -> addNewMoodEntry(moodEntry, recyclerViewAdaptor) }
         moodPicker.showPopup()
     }
 
@@ -277,12 +275,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun initButtons() {
+    private fun initButtons(recyclerViewAdaptor: RecyclerViewAdaptor) {
         val addNewButton: ImageButton = findViewById(R.id.addNewButton)
 
         addNewButton.setOnClickListener {
             //addNewMoodEntry(false)
-            createMoodPicker()
+            createMoodPicker(recyclerViewAdaptor)
         }
 
         val bViewTrend: Button = findViewById(R.id.bViewTrend)
@@ -298,7 +296,7 @@ class MainActivity : AppCompatActivity() {
         //if (isDebugMode) {
             val ibAddNewDebug: ImageButton = findViewById(R.id.ibAddNewDebug)
             ibAddNewDebug.setOnClickListener {
-                addNewMoodEntry()
+                addNewMoodEntry(recyclerViewAdaptor)
             }
        // }
 
@@ -331,16 +329,17 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun addNewMoodEntry() {
-        addNewMoodEntry(dataHandler.createNewMoodEntry(LocalDateTime.now()))
+    private fun addNewMoodEntry(recyclerViewAdaptor: RecyclerViewAdaptor) {
+        addNewMoodEntry(dataHandler.createNewMoodEntry(LocalDateTime.now()), recyclerViewAdaptor)
     }
 
-    private fun addNewMoodEntry(moodEntry: MoodEntryModel) {
+    private fun addNewMoodEntry(moodEntry: MoodEntryModel, recyclerViewAdaptor: RecyclerViewAdaptor) {
         val data: ArrayList<MoodEntryModel> = ArrayList()
         data.add(moodEntry)
         recyclerViewAdaptor.updateList(data)
     }
 
+    @Suppress("UNCHECKED_CAST")
     private fun readDatabaseForNewData(): ArrayList<MoodEntryModel> {
         val moodData = ArrayList<MoodEntryModel>()
 

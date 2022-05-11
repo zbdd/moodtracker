@@ -16,7 +16,7 @@ import java.util.stream.IntStream
 class RecyclerViewAdaptor(
     val onSwiped: (MoodEntryModel, ArrayList<MoodEntryModel>) -> Unit,
     val onListUpdated: (ArrayList<MoodEntryModel>) -> Unit,
-    val onMoodValueClicked: (MoodEntryModel) -> Unit,
+    val onMoodValueClicked: (MoodEntryModel, RecyclerViewAdaptor) -> Unit,
     val onStartActivitiesActivity: (MoodEntryModel) -> Unit,
     val startFeelingsActivity: (MoodEntryModel) -> Unit):
     Adapter<ViewHolder>(), SwipeHelperCallback.ItemTouchHelperAdaptor {
@@ -277,7 +277,7 @@ class RecyclerViewAdaptor(
                 : Calendar = Calendar.getInstance(TimeZone.getDefault())
 
         mHolder.moodText.setOnClickListener {
-            onMoodValueClicked(moodEntry)
+            onMoodValueClicked(moodEntry, this)
         }
 
         val timeSetListener = TimePickerDialog.OnTimeSetListener { _, hour, minute ->
