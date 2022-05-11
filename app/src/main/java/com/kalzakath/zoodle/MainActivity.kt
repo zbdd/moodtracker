@@ -279,7 +279,6 @@ class MainActivity : AppCompatActivity() {
         val addNewButton: ImageButton = findViewById(R.id.addNewButton)
 
         addNewButton.setOnClickListener {
-            //addNewMoodEntry(false)
             createMoodPicker(recyclerViewAdaptor)
         }
 
@@ -293,12 +292,11 @@ class MainActivity : AppCompatActivity() {
             startActivitySettings()
         }
 
-        //if (isDebugMode) {
-            val ibAddNewDebug: ImageButton = findViewById(R.id.ibAddNewDebug)
-            ibAddNewDebug.setOnClickListener {
-                addNewMoodEntry(recyclerViewAdaptor)
-            }
-       // }
+        val ibAddNewDebug: ImageButton = findViewById(R.id.ibAddNewDebug)
+        ibAddNewDebug.setOnClickListener {
+            val debugMood = MoodEntryFactory().createDebug(applicationContext)
+            addNewMoodEntry(debugMood, recyclerViewAdaptor)
+        }
 
         val ibLogin: ImageButton = findViewById(R.id.ibLogin)
         if (user == null) ibLogin.background.setTint(Color.LTGRAY)
@@ -330,7 +328,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun addNewMoodEntry(recyclerViewAdaptor: RecyclerViewAdaptor) {
-        addNewMoodEntry(dataHandler.createNewMoodEntry(LocalDateTime.now()), recyclerViewAdaptor)
+        val moodFactory = MoodEntryFactory()
+        addNewMoodEntry(moodFactory.create(), recyclerViewAdaptor)
     }
 
     private fun addNewMoodEntry(moodEntry: MoodEntryModel, recyclerViewAdaptor: RecyclerViewAdaptor) {

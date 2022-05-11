@@ -1,9 +1,11 @@
 package com.kalzakath.zoodle
 
 import android.content.Context
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
+import java.util.concurrent.ThreadLocalRandom
 import kotlin.random.Random
 
 class MoodEntryFactory: RowEntryFactory() {
@@ -13,8 +15,7 @@ class MoodEntryFactory: RowEntryFactory() {
 
     fun createDebug(
         context: Context,
-        dateTime: LocalDateTime = LocalDateTime.now(),
-        settings: Settings
+        date: LocalDateTime? = null
     ): MoodEntryModel {
         val random = Random(System.currentTimeMillis())
 
@@ -30,6 +31,8 @@ class MoodEntryFactory: RowEntryFactory() {
 
         val availFeelings = context.resources.getStringArray(R.array.available_feelings)
 
+        val moodVal = random.nextInt(1,5).toString()
+
         val list: MutableList<String> = ArrayList()
         for (i in 1..random.nextInt(4)) {
             list.add(choices[random.nextInt(0, choices.size - 1)])
@@ -40,25 +43,33 @@ class MoodEntryFactory: RowEntryFactory() {
             feelings.add(availFeelings[random.nextInt(0, availFeelings.size - 1)])
         }
 
+        val dateTime = if (date == null) {
+            val fromDate = LocalDate.of(2017, 1, 1).toEpochDay()
+            val toDate = LocalDate.of(2022, 5, 11).toEpochDay()
+            val randomDate = ThreadLocalRandom.current().nextLong(fromDate, toDate)
+            LocalDate.ofEpochDay(randomDate)
+        } else date.toLocalDate()
+
         var dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
         val date = dateTime.format(dateTimeFormatter)
 
         dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
-        val time = dateTime.format(dateTimeFormatter)
+        val randomTime = random.nextInt(10,23).toString() + ":" + random.nextInt(10,59).toString()
+        val time = randomTime.format(dateTimeFormatter)
 
         return when (Settings.moodMode) {
             Mood.MOOD_MODE_NUMBERS -> MoodEntryModel(
-                date,
+                dateTime.toString(),
                 time,
-                Mood("3"),
+                Mood(moodVal),
                 feelings,
                 list,
                 UUID.randomUUID().toString()
             )
             else -> MoodEntryModel(
-                date,
+                dateTime.toString(),
                 time,
-                Mood("3", Mood.MOOD_MODE_FACES),
+                Mood(moodVal, Mood.MOOD_MODE_FACES),
                 ArrayList(),
                 ArrayList(),
                 UUID.randomUUID().toString()
