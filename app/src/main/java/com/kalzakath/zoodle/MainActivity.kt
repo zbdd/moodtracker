@@ -36,7 +36,7 @@ import java.lang.reflect.Modifier
 import java.time.LocalDateTime
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var myRef: DatabaseReference
+
     private lateinit var getActivitiesActivityResult: ActivityResultLauncher<Intent>
     private lateinit var getSettingsActivityResult: ActivityResultLauncher<Intent>
     private lateinit var getFeelingsActivityResult: ActivityResultLauncher<Intent>
@@ -45,7 +45,12 @@ class MainActivity : AppCompatActivity() {
     private lateinit var dataHandler: DataHandler
 
     private var user: FirebaseUser? = null
-    private var isPremiumEdition = false
+    private val signInLauncher =
+        registerForActivityResult(FirebaseAuthUIActivityResultContract()) { res ->
+            this.onSignInResult(res)
+        }
+    private val onlineDataHandler = OnlineDataHandler()
+
     private val debug = object {
         fun debugDataHandler(boolean: Boolean) {
             dataHandler = if (boolean) DebugDataHandler(secureFileHandler, applicationContext)
@@ -53,10 +58,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private val signInLauncher =
-        registerForActivityResult(FirebaseAuthUIActivityResultContract()) { res ->
-            this.onSignInResult(res)
-        }
+    private fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
+        user = onlineDataHandler.onSignInResult(result)
+        if (user == null) Toast.makeText(applicationContext, "Unable to sign-in at this time", Toast.LENGTH_SHORT)
+            .show()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,9 +73,8 @@ class MainActivity : AppCompatActivity() {
         readSettingsDataFromJson(settingsString)
 
         val recyclerViewAdaptor = setupRecycleView()
-
-        user = null
         dataHandler = DataHandler(secureFileHandler, applicationContext)
+
         initButtons(recyclerViewAdaptor)
         setActivityListeners(recyclerViewAdaptor)
 
@@ -81,7 +86,7 @@ class MainActivity : AppCompatActivity() {
     private fun setupRecycleView(): RecyclerViewAdaptor {
         val recyclerViewAdaptor = RecyclerViewAdaptor(
             { moodEntry, moodList -> onItemDismissed(moodEntry, moodList) },
-            { moodList -> secureFileHandler.write(moodList); updateDatabaseEntry(moodList) },
+            { moodList -> handleListUpdated(moodList) },
             { moodEntry, recycleViewAdaptor -> setupMoodPicker(moodEntry, recycleViewAdaptor) },
             { moodEntry -> startActivityActivities(moodEntry) },
             { moodEntry -> startActivityFeelings(moodEntry) })
@@ -144,9 +149,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onItemDismissed(moodEntry: MoodEntryModel, moodList: ArrayList<MoodEntryModel>) {
-        if (user != null) myRef.child(user?.uid ?: "").child("moodEntries")
-            .child(moodEntry.key).removeValue()
         secureFileHandler.write(moodList)
+    }
+
+    private fun handleListUpdated(moodList: ArrayList<MoodEntryModel>) {
+        secureFileHandler.write(moodList)
+        //updateDatabaseEntry(moodList)
     }
 
     private fun setupMoodPicker(moodEntry: MoodEntryModel, recyclerViewAdaptor: RecyclerViewAdaptor) {
@@ -197,27 +205,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
-        user = FirebaseAuth.getInstance().currentUser
-        val ibLogin: ImageButton = findViewById(R.id.ibLogin)
-
-        if (result.resultCode == RESULT_OK) {
-            val database =
-                Firebase.database("https://silent-blend-161710-default-rtdb.asia-southeast1.firebasedatabase.app")
-            myRef = database.reference
-
-            checkDatabasePathExists()
-            readDatabaseForNewData()
-
-            ibLogin.background.setTint(Color.GREEN)
-        } else {
-            user = null
-            ibLogin.background.setTint(Color.LTGRAY)
-            Toast.makeText(applicationContext, "Unable to sign-in at this time", Toast.LENGTH_SHORT)
-                .show()
-        }
-    }
-
     private fun setActivityListeners(recyclerViewAdaptor: RecyclerViewAdaptor) {
         getActivitiesActivityResult =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
@@ -229,7 +216,6 @@ class MainActivity : AppCompatActivity() {
             }
 
         getTrendViewActivitiesResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-
         }
 
         getFeelingsActivityResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
@@ -303,7 +289,7 @@ class MainActivity : AppCompatActivity() {
         else ibLogin.background.setTint(Color.GREEN)
 
         ibLogin.setOnClickListener {
-            if (!isPremiumEdition) {
+            if (!Settings.isPremiumEdition) {
                 Toast.makeText(
                     applicationContext,
                     "Premium edition feature only",
@@ -317,62 +303,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun updateDatabaseEntry(moods: ArrayList<MoodEntryModel>) {
-        if (user != null) {
-            for (moodEntry in moods) {
-                val moodHash = moodEntry.toMap()
-                val update = hashMapOf<String, Any>("moodEntries/${moodEntry.key}" to moodHash)
-                myRef.child(user?.uid ?: "").updateChildren(update)
-            }
-        }
-    }
-
     private fun addNewMoodEntry(moodEntry: MoodEntryModel, recyclerViewAdaptor: RecyclerViewAdaptor) {
         val data: ArrayList<MoodEntryModel> = ArrayList()
         data.add(moodEntry)
         recyclerViewAdaptor.updateList(data)
     }
 
-    @Suppress("UNCHECKED_CAST")
-    private fun readDatabaseForNewData(): ArrayList<MoodEntryModel> {
-        val moodData = ArrayList<MoodEntryModel>()
-
-        myRef.child(user?.uid ?: "").child("moodEntries")
-            .addValueEventListener(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    if (snapshot.value == null) return
-
-                    if (snapshot.value?.javaClass == HashMap<String, Any>().javaClass) {
-                        for ((key, hashmap) in snapshot.value as HashMap<String, HashMap<String, String>>) {
-                            moodData.add(
-                                MoodEntryModel(
-                                    hashmap["date"].toString(),
-                                    hashmap["time"].toString(),
-                                    Mood(hashmap["mood"].toString()),
-                                    hashmap["feelings"] as MutableList<String>,
-                                    hashmap["activities"] as MutableList<String>,
-                                    key
-                                )
-                            )
-                        }
-                    }
-                }
-
-                override fun onCancelled(error: DatabaseError) {
-                    Log.d("Debug", "Failed to connect to database")
-                }
-            })
-        return moodData
-    }
-
-    private fun checkDatabasePathExists() {
-        if (myRef.child(user?.uid ?: "").child("moodEntries") == null) myRef.child(user?.uid ?: "")
-            .child("moodEntries").setValue("")
-    }
-
-
-
-    private fun launchSignInEvent() {
+    fun launchSignInEvent() {
         // Choose authentication providers
         val providers = arrayListOf(
             AuthUI.IdpConfig.EmailBuilder().build(),
