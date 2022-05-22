@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import java.io.File
 import java.io.FileOutputStream
+import java.lang.reflect.Modifier
 import javax.crypto.SecretKey
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -97,8 +99,9 @@ class SecureFileHandlerTest {
     @Test
     fun `can write settings data to file`() {
         val testFile = "settingFile.json"
-        val gson = Gson()
+        val gson = GsonBuilder().excludeFieldsWithModifiers(Modifier.TRANSIENT).create()
         val fileData = gson.toJson(Settings).toByteArray(Charsets.UTF_32)
+
         every { secureFileHandler.invoke("encryptData").withArguments(listOf(secretKey, fileData))} returns ByteArray(1)
 
         assert(secureFileHandler.write(Settings))
@@ -113,7 +116,6 @@ class SecureFileHandlerTest {
 
         assert(secureFileHandler.read() == null)
         every { secureFileHandler.invoke("readDataFromFile").withArguments(listOf("testData.json")) } returns testData
-        every { secureFileHandler.invokeNoArgs("getSecretKey") } returns secretKey
         every { secureFileHandler.invoke("decrypt").withArguments(listOf(secretKey, testData ))} returns testDecryptedData
         assertEquals(testRawData, secureFileHandler.read())
     }
