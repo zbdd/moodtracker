@@ -13,7 +13,7 @@ class DebugDataHandler (secureFileHandler: SecureFileHandler,
 
     override fun getMoodData(): ArrayList<MoodEntryModel> {
         val debugArrayList = arrayListOf<MoodEntryModel>()
-        for (i in 1..12) {
+        for (i in 1..121) {
             debugArrayList.add(createNewMoodEntry())
         }
         val dateTimeNow = LocalDateTime.now()

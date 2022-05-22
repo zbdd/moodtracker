@@ -4,7 +4,6 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.os.Parcelable
-import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
@@ -20,15 +19,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.firebase.ui.auth.AuthUI
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.ValueEventListener
-import com.google.firebase.database.ktx.database
-import com.google.firebase.ktx.Firebase
-import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import com.kalzakath.zoodle.debug.DebugDataHandler
@@ -78,7 +69,7 @@ class MainActivity : AppCompatActivity() {
         initButtons(recyclerViewAdaptor)
         setActivityListeners(recyclerViewAdaptor)
 
-        //debug.debugDataHandler(true)
+        debug.debugDataHandler(true)
         recyclerViewAdaptor.updateList(dataHandler.getMoodData())
         recyclerViewAdaptor.updateListConfig()
     }
