@@ -22,7 +22,7 @@ import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import com.google.firebase.auth.FirebaseUser
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
-import com.kalzakath.zoodle.debug.DebugDataHandler
+import com.kalzakath.zoodle.debug.TestSuite
 import java.lang.reflect.Modifier
 import java.time.LocalDateTime
 
@@ -41,13 +41,6 @@ class MainActivity : AppCompatActivity() {
             this.onSignInResult(res)
         }
     private val onlineDataHandler = OnlineDataHandler()
-
-    private val debug = object {
-        fun debugDataHandler(boolean: Boolean) {
-            dataHandler = if (boolean) DebugDataHandler(secureFileHandler, applicationContext)
-            else DataHandler(secureFileHandler, applicationContext)
-        }
-    }
 
     private fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
         user = onlineDataHandler.onSignInResult(result)
@@ -69,7 +62,9 @@ class MainActivity : AppCompatActivity() {
         initButtons(recyclerViewAdaptor)
         setActivityListeners(recyclerViewAdaptor)
 
-        debug.debugDataHandler(true)
+        dataHandler = TestSuite.setDataHandler(secureFileHandler, applicationContext)
+        TestSuite.setDefaultSettings()
+
         recyclerViewAdaptor.updateList(dataHandler.getMoodData())
         recyclerViewAdaptor.updateListConfig()
     }
