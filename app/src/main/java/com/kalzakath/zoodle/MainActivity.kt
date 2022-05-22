@@ -151,6 +151,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun onItemDismissed(moodEntry: MoodEntryModel, moodList: ArrayList<MoodEntryModel>) {
         secureFileHandler.write(moodList)
+        if (user != null) onlineDataHandler.onItemDismissed(moodEntry)
     }
 
     private fun handleListUpdated(moodList: ArrayList<MoodEntryModel>) {

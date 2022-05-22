@@ -60,7 +60,7 @@ class DebugDataHandler (secureFileHandler: SecureFileHandler,
                 Mood(randMood),
                 feelings,
                 list,
-                UUID.randomUUID().toString()
+                "test_" + UUID.randomUUID().toString()
             )
             Mood.MOOD_MODE_FACES -> {
                 mood = MoodEntryModel(
@@ -69,7 +69,7 @@ class DebugDataHandler (secureFileHandler: SecureFileHandler,
                     Mood("3", Mood.MOOD_MODE_FACES),
                     feelings,
                     list,
-                    UUID.randomUUID().toString()
+                    "test_" + UUID.randomUUID().toString()
                 )
             }
         }

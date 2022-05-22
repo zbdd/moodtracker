@@ -17,7 +17,7 @@ class OnlineDataHandler {
     private lateinit var myRef: DatabaseReference
     private var user: FirebaseUser? = null
 
-    private fun onItemDismissed(moodEntry: MoodEntryModel) {
+    fun onItemDismissed(moodEntry: MoodEntryModel) {
         if (user != null) myRef.child(user?.uid ?: "").child("moodEntries")
             .child(moodEntry.key).removeValue()
     }
@@ -63,8 +63,8 @@ class OnlineDataHandler {
                                     hashmap["date"].toString(),
                                     hashmap["time"].toString(),
                                     Mood(hashmap["mood"].toString()),
-                                    hashmap["feelings"] as MutableList<String>,
-                                    hashmap["activities"] as MutableList<String>,
+                                    if (hashmap["feelings"] == null) arrayListOf() else hashmap["feelings"] as MutableList<String>,
+                                    if (hashmap["activities"]  == null) arrayListOf() else hashmap["activities"] as MutableList<String>,
                                     key
                                 )
                             )
