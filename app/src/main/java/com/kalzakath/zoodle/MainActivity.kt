@@ -35,6 +35,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var getTrendViewActivitiesResult: ActivityResultLauncher<Intent>
     private lateinit var recyclerViewAdaptor: RecyclerViewAdaptor
     private lateinit var secureFileHandler: SecureFileHandler
+    private lateinit var onlineDataHandler: OnlineDataHandler
     private lateinit var dataHandler: DataHandler
 
     private var user: FirebaseUser? = null
@@ -42,7 +43,6 @@ class MainActivity : AppCompatActivity() {
         registerForActivityResult(FirebaseAuthUIActivityResultContract()) { res ->
             this.onSignInResult(res)
         }
-    private val onlineDataHandler = OnlineDataHandler()
 
     private fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
         user = onlineDataHandler.onSignInResult(result)
@@ -52,12 +52,12 @@ class MainActivity : AppCompatActivity() {
             Toast.makeText(applicationContext, "Unable to sign-in at this time", Toast.LENGTH_SHORT)
                 .show()
             loginBtn.background = AppCompatResources.getDrawable(applicationContext, R.drawable.main_login_gray)
-
-            val moodEntryArray = onlineDataHandler.read(user)
-            recyclerViewAdaptor.updateList(moodEntryArray)
         }
         else {
             loginBtn.background = AppCompatResources.getDrawable(applicationContext, R.drawable.main_login_green)
+
+            val moodData = onlineDataHandler.read(user)
+            recyclerViewAdaptor.updateList(moodData)
         }
     }
 
@@ -72,13 +72,15 @@ class MainActivity : AppCompatActivity() {
         recyclerViewAdaptor = setupRecycleView()
         dataHandler = DataHandler(secureFileHandler, applicationContext)
 
+        onlineDataHandler = OnlineDataHandler()
+
         initButtons(recyclerViewAdaptor)
         setActivityListeners(recyclerViewAdaptor)
 
-        dataHandler = TestSuite.setDataHandler(secureFileHandler, applicationContext)
+        dataHandler = TestSuite.useLocalData(secureFileHandler, applicationContext)
         TestSuite.setDefaultSettings()
 
-        recyclerViewAdaptor.updateList(dataHandler.getMoodData())
+        recyclerViewAdaptor.updateList(dataHandler.read())
         recyclerViewAdaptor.updateListConfig()
     }
 
@@ -308,7 +310,7 @@ class MainActivity : AppCompatActivity() {
         recyclerViewAdaptor.updateList(data)
     }
 
-    fun launchSignInEvent() {
+    private fun launchSignInEvent() {
         // Choose authentication providers
         val providers = arrayListOf(
             AuthUI.IdpConfig.EmailBuilder().build(),

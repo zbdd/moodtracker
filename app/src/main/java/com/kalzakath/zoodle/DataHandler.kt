@@ -12,7 +12,7 @@ open class DataHandler(private var secureFileHandler: SecureFileHandler,
                        private var context: Context
 ) {
 
-    private fun readFromLocalStore(): ArrayList<MoodEntryModel> {
+     open fun read(): ArrayList<MoodEntryModel> {
         val jsonArray = secureFileHandler.read()
         val moodData = ArrayList<MoodEntryModel>()
 
@@ -29,11 +29,6 @@ open class DataHandler(private var secureFileHandler: SecureFileHandler,
         }
 
         return moodData
-    }
-
-    open fun getMoodData(): ArrayList<MoodEntryModel> {
-        var moodData = arrayListOf<MoodEntryModel>()
-        return readFromLocalStore()
     }
 
     open fun createNewMoodEntry(dateTimeNow: LocalDateTime = LocalDateTime.now()): MoodEntryModel {

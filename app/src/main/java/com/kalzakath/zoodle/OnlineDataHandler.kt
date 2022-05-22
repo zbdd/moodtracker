@@ -17,8 +17,6 @@ class OnlineDataHandler {
     private lateinit var myRef: DatabaseReference
     private var user: FirebaseUser? = null
 
-
-
     private fun onItemDismissed(moodEntry: MoodEntryModel) {
         if (user != null) myRef.child(user?.uid ?: "").child("moodEntries")
             .child(moodEntry.key).removeValue()

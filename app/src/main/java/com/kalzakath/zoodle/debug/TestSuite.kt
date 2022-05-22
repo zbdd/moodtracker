@@ -7,8 +7,13 @@ import kotlin.reflect.KMutableProperty
 import kotlin.reflect.full.memberProperties
 
 object TestSuite {
-    fun setDataHandler(secureFileHandler: SecureFileHandler, context: Context): DebugDataHandler {
+    fun useLocalData(secureFileHandler: SecureFileHandler, context: Context): DebugDataHandler {
         return DebugDataHandler(secureFileHandler, context)
+    }
+
+    fun useOnlineData (secureFileHandler: SecureFileHandler, context: Context): DebugDataHandler {
+        return DebugDataHandler(secureFileHandler, context)
+
     }
 
     fun setDefaultSettings() {
