@@ -1,12 +1,7 @@
 package com.kalzakath.zoodle
 
-import android.graphics.Color
 import android.util.Log
-import android.widget.ImageButton
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.firebase.ui.auth.AuthUI
-import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -20,28 +15,31 @@ import com.google.firebase.ktx.Firebase
 class OnlineDataHandler {
 
     private lateinit var myRef: DatabaseReference
+    private var user: FirebaseUser? = null
 
 
 
-    private fun onItemDismissed(moodEntry: MoodEntryModel, user: FirebaseUser) {
+    private fun onItemDismissed(moodEntry: MoodEntryModel) {
         if (user != null) myRef.child(user?.uid ?: "").child("moodEntries")
             .child(moodEntry.key).removeValue()
     }
 
     fun onSignInResult(result: FirebaseAuthUIAuthenticationResult): FirebaseUser? {
-        val user = FirebaseAuth.getInstance().currentUser
+        user = FirebaseAuth.getInstance().currentUser
 
         if (result.resultCode == AppCompatActivity.RESULT_OK) {
             val database =
                 Firebase.database("https://silent-blend-161710-default-rtdb.asia-southeast1.firebasedatabase.app")
             myRef = database.reference
-
+            checkDatabasePathExists()
         }
 
         return user
     }
 
-    private fun updateDatabaseEntry(moods: ArrayList<MoodEntryModel>, user: FirebaseUser) {
+    fun write(moods: ArrayList<MoodEntryModel>) {
+        checkDatabasePathExists()
+
         if (user != null) {
             for (moodEntry in moods) {
                 val moodHash = moodEntry.toMap()
@@ -52,7 +50,7 @@ class OnlineDataHandler {
     }
 
     @Suppress("UNCHECKED_CAST")
-    private fun readDatabaseForNewData(user: FirebaseUser): ArrayList<MoodEntryModel> {
+    fun read(user: FirebaseUser?): ArrayList<MoodEntryModel> {
         val moodData = ArrayList<MoodEntryModel>()
 
         myRef.child(user?.uid ?: "").child("moodEntries")
@@ -83,7 +81,7 @@ class OnlineDataHandler {
         return moodData
     }
 
-    private fun checkDatabasePathExists(user: FirebaseUser) {
+    private fun checkDatabasePathExists() {
         if (myRef.child(user?.uid ?: "").child("moodEntries") == null) myRef.child(user?.uid ?: "")
             .child("moodEntries").setValue("")
     }

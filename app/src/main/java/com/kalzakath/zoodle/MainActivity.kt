@@ -12,6 +12,7 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -32,6 +33,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var getSettingsActivityResult: ActivityResultLauncher<Intent>
     private lateinit var getFeelingsActivityResult: ActivityResultLauncher<Intent>
     private lateinit var getTrendViewActivitiesResult: ActivityResultLauncher<Intent>
+    private lateinit var recyclerViewAdaptor: RecyclerViewAdaptor
     private lateinit var secureFileHandler: SecureFileHandler
     private lateinit var dataHandler: DataHandler
 
@@ -44,8 +46,19 @@ class MainActivity : AppCompatActivity() {
 
     private fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
         user = onlineDataHandler.onSignInResult(result)
-        if (user == null) Toast.makeText(applicationContext, "Unable to sign-in at this time", Toast.LENGTH_SHORT)
-            .show()
+        val loginBtn: ImageButton = findViewById(R.id.mainibLogin)
+
+        if (user == null) {
+            Toast.makeText(applicationContext, "Unable to sign-in at this time", Toast.LENGTH_SHORT)
+                .show()
+            loginBtn.background = AppCompatResources.getDrawable(applicationContext, R.drawable.main_login_gray)
+
+            val moodEntryArray = onlineDataHandler.read(user)
+            recyclerViewAdaptor.updateList(moodEntryArray)
+        }
+        else {
+            loginBtn.background = AppCompatResources.getDrawable(applicationContext, R.drawable.main_login_green)
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,7 +69,7 @@ class MainActivity : AppCompatActivity() {
         val settingsString = secureFileHandler.read("settings.json")
         readSettingsDataFromJson(settingsString)
 
-        val recyclerViewAdaptor = setupRecycleView()
+        recyclerViewAdaptor = setupRecycleView()
         dataHandler = DataHandler(secureFileHandler, applicationContext)
 
         initButtons(recyclerViewAdaptor)
@@ -140,7 +153,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun handleListUpdated(moodList: ArrayList<MoodEntryModel>) {
         secureFileHandler.write(moodList)
-        //updateDatabaseEntry(moodList)
+        if (user != null) onlineDataHandler.write(moodList)
     }
 
     private fun setupMoodPicker(moodEntry: MoodEntryModel, recyclerViewAdaptor: RecyclerViewAdaptor) {
@@ -270,7 +283,7 @@ class MainActivity : AppCompatActivity() {
             addNewMoodEntry(debugMood, recyclerViewAdaptor)
         }
 
-        val ibLogin: ImageButton = findViewById(R.id.ibLogin)
+        val ibLogin: ImageButton = findViewById(R.id.mainibLogin)
         if (user == null) ibLogin.background.setTint(Color.LTGRAY)
         else ibLogin.background.setTint(Color.GREEN)
 

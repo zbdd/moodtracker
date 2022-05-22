@@ -85,15 +85,19 @@
         app:layout_constraintTop_toTopOf="@+id/ibAddNewDebug" />
 
     <ImageButton
-        android:id="@+id/ibLogin"
+        android:id="@+id/mainibLogin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
         android:layout_marginEnd="10dp"
+        android:layout_marginBottom="5dp"
+        android:background="@drawable/main_login_gray"
         android:contentDescription="@string/login_content_description"
         android:tooltipText="@string/click_to_login"
+        app:layout_constraintBottom_toTopOf="@+id/recyclerViewMain"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.523"
         app:srcCompat="@drawable/fui_ic_anonymous_white_24dp"
         tools:ignore="RedundantDescriptionCheck" />
 
