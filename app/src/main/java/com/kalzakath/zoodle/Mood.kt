@@ -16,6 +16,11 @@ class Mood (nValue: String = "5", mode: Int = MOOD_MODE_FACES): Serializable {
             }
         }
 
+    constructor(moodMap: HashMap<String, Any>) : this() {
+        value = moodMap["value"].toString()
+        moodMode = moodMap["moodMode"].toString().toInt()
+    }
+
     fun toFaces(convertValue: String? = value): String {
         val num = when (convertValue) {
             "1" -> "Terrible"

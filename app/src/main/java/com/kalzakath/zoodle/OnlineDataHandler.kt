@@ -1,18 +1,16 @@
 package com.kalzakath.zoodle
 
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 
-class OnlineDataHandler {
+class OnlineDataHandler(
+    val onDataReturned: (ArrayList<MoodEntryModel>) -> Unit
+) {
 
     private lateinit var myRef: DatabaseReference
     private var user: FirebaseUser? = null
@@ -51,31 +49,29 @@ class OnlineDataHandler {
     fun read(user: FirebaseUser?): ArrayList<MoodEntryModel> {
         val moodData = ArrayList<MoodEntryModel>()
 
-        myRef.child(user?.uid ?: "").child("moodEntries")
-            .addValueEventListener(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    if (snapshot.value == null) return
-
-                    if (snapshot.value?.javaClass == HashMap<String, Any>().javaClass) {
-                        for ((key, hashmap) in snapshot.value as HashMap<String, HashMap<String, String>>) {
-                            moodData.add(
-                                MoodEntryModel(
-                                    hashmap["date"].toString(),
-                                    hashmap["time"].toString(),
-                                    Mood(hashmap["mood"].toString()),
-                                    if (hashmap["feelings"] == null) arrayListOf() else hashmap["feelings"] as MutableList<String>,
-                                    if (hashmap["activities"]  == null) arrayListOf() else hashmap["activities"] as MutableList<String>,
-                                    key
-                                )
+        myRef.child(user!!.uid).child("moodEntries").get()
+            .addOnSuccessListener (){
+                if (it.value?.javaClass == HashMap<String, Any>().javaClass) {
+                    println("Value: " + it.value)
+                    println("Children: " + it.childrenCount)
+                    for ((key, hashmap) in it.value as HashMap<String, HashMap<String, Any>>) {
+                        moodData.add(
+                            MoodEntryModel(
+                                hashmap["date"].toString(),
+                                hashmap["time"].toString(),
+                                Mood(hashmap["mood"] as HashMap<String, Any>),
+                                if (hashmap["feelings"] == null) arrayListOf() else hashmap["feelings"] as MutableList<String>,
+                                if (hashmap["activities"] == null) arrayListOf() else hashmap["activities"] as MutableList<String>,
+                                key
                             )
-                        }
+                        )
                     }
+                    onDataReturned(moodData)
                 }
-
-                override fun onCancelled(error: DatabaseError) {
-                    Log.d("Debug", "Failed to connect to database")
-                }
-            })
+            }.addOnFailureListener {
+                println("Unable to get data from DB")
+            }
+        println("Size: " + moodData.size)
         return moodData
     }
 

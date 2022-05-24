@@ -72,7 +72,7 @@ class MainActivity : AppCompatActivity() {
         recyclerViewAdaptor = setupRecycleView()
         dataHandler = DataHandler(secureFileHandler, applicationContext)
 
-        onlineDataHandler = OnlineDataHandler()
+        onlineDataHandler = OnlineDataHandler {moodEntryList -> updateList(moodEntryList)}
 
         initButtons(recyclerViewAdaptor)
         setActivityListeners(recyclerViewAdaptor)
@@ -309,6 +309,10 @@ class MainActivity : AppCompatActivity() {
         val data: ArrayList<MoodEntryModel> = ArrayList()
         data.add(moodEntry)
         recyclerViewAdaptor.updateList(data)
+    }
+
+    private fun updateList(moodEntryList: ArrayList<MoodEntryModel>) {
+        recyclerViewAdaptor.updateList(moodEntryList)
     }
 
     private fun launchSignInEvent() {
