@@ -35,6 +35,29 @@ internal class RowControllerTest {
     }
 
     @Test
+    fun `add a row and retrieve it`() {
+        val testDate = "2020-11-11"
+        val testTime = "20:20"
+        val moodEntry = MoodEntryModel(testDate,testTime)
+
+        assert(testRowController.size() == 0)
+        testRowController.add(moodEntry)
+
+        assert(testRowController.size() == 1)
+        assert(testRowController.get(0) == moodEntry)
+    }
+
+    @Test
+    fun `delete a row`() {
+        val testMood = MoodEntryModel()
+        testRowController.add(testMood)
+
+        assert(testRowController.size() == 1)
+        testRowController.remove(testMood)
+        assert(testRowController.size() == 0)
+    }
+
+    @Test
     fun `update a single MoodEntryModel in MoodCommander`() {
         val testArray = ArrayList<RowEntryModel>(0)
         Array(10) { testArray.add(MoodEntryModel()) }

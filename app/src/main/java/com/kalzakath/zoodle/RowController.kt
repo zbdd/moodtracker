@@ -1,7 +1,5 @@
 package com.kalzakath.zoodle
 
-import kotlin.collections.ArrayList
-
 class RowController(recyclerViewAdaptor: RecyclerViewAdaptor) {
     private var _rowEntryList = arrayListOf<RowEntryModel>()
     private val _rvAdaptor = recyclerViewAdaptor
@@ -40,18 +38,18 @@ class RowController(recyclerViewAdaptor: RecyclerViewAdaptor) {
     fun updateAt(position: Int, rowEntryModel: RowEntryModel): Boolean {
         if (position > size()) return false
 
-        val toUpdateRow = get(position)
+        when (val toUpdateRow = get(position)) {
+            is MoodEntryModel -> {
+                val moodEntryUpdated = MoodEntryHelper.convertStringToDateTime(toUpdateRow.lastUpdated)
 
-        if (toUpdateRow.viewType == MoodEntryModel().viewType) {
-            val toUpdateMood = toUpdateRow as MoodEntryModel
-            val moodEntryUpdated = MoodEntryHelper.convertStringToDateTime(toUpdateMood.lastUpdated)
-            val newEntryModel = rowEntryModel as MoodEntryModel
-            val newMoodEntryUpdated = MoodEntryHelper.convertStringToDateTime(newEntryModel.lastUpdated)
+                val newEntryModel = rowEntryModel as MoodEntryModel
+                val newMoodEntryUpdated = MoodEntryHelper.convertStringToDateTime(newEntryModel.lastUpdated)
 
-            if (newMoodEntryUpdated > moodEntryUpdated) {
-                _rowEntryList[position] = rowEntryModel
-                _rvAdaptor.notifyItemChanged(position)
-                return true
+                if (newMoodEntryUpdated > moodEntryUpdated) {
+                    _rowEntryList[position] = rowEntryModel
+                    _rvAdaptor.notifyItemChanged(position)
+                    return true
+                }
             }
         }
 
