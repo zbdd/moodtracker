@@ -3,6 +3,7 @@ package com.kalzakath.zoodle
 import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.util.Log
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView.Adapter
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
@@ -41,8 +42,9 @@ class RecyclerViewAdaptor(
     fun updateList(data: ArrayList<MoodEntryModel> = ArrayList(0)) {
         val removeList: MutableList<MoodEntryModel> = ArrayList()
         val format = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss", Locale.ENGLISH)
+        Log.i(this.javaClass.toString(), "Updating list")
 
-        if (data.isEmpty()) return
+        if (data.isEmpty()) { Log.i(this.javaClass.toString(), "No new data"); return }
 
         for (moodEntry in data) {
             for (i in moodList.indices) {
@@ -54,6 +56,7 @@ class RecyclerViewAdaptor(
                                 format
                             )
                         ) {
+                            Log.i(this.javaClass.toString(), "Key ${moodEntry.key} matched and updating")
                             moodList[i] = moodEntry
                             removeList.add(moodEntry)
                             notifyItemChanged(i)
@@ -64,6 +67,7 @@ class RecyclerViewAdaptor(
                                 format
                             )
                         ) {
+                            Log.i(this.javaClass.toString(), "Item ${moodEntry.key} matched and updating")
                             moodList[i] = moodEntry
                             removeList.add(moodEntry)
                             notifyItemChanged(i)
@@ -78,6 +82,7 @@ class RecyclerViewAdaptor(
         for (moodEntry in data) {
             moodList.add(moodEntry)
         }
+        Log.i(this.javaClass.toString(), "(${data.size}) entries added")
 
         data.clear()
         sortList()
@@ -99,6 +104,7 @@ class RecyclerViewAdaptor(
         if (position != -1) {
             notifyItemChanged(position)
             moodList[position] = mood
+            Log.i(this.javaClass.toString(), "Key ${mood.key} updated")
             sortList()
 
             val listToSave = ArrayList<MoodEntryModel>()
@@ -348,6 +354,7 @@ class RecyclerViewAdaptor(
 
     override fun onItemDismiss(position: Int) {
         val moodEntry = moodList[position]
+        Log.i(this.javaClass.toString(), "Mood @ pos: $position key: ${moodList[position].key} removed")
         moodList.removeAt(position)
         sortList()
         val listToSave = ArrayList<MoodEntryModel>()
