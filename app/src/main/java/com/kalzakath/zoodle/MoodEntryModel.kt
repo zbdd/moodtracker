@@ -9,13 +9,13 @@ import java.util.*
 
 @IgnoreExtraProperties
 class MoodEntryModel(
-    val date: String? = "1987-11-06",
+    val date: String = "1987-11-06",
     val time: String? = "08:30",
     val mood: Mood? = Mood(),
     val feelings: MutableList<String> = ArrayList(),
     val activities: MutableList<String> = ArrayList(),
     override var key: String = "local_" + UUID.randomUUID().toString(),
-    var lastUpdated: String? = LocalDateTime.now().toString()
+    var lastUpdated: String = LocalDateTime.now().toString()
 ):RowEntryModel,
     Serializable {
 
@@ -34,17 +34,19 @@ class MoodEntryModel(
             "mood" to mood,
             "feelings" to feelings,
             "activities" to activities,
-            "key" to key
+            "key" to key,
+            "lastUpdated" to lastUpdated
         )
     }
 
     fun compare(moodEntry: MoodEntryModel): Boolean {
         var isTheSame = true
 
-        if (!date.equals(moodEntry.date)) isTheSame = false
+        if (date != moodEntry.date) isTheSame = false
+        if (time != moodEntry.time) isTheSame = false
         if (mood?.value != moodEntry.mood?.value) isTheSame = false
-        if (activities != moodEntry.activities || activities.isEmpty()) isTheSame = false
-        if (feelings != moodEntry.feelings || activities.isEmpty()) isTheSame = false
+        if (activities != moodEntry.activities) isTheSame = false
+        if (feelings != moodEntry.feelings) isTheSame = false
 
         return isTheSame
     }

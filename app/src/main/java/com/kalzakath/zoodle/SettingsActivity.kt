@@ -35,7 +35,7 @@ class SettingsActivity() : AppCompatActivity() {
         val tvSettingsImport: TextView = findViewById(R.id.tvSettingsImport)
         val tvSettingsExport: TextView = findViewById(R.id.tvSettingsExport)
         val bSettingsConfirm: Button = findViewById(R.id.bSettingsConfirm)
-        var dataImport = ArrayList<MoodEntryModel>()
+        val dataImport = ArrayList<MoodEntryModel>()
 
         var moodData = ArrayList<MoodEntryModel>()
         val moodEntries = intent.getParcelableArrayListExtra<Parcelable>("MoodEntries")
@@ -70,7 +70,7 @@ class SettingsActivity() : AppCompatActivity() {
         bSettingsConfirm.setOnClickListener {
             val finishIntent = Intent()
             //finishIntent.putExtra("Settings", settings)
-            if (dataImport.isNotEmpty()) finishIntent.putParcelableArrayListExtra("MoodEntries", dataImport as java.util.ArrayList<out Parcelable>)
+            if (dataImport.isNotEmpty()) finishIntent.putParcelableArrayListExtra("MoodEntries", dataImport as ArrayList<out Parcelable>)
             setResult(RESULT_OK, finishIntent)
             finish()
         }
@@ -85,7 +85,7 @@ class SettingsActivity() : AppCompatActivity() {
                 outStream?.flush()
                 outStream?.close()
             } catch (e: Exception) {
-                Toast.makeText(this, "Unable to write to file", Toast.LENGTH_SHORT)
+                Toast.makeText(this, "Unable to write to file", Toast.LENGTH_SHORT).show()
             }
 
         }
@@ -110,10 +110,10 @@ class SettingsActivity() : AppCompatActivity() {
                     val type = object : TypeToken<Array<HashMap<String, String>>>() {}.type
 
                     try {
-                        val moodEntries =
+                        val moodEntryList =
                             gson.fromJson<Array<HashMap<String, String>>>(inputAsString, type)
 
-                        for (mood in moodEntries) {
+                        for (mood in moodEntryList) {
                             val moodFeelings = when (mood["feelings"]) {
                                 null -> ArrayList<String>()
                                 else -> mood["feelings"]?.let { (it.split(",")) } as MutableList<String>
@@ -161,10 +161,8 @@ class SettingsActivity() : AppCompatActivity() {
                                 else -> mood["key"]
                             }
 
-                            var lastUpdated = when (mood["lastUpdated"]) {
-                                null -> LocalDateTime.now().toString()
-                                else -> mood["lastUpdated"]
-                            }
+                            val lastUpdated = if (mood["lastUpdated"] != null) mood["lastUpdated"]
+                            else LocalDateTime.now().toString()
 
                             if (mood["mood"] != null) {
                                 if (mood["mood"]!!.toInt() in 6..10) Settings.moodMax = 10
@@ -173,13 +171,13 @@ class SettingsActivity() : AppCompatActivity() {
 
                             dataImport.add(
                                 MoodEntryModel(
-                                    date.toString(),
+                                    date,
                                     time,
                                     Mood(mood["mood"].toString()),
                                     moodFeelings,
                                     moodActivities,
                                     key.toString(),
-                                    lastUpdated
+                                    lastUpdated.toString()
                                 )
                             )
                         }
