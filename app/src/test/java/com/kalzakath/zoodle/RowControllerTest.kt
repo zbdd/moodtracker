@@ -48,14 +48,11 @@ internal class RowControllerTest {
         testUpdateMoodEntryModel.key = testArray[6].key
         testUpdateMoodEntryModel.lastUpdated = LocalDateTime.now().plusSeconds(1).toString()
 
-        val testUpdateArray = ArrayList<RowEntryModel>(1)
-        testUpdateArray.add(testUpdateMoodEntryModel)
-
         assert(testArray.size == 10)
         assert(testArray[0].javaClass == MoodEntryModel().javaClass)
         assert(testArray[6] != testUpdateMoodEntryModel)
 
-        testRowController.update(testUpdateArray)
+        testRowController.update(testUpdateMoodEntryModel)
         val compareMood = testRowController.get(6) as MoodEntryModel
 
         assert(compareMood.compare(testUpdateMoodEntryModel))

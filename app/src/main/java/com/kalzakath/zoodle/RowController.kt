@@ -1,20 +1,43 @@
 package com.kalzakath.zoodle
 
+import kotlin.collections.ArrayList
+
 class RowController(recyclerViewAdaptor: RecyclerViewAdaptor) {
     private var _rowEntryList = arrayListOf<RowEntryModel>()
     private val _rvAdaptor = recyclerViewAdaptor
 
-    fun add(rowEntryModel: RowEntryModel) {}
-
-    fun add(rowEntryList: ArrayList<RowEntryModel>) {
-        _rowEntryList = rowEntryList
+    fun add(rowEntryModel: RowEntryModel) {
+        _rowEntryList.add(rowEntryModel)
     }
 
-    fun remove(rowEntryModel: RowEntryModel) {}
+    fun add(rowEntryList: ArrayList<RowEntryModel>) {
+        for(i in rowEntryList.indices) {
+            val rw = rowEntryList[i]
+            val index = _rowEntryList.indices.find {
+                rw.key == _rowEntryList[it].key
+            }
+            if (index != null){
+                updateAt(index, rw)
+            } else {
+                add(rw)
+            }
+        }
+    }
 
-    fun remove(rowEntryList: ArrayList<RowEntryModel>) {}
+    fun remove(rowEntryModel: RowEntryModel) {
+        _rowEntryList.remove(rowEntryModel)
+    }
 
-    fun update(position: Int, rowEntryModel: RowEntryModel): Boolean {
+    fun remove(rowEntryList: ArrayList<RowEntryModel>) {
+        _rowEntryList.forEach { toDelete -> rowEntryList.find { toDelete.key == it.key } ?.let { remove(it) } }
+    }
+
+    fun update(rowEntryModel: RowEntryModel) {
+        val index = indexOf(rowEntryModel)
+        if (index != -1) updateAt(index, rowEntryModel)
+    }
+
+    fun updateAt(position: Int, rowEntryModel: RowEntryModel): Boolean {
         if (position > size()) return false
 
         val toUpdateRow = get(position)
@@ -41,11 +64,15 @@ class RowController(recyclerViewAdaptor: RecyclerViewAdaptor) {
             val updateRowEntry = updateRowEntryList.find {
                 rw.key == it.key
             }
-            if (updateRowEntry != null) update(i, updateRowEntry)
+            if (updateRowEntry != null) updateAt(i, updateRowEntry)
         }
     }
 
     fun size(): Int { return _rowEntryList.size }
+
+    fun indexOf(rowEntryModel: RowEntryModel): Int {
+        return _rowEntryList.indexOfFirst { it.key == rowEntryModel.key }
+    }
 
     fun get(position: Int): RowEntryModel { return _rowEntryList[position] }
 }
