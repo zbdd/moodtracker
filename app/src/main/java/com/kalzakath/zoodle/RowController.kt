@@ -13,13 +13,19 @@ private var onDataChangeEvent: (RowControllerEvent) -> Unit) {
         _rvAdaptor.connectController(this)
     }
 
+    //fun registerCallback(callback: ()->Unit) { callback.invoke() }
+
+    private fun callChangeEvent(data: ArrayList<RowEntryModel>, eventType: Int) {
+        onDataChangeEvent(RowControllerEvent(data, eventType))
+    }
+
     fun add(rowEntryModel: RowEntryModel, callUpdate: Boolean = true) {
         log.info("Row added")
         _rowEntryList.add(rowEntryModel)
         _rvAdaptor.notifyItemInserted(_rowEntryList.size)
 
         if (callUpdate) {
-            onDataChangeEvent(RowControllerEvent(_rowEntryList, RowControllerEvent.ADDITION ) )
+            callChangeEvent(_rowEntryList, RowControllerEvent.ADDITION )
             sort()
         }
     }
@@ -34,14 +40,14 @@ private var onDataChangeEvent: (RowControllerEvent) -> Unit) {
             if (index != null && index != -1) updateAt(index, rw)
             else add(rw)
         }
-        onDataChangeEvent(RowControllerEvent(_rowEntryList, RowControllerEvent.ADDITION ) )
+        callChangeEvent(_rowEntryList, RowControllerEvent.ADDITION )
         sort()
     }
 
     fun removeAt(position: Int, callUpdate: Boolean = true) {
         _rvAdaptor.notifyItemRemoved(position)
         _rowEntryList.removeAt(position)
-        if (callUpdate) onDataChangeEvent(RowControllerEvent(_rowEntryList, RowControllerEvent.REMOVE ) )
+        if (callUpdate) callChangeEvent(_rowEntryList, RowControllerEvent.REMOVE )
     }
 
     fun remove(rowEntryModel: RowEntryModel, callUpdate: Boolean = true) {
@@ -52,7 +58,7 @@ private var onDataChangeEvent: (RowControllerEvent) -> Unit) {
     fun remove(rowEntryList: ArrayList<RowEntryModel>) {
         log.info("Attempting to remove rows...")
         rowEntryList.forEach { toDelete -> _rowEntryList.find { toDelete.key == it.key } ?.let { remove(it, false) } }
-        onDataChangeEvent(RowControllerEvent(_rowEntryList, RowControllerEvent.REMOVE ) )
+        callChangeEvent(_rowEntryList, RowControllerEvent.REMOVE )
     }
 
     fun update(rowEntryModel: RowEntryModel, callUpdate: Boolean = true) {
@@ -74,7 +80,7 @@ private var onDataChangeEvent: (RowControllerEvent) -> Unit) {
                     _rowEntryList[position] = rowEntryModel
                     _rvAdaptor.notifyItemChanged(position)
                     if (callUpdate) {
-                        onDataChangeEvent(RowControllerEvent(_rowEntryList, RowControllerEvent.UPDATE ) )
+                        callChangeEvent(_rowEntryList, RowControllerEvent.UPDATE )
                         sort()
                     }
                     return true
@@ -115,7 +121,7 @@ private var onDataChangeEvent: (RowControllerEvent) -> Unit) {
             if (index != null && index != -1) updateAt(index, updateRow, false)
             else add(updateRow, false)
         }
-        onDataChangeEvent(RowControllerEvent(_rowEntryList, RowControllerEvent.UPDATE ) )
+        callChangeEvent(_rowEntryList, RowControllerEvent.UPDATE )
         sort()
     }
 

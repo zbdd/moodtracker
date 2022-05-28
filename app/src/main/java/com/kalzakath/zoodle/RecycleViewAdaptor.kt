@@ -8,9 +8,9 @@ import androidx.recyclerview.widget.RecyclerView.Adapter
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import java.text.SimpleDateFormat
 import java.time.LocalDate
-import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.*
+import java.util.logging.Logger
 import java.util.stream.IntStream
 
 class RecyclerViewAdaptor(
@@ -21,10 +21,11 @@ class RecyclerViewAdaptor(
     val startFeelingsActivity: (MoodEntryModel) -> Unit):
     Adapter<ViewHolder>(), SwipeHelperCallback.ItemTouchHelperAdaptor {
 
+    private val log = Logger.getLogger(MainActivity::class.java.name + "****************************************")
     private lateinit var _rowController: RowController
     lateinit var moodList: ArrayList<RowEntryModel>
-    private var sortBy = "date"
     lateinit var viewHolder: ViewHolder
+    lateinit var callback: Unit
 
     fun connectController(rowController: RowController) {
         _rowController = rowController
@@ -34,133 +35,6 @@ class RecyclerViewAdaptor(
         val viewFactory = RowViewFactory()
         viewHolder = viewFactory.createView(parent, viewType)
         return viewHolder
-    }
-
-  /*  fun updateListConfig() {
-        for (i in moodList.indices) {
-            moodList[i].update(Settings)
-            notifyItemChanged(i)
-        }
-    }*/
-
-    /*fun updateList(data: ArrayList<MoodEntryModel> = ArrayList(0)) {
-        val removeList: MutableList<MoodEntryModel> = ArrayList()
-        val format = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss", Locale.ENGLISH)
-        Log.i(this.javaClass.toString(), "Updating list")
-
-        if (data.isEmpty()) { Log.i(this.javaClass.toString(), "No new data"); return }
-
-        for (moodEntry in data) {
-            for (i in moodList.indices) {
-                if (moodList[i].viewType == MoodEntryModel().viewType) {
-                    val moodListItem = moodList[i] as MoodEntryModel
-                    if (moodListItem.key == moodEntry.key) {
-                        if (LocalDate.parse(moodListItem.lastUpdated?.substring(0,19), format) < LocalDate.parse(
-                                moodEntry.lastUpdated?.substring(0,19),
-                                format
-                            )
-                        ) {
-                            Log.i(this.javaClass.toString(), "Key ${moodEntry.key} matched and updating")
-                            moodList[i] = moodEntry
-                            removeList.add(moodEntry)
-                            notifyItemChanged(i)
-                        } else removeList.add(moodEntry)
-                    } else if (moodListItem.compare(moodEntry)) {
-                        if (LocalDate.parse(moodListItem.lastUpdated?.substring(0,19), format) < LocalDate.parse(
-                                moodEntry.lastUpdated?.substring(0,19),
-                                format
-                            )
-                        ) {
-                            Log.i(this.javaClass.toString(), "Item ${moodEntry.key} matched and updating")
-                            moodList[i] = moodEntry
-                            removeList.add(moodEntry)
-                            notifyItemChanged(i)
-                        } else removeList.add(moodEntry)
-                    }
-                }
-            }
-        }
-        for (item in removeList) {
-            data.remove(item)
-        }
-        for (moodEntry in data) {
-            moodList.add(moodEntry)
-        }
-        Log.i(this.javaClass.toString(), "(${data.size}) entries added")
-
-        data.clear()
-        sortList()
-
-        val listToSave = ArrayList<MoodEntryModel>()
-        for(item in moodList) { if (item.javaClass == MoodEntryModel::class.java) listToSave.add(item as MoodEntryModel) }
-        onListUpdated(listToSave)
-    }
-
-    fun updateMoodEntry(mood: MoodEntryModel) {
-        var position = -1
-
-        for(i in moodList.indices) {
-            if (moodList[i].viewType == MoodEntryModel().viewType) {
-                val row = moodList[i] as MoodEntryModel
-                if (row.key == mood.key) { position = i; break }
-            }
-        }
-        if (position != -1) {
-            notifyItemChanged(position)
-            moodList[position] = mood
-            Log.i(this.javaClass.toString(), "Key ${mood.key} updated")
-            sortList()
-
-            val listToSave = ArrayList<MoodEntryModel>()
-            for(item in moodList) { if (item.javaClass == MoodEntryModel::class.java) listToSave.add(item as MoodEntryModel) }
-            onListUpdated(listToSave)
-
-            if (viewHolder.itemViewType == MoodEntryModel().viewType) {
-                val mHolder = viewHolder as MoodViewHolder
-                val moodE = moodList[position] as MoodEntryModel
-                if (moodE.mood!!.moodMode == Mood.MOOD_MODE_NUMBERS) {
-                    moodE.applyDrawable()
-                } else mHolder.moodText.setBackgroundResource(0)
-            }
-        }
-    }
-
-     */
-
-    private fun sortList() {
-        val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH)
-        val timeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm", Locale.ENGLISH)
-        val comparator = compareBy({ mood: MoodEntryModel -> LocalDate.parse(mood.date, dateFormatter) }, { mood: MoodEntryModel -> LocalTime.parse(mood.time, timeFormatter) }).reversed()
-
-        val moods: ArrayList<MoodEntryModel> = ArrayList()
-
-        for(i in moodList.indices) {
-            if (moodList[i].viewType == MoodEntryModel().viewType) moods.add(moodList[i] as MoodEntryModel)
-        }
-
-        val sorted = when (sortBy) {
-            "date" -> { moods.sortedWith (comparator) }
-            //TODO "mood" -> moods.sortedByDescending { moodEntry -> moodEntry.mood }
-            else -> moods
-        }
-
-        moods.clear()
-        moodList.clear()
-        moodList.addAll(sorted)
-
-        for (x in moodList.indices) {
-            if (sorted.contains(moodList[x])) {
-                if (sorted.indexOf(moodList[x]) != x) {
-                    notifyItemChanged(x)
-                }
-            }
-        }
-
-        addFilterView("Today")
-        addFilterView("Last Week")
-        addFilterView("Last Month")
-        addFilterView("Last Year")
-        addFilterView("Years Ago")
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -240,6 +114,7 @@ class RecyclerViewAdaptor(
 
         if (pos != OptionalInt.empty()) {
             moodList.add(pos.asInt, FilterEntryModel(title))
+            notifyItemInserted(pos.asInt)
             pos = OptionalInt.of(pos.asInt + 1)
 
             if (posLast != OptionalInt.empty()) {
@@ -248,7 +123,8 @@ class RecyclerViewAdaptor(
                 if (posLast == OptionalInt.of(pos.asInt + 1)) posLast = OptionalInt.of(pos.asInt + 1)
 
                 moodList.add(posLast.asInt, FilterEntryModel(""))
-            } else moodList.add(FilterEntryModel(""))
+                notifyItemInserted(pos.asInt)
+            } else { moodList.add(FilterEntryModel("")); notifyItemInserted(moodList.size-1) }
         }
 
         for (i in moodList.indices) {
@@ -257,9 +133,11 @@ class RecyclerViewAdaptor(
                 if( moodList[i].viewType == FilterEntryModel().viewType)
                     if (i > 0)
                         if (moodList[i - 1].key != "")
-                            if (moodList[i -1].viewType == FilterEntryModel().viewType) moodList.removeAt(i - 1)
+                            if (moodList[i -1].viewType == FilterEntryModel().viewType) {
+                                moodList.removeAt(i - 1)
+                                notifyItemRemoved(i - 1)
+                            }
         }
-        notifyDataSetChanged()
     }
 
     private fun updateDateText(calendar: Calendar, holder: MoodViewHolder, mood: MoodEntryModel) {
@@ -270,7 +148,7 @@ class RecyclerViewAdaptor(
         holder.timeText.text = timeFormat.format(calendar.time)
 
         val newMood = MoodEntryModel(dateFormat.format(calendar.time), timeFormat.format(calendar.time),mood.mood,mood.feelings,mood.activities,mood.key)
-
+        _rowController.update(newMood)
         //updateMoodEntry(newMood)
     }
 
