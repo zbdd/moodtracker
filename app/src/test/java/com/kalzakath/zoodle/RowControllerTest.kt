@@ -58,6 +58,18 @@ internal class RowControllerTest {
     }
 
     @Test
+    fun `add a list and delete a list`() {
+        val listToDelete: ArrayList<RowEntryModel> = arrayListOf()
+        for (item in 1..12) { listToDelete.add(MoodEntryModel()) }
+
+        assert(testRowController.size() == 0)
+        testRowController.add(listToDelete)
+        assert(testRowController.size() == 12)
+        testRowController.remove(listToDelete)
+        assert(testRowController.size() == 0)
+    }
+
+    @Test
     fun `update a single MoodEntryModel in MoodCommander`() {
         val testArray = ArrayList<RowEntryModel>(0)
         Array(10) { testArray.add(MoodEntryModel()) }

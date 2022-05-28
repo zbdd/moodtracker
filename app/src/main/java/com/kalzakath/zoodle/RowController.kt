@@ -27,7 +27,7 @@ class RowController(recyclerViewAdaptor: RecyclerViewAdaptor) {
     }
 
     fun remove(rowEntryList: ArrayList<RowEntryModel>) {
-        _rowEntryList.forEach { toDelete -> rowEntryList.find { toDelete.key == it.key } ?.let { remove(it) } }
+        rowEntryList.forEach { toDelete -> _rowEntryList.find { toDelete.key == it.key } ?.let { remove(it) } }
     }
 
     fun update(rowEntryModel: RowEntryModel) {
