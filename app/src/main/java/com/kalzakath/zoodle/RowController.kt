@@ -18,11 +18,13 @@ class RowController(recyclerViewAdaptor: RecyclerViewAdaptor) {
                 updateAt(index, rw)
             } else {
                 add(rw)
+                _rvAdaptor.notifyItemInserted(_rowEntryList.size)
             }
         }
     }
 
     fun remove(rowEntryModel: RowEntryModel) {
+        _rvAdaptor.notifyItemRemoved(_rowEntryList.size)
         _rowEntryList.remove(rowEntryModel)
     }
 
