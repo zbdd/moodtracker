@@ -23,9 +23,9 @@ import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import com.google.firebase.auth.FirebaseUser
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
-import com.kalzakath.zoodle.debug.TestSuite
 import java.lang.reflect.Modifier
 import java.time.LocalDateTime
+import java.util.logging.Logger
 
 class MainActivity : AppCompatActivity() {
 
@@ -33,10 +33,11 @@ class MainActivity : AppCompatActivity() {
     private lateinit var getSettingsActivityResult: ActivityResultLauncher<Intent>
     private lateinit var getFeelingsActivityResult: ActivityResultLauncher<Intent>
     private lateinit var getTrendViewActivitiesResult: ActivityResultLauncher<Intent>
-    private lateinit var recyclerViewAdaptor: RecyclerViewAdaptor
+    private lateinit var rowController: RowController
     private lateinit var secureFileHandler: SecureFileHandler
     private lateinit var onlineDataHandler: OnlineDataHandler
     private lateinit var dataHandler: DataHandler
+    private val log = Logger.getLogger(MainActivity::class.java.name + "****************************************")
 
     private var user: FirebaseUser? = null
     private val signInLauncher =
@@ -57,7 +58,8 @@ class MainActivity : AppCompatActivity() {
             loginBtn.background = AppCompatResources.getDrawable(applicationContext, R.drawable.main_login_green)
 
             val moodData = onlineDataHandler.read(user)
-            recyclerViewAdaptor.updateList(moodData)
+
+            rowController.update(moodData)
         }
     }
 
@@ -69,19 +71,29 @@ class MainActivity : AppCompatActivity() {
         val settingsString = secureFileHandler.read("settings.json")
         readSettingsDataFromJson(settingsString)
 
-        recyclerViewAdaptor = setupRecycleView()
+        val recyclerViewAdaptor = setupRecycleView()
+        rowController = RowController(recyclerViewAdaptor
+        ) { event -> handleOnDataChangeEvent(event) }
+
         dataHandler = DataHandler(secureFileHandler, applicationContext)
 
-        onlineDataHandler = OnlineDataHandler {moodEntryList -> updateList(moodEntryList)}
+        onlineDataHandler = OnlineDataHandler {rowEntryList -> updateList(rowEntryList)}
 
         initButtons(recyclerViewAdaptor)
         setActivityListeners(recyclerViewAdaptor)
 
-        dataHandler = TestSuite.useLocalData(secureFileHandler, applicationContext)
-        TestSuite.setDefaultSettings()
+        //dataHandler = TestSuite.useLocalData(secureFileHandler, applicationContext)
+        //TestSuite.setDefaultSettings()
 
-        recyclerViewAdaptor.updateList(dataHandler.read())
-        recyclerViewAdaptor.updateListConfig()
+        rowController.update(dataHandler.read())
+    }
+
+    private fun handleOnDataChangeEvent(event: RowControllerEvent) {
+        log.info("Change event: ${event.type} called")
+        when (event.type) {
+            RowControllerEvent.NOTHING -> {}
+            else -> secureFileHandler.write(event.data)
+        }
     }
 
     private fun setupRecycleView(): RecyclerViewAdaptor {
@@ -203,7 +215,7 @@ class MainActivity : AppCompatActivity() {
                 LocalDateTime.now().toString()
             )
             clNumberPicker.visibility = View.INVISIBLE
-            recyclerViewAdaptor.updateMoodEntry(newMood)
+            rowController.update(newMood)
         }
     }
 
@@ -213,7 +225,7 @@ class MainActivity : AppCompatActivity() {
                 val data = it.data?.getStringArrayListExtra("AvailableActivities")
                 if (data != null) {
                     secureFileHandler.write(data as ArrayList<*>, "available.json")
-                    recyclerViewAdaptor.updateMoodEntry(it.data?.getSerializableExtra("MoodEntry") as MoodEntryModel)
+                    rowController.update(it.data?.getSerializableExtra("MoodEntry") as MoodEntryModel)
                 }
             }
 
@@ -224,7 +236,7 @@ class MainActivity : AppCompatActivity() {
             val data = it.data?.getStringArrayListExtra("AvailableFeelings")
             if (data != null) {
                 secureFileHandler.write(data as ArrayList<*>, "feelings.json")
-                recyclerViewAdaptor.updateMoodEntry(it.data?.getSerializableExtra("MoodEntry") as MoodEntryModel)
+                rowController.update(it.data?.getSerializableExtra("MoodEntry") as MoodEntryModel)
             }
         }
 
@@ -232,21 +244,21 @@ class MainActivity : AppCompatActivity() {
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
                 //val data = it.data?.getParcelableExtra<Settings>("Settings")
                 val moodEntries = it.data?.getParcelableArrayListExtra<Parcelable>("MoodEntries")
-                var moodData = ArrayList<MoodEntryModel>()
+                var moodData = ArrayList<RowEntryModel>()
                 if (moodEntries != null) {
                     val data = it.data?.getParcelableArrayListExtra<Parcelable>("MoodEntries")
-                    if (data != null) moodData = data.filterIsInstance<MoodEntryModel>() as ArrayList<MoodEntryModel>
+                    if (data != null) moodData = data.filterIsInstance<RowEntryModel>() as ArrayList<RowEntryModel>
                 }
 
                 secureFileHandler.write(Settings)
-                recyclerViewAdaptor.updateListConfig()
+//                recyclerViewAdaptor.updateListConfig()
 
-                recyclerViewAdaptor.updateList(moodData)
+               rowController.update(moodData)
             }
     }
 
-    private fun createMoodPicker(recyclerViewAdaptor: RecyclerViewAdaptor) {
-        val moodPicker = MoodPickerDialog(this) { moodEntry -> addNewMoodEntry(moodEntry, recyclerViewAdaptor) }
+    private fun createMoodPicker() {
+        val moodPicker = MoodPickerDialog(this) { moodEntry -> addNewMoodEntry(moodEntry) }
         moodPicker.showPopup()
     }
 
@@ -267,7 +279,7 @@ class MainActivity : AppCompatActivity() {
         val addNewButton: ImageButton = findViewById(R.id.addNewButton)
 
         addNewButton.setOnClickListener {
-            createMoodPicker(recyclerViewAdaptor)
+            createMoodPicker()
         }
 
         val bViewTrend: Button = findViewById(R.id.bViewTrend)
@@ -283,7 +295,7 @@ class MainActivity : AppCompatActivity() {
         val ibAddNewDebug: ImageButton = findViewById(R.id.ibAddNewDebug)
         ibAddNewDebug.setOnClickListener {
             val debugMood = MoodEntryFactory().createDebug(applicationContext)
-            addNewMoodEntry(debugMood, recyclerViewAdaptor)
+            addNewMoodEntry(debugMood)
         }
 
         val ibLogin: ImageButton = findViewById(R.id.mainibLogin)
@@ -305,14 +317,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun addNewMoodEntry(moodEntry: MoodEntryModel, recyclerViewAdaptor: RecyclerViewAdaptor) {
-        val data: ArrayList<MoodEntryModel> = ArrayList()
-        data.add(moodEntry)
-        recyclerViewAdaptor.updateList(data)
+    private fun addNewMoodEntry(moodEntry: MoodEntryModel) {
+        rowController.add(moodEntry)
     }
 
-    private fun updateList(moodEntryList: ArrayList<MoodEntryModel>) {
-        recyclerViewAdaptor.updateList(moodEntryList)
+    private fun updateList(rowEntryList: ArrayList<RowEntryModel>) {
+        rowController.update(rowEntryList)
     }
 
     private fun launchSignInEvent() {

@@ -6,15 +6,18 @@ import com.google.gson.reflect.TypeToken
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
+import java.util.logging.Logger
 import kotlin.random.Random
 
 open class DataHandler(private var secureFileHandler: SecureFileHandler,
                        private var context: Context
 ) {
+    private val log = Logger.getLogger(MainActivity::class.java.name + "****************************************")
 
-     open fun read(): ArrayList<MoodEntryModel> {
+     open fun read(): ArrayList<RowEntryModel> {
         val jsonArray = secureFileHandler.read()
-        val moodData = ArrayList<MoodEntryModel>()
+        val moodData = ArrayList<RowEntryModel>()
+        log.info("JsonArray found: ${jsonArray.toString()}")
 
         if (jsonArray?.isNotEmpty() == true) {
             val gson = GsonBuilder().create()

@@ -9,10 +9,13 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.lang.reflect.Modifier
+import java.util.logging.Logger
 
 class SecureFileHandler(context: Context): SecurityHandler(context) {
+    private val Log = Logger.getLogger(MainActivity::class.java.name + "****************************************")
 
      fun write(jsonString: String, filename: String): Boolean {
+         Log.info("Writing to local storage")
          //try {
              val fileData = jsonString.toByteArray(Charsets.UTF_32)
              val encoded = encryptData(fileData)
@@ -57,11 +60,12 @@ class SecureFileHandler(context: Context): SecurityHandler(context) {
     }
 
     fun read(filename: String = "testData.json"): String? {
+        Log.info("Reading from local storage")
         val data = readDataFromFile(filename)
         if (data?.isNotEmpty() == true) {
             val decryptedData = decrypt(data)
             return decryptedData.toString(Charsets.UTF_32)
-        }
+        } else Log.info("No local storage to read from")
         return null
     }
 }

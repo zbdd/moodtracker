@@ -9,7 +9,7 @@ import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 
 class OnlineDataHandler(
-    val onDataReturned: (ArrayList<MoodEntryModel>) -> Unit
+    val onDataReturned: (ArrayList<RowEntryModel>) -> Unit
 ) {
 
     private lateinit var myRef: DatabaseReference
@@ -46,8 +46,8 @@ class OnlineDataHandler(
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun read(user: FirebaseUser?): ArrayList<MoodEntryModel> {
-        val moodData = ArrayList<MoodEntryModel>()
+    fun read(user: FirebaseUser?): ArrayList<RowEntryModel> {
+        val moodData = ArrayList<RowEntryModel>()
 
         myRef.child(user!!.uid).child("moodEntries").get()
             .addOnSuccessListener (){

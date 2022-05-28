@@ -3,7 +3,6 @@ package com.kalzakath.zoodle
 import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
-import android.util.Log
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView.Adapter
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
@@ -22,9 +21,14 @@ class RecyclerViewAdaptor(
     val startFeelingsActivity: (MoodEntryModel) -> Unit):
     Adapter<ViewHolder>(), SwipeHelperCallback.ItemTouchHelperAdaptor {
 
-    private var moodList: ArrayList<RowEntryModel> = ArrayList()
+    private lateinit var _rowController: RowController
+    lateinit var moodList: ArrayList<RowEntryModel>
     private var sortBy = "date"
     lateinit var viewHolder: ViewHolder
+
+    fun connectController(rowController: RowController) {
+        _rowController = rowController
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val viewFactory = RowViewFactory()
@@ -32,14 +36,14 @@ class RecyclerViewAdaptor(
         return viewHolder
     }
 
-    fun updateListConfig() {
+  /*  fun updateListConfig() {
         for (i in moodList.indices) {
             moodList[i].update(Settings)
             notifyItemChanged(i)
         }
-    }
+    }*/
 
-    fun updateList(data: ArrayList<MoodEntryModel> = ArrayList(0)) {
+    /*fun updateList(data: ArrayList<MoodEntryModel> = ArrayList(0)) {
         val removeList: MutableList<MoodEntryModel> = ArrayList()
         val format = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss", Locale.ENGLISH)
         Log.i(this.javaClass.toString(), "Updating list")
@@ -120,6 +124,8 @@ class RecyclerViewAdaptor(
             }
         }
     }
+
+     */
 
     private fun sortList() {
         val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH)
@@ -265,7 +271,7 @@ class RecyclerViewAdaptor(
 
         val newMood = MoodEntryModel(dateFormat.format(calendar.time), timeFormat.format(calendar.time),mood.mood,mood.feelings,mood.activities,mood.key)
 
-        updateMoodEntry(newMood)
+        //updateMoodEntry(newMood)
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -353,12 +359,6 @@ class RecyclerViewAdaptor(
     }
 
     override fun onItemDismiss(position: Int) {
-        val moodEntry = moodList[position]
-        Log.i(this.javaClass.toString(), "Mood @ pos: $position key: ${moodList[position].key} removed")
-        moodList.removeAt(position)
-        sortList()
-        val listToSave = ArrayList<MoodEntryModel>()
-        for(item in moodList) { if (item.javaClass == MoodEntryModel::class.java) listToSave.add(item as MoodEntryModel) }
-        onSwiped(moodEntry as MoodEntryModel, listToSave)
+        _rowController.removeAt(position)
     }
 }

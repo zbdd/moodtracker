@@ -1,43 +1,61 @@
 package com.kalzakath.zoodle
 
-class RowController(recyclerViewAdaptor: RecyclerViewAdaptor) {
+import java.util.logging.Logger
+
+class RowController(recyclerViewAdaptor: RecyclerViewAdaptor,
+private var onDataChangeEvent: (RowControllerEvent) -> Unit) {
     private var _rowEntryList = arrayListOf<RowEntryModel>()
     private val _rvAdaptor = recyclerViewAdaptor
+    private val log = Logger.getLogger(MainActivity::class.java.name + "****************************************")
 
-    fun add(rowEntryModel: RowEntryModel) {
+    init {
+        _rvAdaptor.moodList = _rowEntryList
+        _rvAdaptor.connectController(this)
+    }
+
+    fun add(rowEntryModel: RowEntryModel, callUpdate: Boolean = true) {
+        log.info("Row added")
         _rowEntryList.add(rowEntryModel)
+        _rvAdaptor.notifyItemInserted(_rowEntryList.size)
+
+        if (callUpdate) onDataChangeEvent(RowControllerEvent(_rowEntryList, RowControllerEvent.ADDITION ) )
     }
 
     fun add(rowEntryList: ArrayList<RowEntryModel>) {
+        log.info("Attempting to add rows...")
         for(i in rowEntryList.indices) {
             val rw = rowEntryList[i]
             val index = _rowEntryList.indices.find {
                 rw.key == _rowEntryList[it].key
             }
-            if (index != null){
-                updateAt(index, rw)
-            } else {
-                add(rw)
-                _rvAdaptor.notifyItemInserted(_rowEntryList.size)
-            }
+            if (index != null && index != -1) updateAt(index, rw)
+            else add(rw)
         }
+        onDataChangeEvent(RowControllerEvent(_rowEntryList, RowControllerEvent.ADDITION ) )
     }
 
-    fun remove(rowEntryModel: RowEntryModel) {
-        _rvAdaptor.notifyItemRemoved(_rowEntryList.size)
-        _rowEntryList.remove(rowEntryModel)
+    fun removeAt(position: Int, callUpdate: Boolean = true) {
+        _rvAdaptor.notifyItemRemoved(position)
+        _rowEntryList.removeAt(position)
+        if (callUpdate) onDataChangeEvent(RowControllerEvent(_rowEntryList, RowControllerEvent.REMOVE ) )
+    }
+
+    fun remove(rowEntryModel: RowEntryModel, callUpdate: Boolean = true) {
+        val index = getIndex(rowEntryModel)
+        if (index != -1) removeAt(index, callUpdate)
     }
 
     fun remove(rowEntryList: ArrayList<RowEntryModel>) {
-        rowEntryList.forEach { toDelete -> _rowEntryList.find { toDelete.key == it.key } ?.let { remove(it) } }
+        rowEntryList.forEach { toDelete -> _rowEntryList.find { toDelete.key == it.key } ?.let { remove(it, false) } }
+        onDataChangeEvent(RowControllerEvent(_rowEntryList, RowControllerEvent.REMOVE ) )
     }
 
-    fun update(rowEntryModel: RowEntryModel) {
+    fun update(rowEntryModel: RowEntryModel, callUpdate: Boolean = true) {
         val index = indexOf(rowEntryModel)
-        if (index != -1) updateAt(index, rowEntryModel)
+        if (index != -1) updateAt(index, rowEntryModel, callUpdate)
     }
 
-    fun updateAt(position: Int, rowEntryModel: RowEntryModel): Boolean {
+    fun updateAt(position: Int, rowEntryModel: RowEntryModel, callUpdate: Boolean = true): Boolean {
         if (position > size()) return false
 
         when (val toUpdateRow = get(position)) {
@@ -50,6 +68,7 @@ class RowController(recyclerViewAdaptor: RecyclerViewAdaptor) {
                 if (newMoodEntryUpdated > moodEntryUpdated) {
                     _rowEntryList[position] = rowEntryModel
                     _rvAdaptor.notifyItemChanged(position)
+                    if (callUpdate) onDataChangeEvent(RowControllerEvent(_rowEntryList, RowControllerEvent.UPDATE ) )
                     return true
                 }
             }
@@ -59,13 +78,16 @@ class RowController(recyclerViewAdaptor: RecyclerViewAdaptor) {
     }
 
     fun update(updateRowEntryList: ArrayList<RowEntryModel>) {
-        for(i in _rowEntryList.indices) {
-            val rw = _rowEntryList[i]
-            val updateRowEntry = updateRowEntryList.find {
-                rw.key == it.key
+        log.info("Attempting to update list of size: ${updateRowEntryList.size}")
+
+        for(updateRow in updateRowEntryList) {
+            val index = _rowEntryList.indices.find {
+                updateRow.key == _rowEntryList[it].key
             }
-            if (updateRowEntry != null) updateAt(i, updateRowEntry)
+            if (index != null && index != -1) updateAt(index, updateRow, false)
+            else add(updateRow, false)
         }
+        onDataChangeEvent(RowControllerEvent(_rowEntryList, RowControllerEvent.UPDATE ) )
     }
 
     fun size(): Int { return _rowEntryList.size }
@@ -75,4 +97,8 @@ class RowController(recyclerViewAdaptor: RecyclerViewAdaptor) {
     }
 
     fun get(position: Int): RowEntryModel { return _rowEntryList[position] }
+
+    fun getIndex(rowEntryModel: RowEntryModel): Int {
+        return _rowEntryList.indices.find { _rowEntryList[it].key == rowEntryModel.key } ?: -1
+    }
 }

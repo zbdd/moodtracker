@@ -31,7 +31,7 @@ internal class RowControllerTest {
             every { notifyItemChanged(any()) } returns Unit
         }
 
-        testRowController = RowController(testRVAdaptor)
+        testRowController = RowController(testRVAdaptor) { {} }
     }
 
     @Test

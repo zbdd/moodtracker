@@ -11,8 +11,8 @@ class DebugDataHandler (secureFileHandler: SecureFileHandler,
                         private var context: Context
 ): DataHandler(secureFileHandler, context) {
 
-    override fun read(): ArrayList<MoodEntryModel> {
-        val debugArrayList = arrayListOf<MoodEntryModel>()
+    override fun read(): ArrayList<RowEntryModel> {
+        val debugArrayList = arrayListOf<RowEntryModel>()
         for (i in 1..121) {
             debugArrayList.add(createNewMoodEntry())
         }
