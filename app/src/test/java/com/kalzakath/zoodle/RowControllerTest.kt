@@ -29,9 +29,11 @@ internal class RowControllerTest {
         ) {
             every { notifyDataSetChanged() } returns Unit
             every { notifyItemChanged(any()) } returns Unit
+            every { notifyItemInserted(any())} returns Unit
+            every { notifyItemRemoved(any())} returns Unit
         }
 
-        testRowController = RowController(testRVAdaptor) { {} }
+        testRowController = RowController(testRVAdaptor) { run {} }
     }
 
     @Test

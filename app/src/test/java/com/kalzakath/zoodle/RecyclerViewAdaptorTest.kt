@@ -9,7 +9,8 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import io.mockk.*
 import io.mockk.impl.annotations.MockK
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -25,6 +26,7 @@ class RecyclerViewAdaptorTest {
     class TestViewHolder(itemView: View): RecyclerView.ViewHolder(itemView)
 
     @MockK lateinit var recyclerViewAdaptor: RecyclerViewAdaptor
+    @MockK lateinit var rowController: RowController
     @MockK lateinit var mockAdapter: RecyclerViewAdaptor
     @MockK lateinit var context: Context
     @MockK lateinit var layoutInflater: LayoutInflater
@@ -39,7 +41,7 @@ class RecyclerViewAdaptorTest {
         val timeFormat = DateTimeFormatter.ofPattern("HH:mm")
         val dateTimeFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
 
-        val arrayMood = arrayListOf<MoodEntryModel>()
+        val arrayMood = arrayListOf<RowEntryModel>()
         arrayMood.add(MoodEntryModel())
         arrayMood.add(MoodEntryModel())
         arrayMood.add(MoodEntryModel())
@@ -50,17 +52,18 @@ class RecyclerViewAdaptorTest {
             Mood(),
             arrayListOf("nothing"),
             arrayListOf("nothing"),
-            "testkey",
+            "testKey",
             dateTimeFormat.format(date)
         ))
 
         recyclerViewAdaptor = RecyclerViewAdaptor(
             { _, _ -> onItemDismissed() },
-            { writeEntrytoFile(); updateDatabaseEntry() },
-            { _,_ -> setupMoodPicker() },
-            { startActivityActivities() },
-            { startActivityFeelings() })
+            { run { } },
+            { _,_ -> run { } },
+            { run { } },
+            { run { } })
 
+        rowController = RowController(recyclerViewAdaptor) { run {} }
 
         mockkStatic(Looper::class)
         val looper = mockk<Looper> {
@@ -70,7 +73,7 @@ class RecyclerViewAdaptorTest {
         every { Looper.getMainLooper() } returns looper
         every { LayoutInflater.from(context) } returns layoutInflater
 
-        mockAdapter.updateList(arrayMood)
+        rowController.update(arrayMood)
 
     }
 
@@ -78,10 +81,10 @@ class RecyclerViewAdaptorTest {
     fun setupBeforeEach() {
         mockAdapter = spyk(RecyclerViewAdaptor(
             { _, _ -> onItemDismissed() },
-            { writeEntrytoFile(); updateDatabaseEntry() },
-            { _,_ -> setupMoodPicker() },
-            { startActivityActivities() },
-            { startActivityFeelings() })) {
+            { run { } },
+            { _,_ -> run { } },
+            { run { } },
+            { run { } })) {
             every { notifyDataSetChanged() } returns Unit
             every { notifyItemChanged(any()) } returns Unit
         }
@@ -89,7 +92,9 @@ class RecyclerViewAdaptorTest {
 
     @Test
     fun `can set viewHolder as a TestViewHolder`() {
-        recyclerViewAdaptor.viewHolder = TestViewHolder(LayoutInflater.from(context).inflate(R.layout.mood_entry_layout, null, false))
+        recyclerViewAdaptor.viewHolder = TestViewHolder(
+            LayoutInflater.from(context).inflate(R.layout.mood_entry_layout, null, false)
+        )
         assertEquals(TestViewHolder::class.java,recyclerViewAdaptor.viewHolder::class.java)
     }
 
@@ -103,7 +108,7 @@ class RecyclerViewAdaptorTest {
     @Test
     fun `can correctly GET moodlist array`() {
         assertEquals(0, mockAdapter.itemCount)
-        mockAdapter.updateList(arrayListOf(MoodEntryModel(), MoodEntryModel()))
+        rowController.update(arrayListOf(MoodEntryModel(), MoodEntryModel()))
         assertEquals(4, mockAdapter.itemCount)     // why 4 - 2x filter rows are made
     }
 
@@ -138,11 +143,11 @@ class RecyclerViewAdaptorTest {
         Settings.moodMax = 100
         Settings.moodMode = Mood.MOOD_MODE_NUMBERS
 
-        val data = arrayListOf<MoodEntryModel>()
+        val data = arrayListOf<RowEntryModel>()
         for (i in 1..Random.nextInt(1,12)) {
             data.add(MoodEntryModel())
         }
-        mockAdapter.updateList(data)
+        rowController.update(data)
         var moodToTest: MoodEntryModel? = null
         do {
             val row = mockAdapter.getItem(Random.nextInt(mockAdapter.itemCount - 1))
@@ -150,21 +155,21 @@ class RecyclerViewAdaptorTest {
         } while (moodToTest == null)
         assertEquals(Mood.MOOD_MODE_FACES, moodToTest.mood!!.moodMode)
 
-        mockAdapter.updateListConfig()
+        //mockAdapter.updateListConfig()
         assertEquals(Settings.moodMode, moodToTest.mood!!.moodMode)
         assertEquals(Mood.MOOD_MODE_NUMBERS, moodToTest.mood!!.moodMode)
     }
 
     @Test
     fun `can add 5 MoodEntries to MoodList`() {
-        val arrayMood = arrayListOf<MoodEntryModel>()
+        val arrayMood = arrayListOf<RowEntryModel>()
         arrayMood.add(MoodEntryModel())
         arrayMood.add(MoodEntryModel())
         arrayMood.add(MoodEntryModel())
         arrayMood.add(MoodEntryModel())
         arrayMood.add(MoodEntryModel())
 
-        mockAdapter.updateList(arrayMood)
+        rowController.update(arrayMood)
         verify(atLeast = 5) { mockAdapter.notifyDataSetChanged() }
         assertEquals(7, mockAdapter.itemCount)
         // +2 for the extra filter views automatically added
@@ -174,7 +179,7 @@ class RecyclerViewAdaptorTest {
     fun `can successfully update a mood entry row`() {
 
         assert(mockAdapter.itemCount == 0)
-        mockAdapter.updateList(arrayListOf(MoodEntryModel()))
+        rowController.update(arrayListOf(MoodEntryModel()))
         mockAdapter.getItem(0)!!.key = "testkey"
 
         val moodVal = "3"
@@ -197,7 +202,7 @@ class RecyclerViewAdaptorTest {
             "testkey",
             dateTimeFormat.format(date)
         )
-        mockAdapter.updateMoodEntry(mood)
+        rowController.update(mood)
 
         var item: MoodEntryModel? = null
         for(i in 0..mockAdapter.itemCount) {
@@ -220,14 +225,14 @@ class RecyclerViewAdaptorTest {
 
     @Test
     fun `can get two items from moodList, one of each RowEntryType`() {
-        mockAdapter.updateList(arrayListOf(MoodEntryModel()))
+        rowController.update(arrayListOf(MoodEntryModel()))
         assertEquals(MoodEntryModel().viewType, mockAdapter.getItemViewType(0))
     }
 
     @Test
     fun `count the size of the MoodList array`() {
         assertEquals(mockAdapter.itemCount, mockAdapter.itemCount)
-        mockAdapter.updateList(arrayListOf(MoodEntryModel()))
+        rowController.update(arrayListOf(MoodEntryModel()))
         // Why 2? Well, in creating a valid MoodEntry, a FilterView will be added (because it'll detect the TODAY condition)
         assertEquals(1, mockAdapter.itemCount)
     }
@@ -239,11 +244,11 @@ class RecyclerViewAdaptorTest {
 
     @Test
     fun `dismissing an MoodEntry calls removal and notify functions`() {
-        val data = arrayListOf<MoodEntryModel>()
+        val data = arrayListOf<RowEntryModel>()
         for (i in 1..Random.nextInt(4,12)) {
             data.add(MoodEntryModel())
         }
-        mockAdapter.updateList(data)
+        rowController.update(data)
 
         var index: Int
         every { mockAdapter.notifyItemRemoved(any()) } returns Unit
@@ -265,26 +270,6 @@ class RecyclerViewAdaptorTest {
 
         assertEquals(testMax, Settings.moodMax)
         assertEquals(testNumerals, Settings.moodMode)
-    }
-
-    private fun startActivityFeelings() {
-
-    }
-
-    private fun startActivityActivities() {
-
-    }
-
-    private fun updateDatabaseEntry() {
-
-    }
-
-    private fun setupMoodPicker() {
-
-    }
-
-    private fun writeEntrytoFile() {
-
     }
 
     private fun onItemDismissed() {
