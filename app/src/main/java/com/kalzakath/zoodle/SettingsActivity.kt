@@ -172,7 +172,7 @@ class SettingsActivity() : AppCompatActivity() {
                             dataImport.add(
                                 MoodEntryModel(
                                     date,
-                                    time,
+                                    time.toString(),
                                     Mood(mood["mood"].toString()),
                                     moodFeelings,
                                     moodActivities,

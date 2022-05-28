@@ -9,8 +9,8 @@ import java.util.*
 
 @IgnoreExtraProperties
 class MoodEntryModel(
-    val date: String = "1987-11-06",
-    val time: String? = "08:30",
+    override var date: String = "1987-11-06",
+    override var time: String = "08:30",
     val mood: Mood? = Mood(),
     val feelings: MutableList<String> = ArrayList(),
     val activities: MutableList<String> = ArrayList(),

@@ -18,7 +18,10 @@ private var onDataChangeEvent: (RowControllerEvent) -> Unit) {
         _rowEntryList.add(rowEntryModel)
         _rvAdaptor.notifyItemInserted(_rowEntryList.size)
 
-        if (callUpdate) onDataChangeEvent(RowControllerEvent(_rowEntryList, RowControllerEvent.ADDITION ) )
+        if (callUpdate) {
+            onDataChangeEvent(RowControllerEvent(_rowEntryList, RowControllerEvent.ADDITION ) )
+            sort()
+        }
     }
 
     fun add(rowEntryList: ArrayList<RowEntryModel>) {
@@ -32,6 +35,7 @@ private var onDataChangeEvent: (RowControllerEvent) -> Unit) {
             else add(rw)
         }
         onDataChangeEvent(RowControllerEvent(_rowEntryList, RowControllerEvent.ADDITION ) )
+        sort()
     }
 
     fun removeAt(position: Int, callUpdate: Boolean = true) {
@@ -46,6 +50,7 @@ private var onDataChangeEvent: (RowControllerEvent) -> Unit) {
     }
 
     fun remove(rowEntryList: ArrayList<RowEntryModel>) {
+        log.info("Attempting to remove rows...")
         rowEntryList.forEach { toDelete -> _rowEntryList.find { toDelete.key == it.key } ?.let { remove(it, false) } }
         onDataChangeEvent(RowControllerEvent(_rowEntryList, RowControllerEvent.REMOVE ) )
     }
@@ -68,13 +73,36 @@ private var onDataChangeEvent: (RowControllerEvent) -> Unit) {
                 if (newMoodEntryUpdated > moodEntryUpdated) {
                     _rowEntryList[position] = rowEntryModel
                     _rvAdaptor.notifyItemChanged(position)
-                    if (callUpdate) onDataChangeEvent(RowControllerEvent(_rowEntryList, RowControllerEvent.UPDATE ) )
+                    if (callUpdate) {
+                        onDataChangeEvent(RowControllerEvent(_rowEntryList, RowControllerEvent.UPDATE ) )
+                        sort()
+                    }
                     return true
                 }
             }
         }
 
         return false
+    }
+
+    fun sort() {
+        val comparator = compareBy { row: RowEntryModel ->
+            MoodEntryHelper.convertStringToDateTime(
+                row.date + "T" + row.time,
+                16
+            )
+        }.reversed()
+        val sorted = _rowEntryList.sortedWith(comparator)
+        val oldList: ArrayList<RowEntryModel> = arrayListOf()
+        oldList.addAll(_rowEntryList)
+
+        _rowEntryList.clear()
+        _rowEntryList.addAll(sorted)
+
+        _rowEntryList.indices.forEach {
+            val index = oldList.indexOf(_rowEntryList[it])
+            if (index != it) _rvAdaptor.notifyItemMoved(it, index)
+        }
     }
 
     fun update(updateRowEntryList: ArrayList<RowEntryModel>) {
@@ -88,6 +116,7 @@ private var onDataChangeEvent: (RowControllerEvent) -> Unit) {
             else add(updateRow, false)
         }
         onDataChangeEvent(RowControllerEvent(_rowEntryList, RowControllerEvent.UPDATE ) )
+        sort()
     }
 
     fun size(): Int { return _rowEntryList.size }
