@@ -45,6 +45,7 @@ internal class RowControllerTest {
         assert(testRowController.size() == 0)
         testRowController.add(moodEntry)
 
+        verify { testRVAdaptor.notifyItemInserted(any()) }
         assert(testRowController.size() == 1)
         assert(testRowController.get(0) == moodEntry)
     }
@@ -57,6 +58,8 @@ internal class RowControllerTest {
         assert(testRowController.size() == 1)
         testRowController.remove(testMood)
         assert(testRowController.size() == 0)
+
+        verify { testRVAdaptor.notifyItemRemoved(any()) }
     }
 
     @Test
@@ -69,6 +72,9 @@ internal class RowControllerTest {
         assert(testRowController.size() == 12)
         testRowController.remove(listToDelete)
         assert(testRowController.size() == 0)
+
+        verify { testRVAdaptor.notifyItemInserted(any()) }
+        verify { testRVAdaptor.notifyItemRemoved(any()) }
     }
 
     @Test
@@ -88,6 +94,7 @@ internal class RowControllerTest {
         assert(testArray.size == 10)
         assert(testArray[0].javaClass == MoodEntryModel().javaClass)
         assert(testArray[6] != testUpdateMoodEntryModel)
+        verify(atLeast = 10) {testRVAdaptor.notifyItemInserted(any())}
 
         testRowController.update(testUpdateMoodEntryModel)
         val compareMood = testRowController.get(6) as MoodEntryModel
