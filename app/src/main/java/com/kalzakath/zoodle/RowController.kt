@@ -2,24 +2,49 @@ package com.kalzakath.zoodle
 
 import java.util.logging.Logger
 
+interface DataController: DataControllerAccessors, DataControllerEventHandlers
+
+interface DataControllerEventHandlers {
+    var onDataChangeListener: (()->Unit)?
+}
+
+interface DataControllerAccessors {
+    fun add(rowEntryModel: RowEntryModel, callUpdate: Boolean = true)
+    fun add(rowEntryList: ArrayList<RowEntryModel>)
+
+    fun remove(rowEntryModel: RowEntryModel, callUpdate: Boolean = true)
+    fun remove(rowEntryList: ArrayList<RowEntryModel>)
+    fun removeAt(position: Int, callUpdate: Boolean = true)
+
+    fun update(rowEntryModel: RowEntryModel, callUpdate: Boolean = true)
+    fun update(updateRowEntryList: ArrayList<RowEntryModel>)
+    fun updateAt(position: Int, rowEntryModel: RowEntryModel, callUpdate: Boolean = true): Boolean
+
+    fun size(): Int
+
+    fun indexOf(rowEntryModel: RowEntryModel): Int
+    fun get(position: Int): RowEntryModel
+}
+
 class RowController(recyclerViewAdaptor: RecyclerViewAdaptor,
-private var onDataChangeEvent: (RowControllerEvent) -> Unit) {
+    private var onDataChangeEvent: (RowControllerEvent) -> Unit): DataController {
     private var _rowEntryList = arrayListOf<RowEntryModel>()
     private val _rvAdaptor = recyclerViewAdaptor
     private val log = Logger.getLogger(MainActivity::class.java.name + "****************************************")
+    override var onDataChangeListener: (() -> Unit)? = null
 
     init {
         _rvAdaptor.moodList = _rowEntryList
         _rvAdaptor.connectController(this)
     }
 
-    //fun registerCallback(callback: ()->Unit) { callback.invoke() }
 
     private fun callChangeEvent(data: ArrayList<RowEntryModel>, eventType: Int) {
         onDataChangeEvent(RowControllerEvent(data, eventType))
+        onDataChangeListener?.invoke()
     }
 
-    fun add(rowEntryModel: RowEntryModel, callUpdate: Boolean = true) {
+    override fun add(rowEntryModel: RowEntryModel, callUpdate: Boolean) {
         log.info("Row added")
         _rowEntryList.add(rowEntryModel)
         _rvAdaptor.notifyItemInserted(_rowEntryList.size)
@@ -30,7 +55,7 @@ private var onDataChangeEvent: (RowControllerEvent) -> Unit) {
         }
     }
 
-    fun add(rowEntryList: ArrayList<RowEntryModel>) {
+    override fun add(rowEntryList: ArrayList<RowEntryModel>) {
         log.info("Attempting to add rows...")
         for(i in rowEntryList.indices) {
             val rw = rowEntryList[i]
@@ -44,29 +69,29 @@ private var onDataChangeEvent: (RowControllerEvent) -> Unit) {
         sort()
     }
 
-    fun removeAt(position: Int, callUpdate: Boolean = true) {
+    override fun removeAt(position: Int, callUpdate: Boolean) {
         _rvAdaptor.notifyItemRemoved(position)
         _rowEntryList.removeAt(position)
         if (callUpdate) callChangeEvent(_rowEntryList, RowControllerEvent.REMOVE )
     }
 
-    fun remove(rowEntryModel: RowEntryModel, callUpdate: Boolean = true) {
-        val index = getIndex(rowEntryModel)
+    override fun remove(rowEntryModel: RowEntryModel, callUpdate: Boolean) {
+        val index = indexOf(rowEntryModel)
         if (index != -1) removeAt(index, callUpdate)
     }
 
-    fun remove(rowEntryList: ArrayList<RowEntryModel>) {
+    override fun remove(rowEntryList: ArrayList<RowEntryModel>) {
         log.info("Attempting to remove rows...")
         rowEntryList.forEach { toDelete -> _rowEntryList.find { toDelete.key == it.key } ?.let { remove(it, false) } }
         callChangeEvent(_rowEntryList, RowControllerEvent.REMOVE )
     }
 
-    fun update(rowEntryModel: RowEntryModel, callUpdate: Boolean = true) {
+    override fun update(rowEntryModel: RowEntryModel, callUpdate: Boolean) {
         val index = indexOf(rowEntryModel)
         if (index != -1) updateAt(index, rowEntryModel, callUpdate)
     }
 
-    fun updateAt(position: Int, rowEntryModel: RowEntryModel, callUpdate: Boolean = true): Boolean {
+    override fun updateAt(position: Int, rowEntryModel: RowEntryModel, callUpdate: Boolean): Boolean {
         if (position > size()) return false
 
         when (val toUpdateRow = get(position)) {
@@ -91,7 +116,7 @@ private var onDataChangeEvent: (RowControllerEvent) -> Unit) {
         return false
     }
 
-    fun sort() {
+    private fun sort() {
         val comparator = compareBy { row: RowEntryModel ->
             MoodEntryHelper.convertStringToDateTime(
                 row.date + "T" + row.time,
@@ -111,7 +136,7 @@ private var onDataChangeEvent: (RowControllerEvent) -> Unit) {
         }
     }
 
-    fun update(updateRowEntryList: ArrayList<RowEntryModel>) {
+    override fun update(updateRowEntryList: ArrayList<RowEntryModel>) {
         log.info("Attempting to update list of size: ${updateRowEntryList.size}")
 
         for(updateRow in updateRowEntryList) {
@@ -125,15 +150,11 @@ private var onDataChangeEvent: (RowControllerEvent) -> Unit) {
         sort()
     }
 
-    fun size(): Int { return _rowEntryList.size }
+    override fun size(): Int { return _rowEntryList.size }
 
-    fun indexOf(rowEntryModel: RowEntryModel): Int {
+    override fun indexOf(rowEntryModel: RowEntryModel): Int {
         return _rowEntryList.indexOfFirst { it.key == rowEntryModel.key }
     }
 
-    fun get(position: Int): RowEntryModel { return _rowEntryList[position] }
-
-    fun getIndex(rowEntryModel: RowEntryModel): Int {
-        return _rowEntryList.indices.find { _rowEntryList[it].key == rowEntryModel.key } ?: -1
-    }
+    override fun get(position: Int): RowEntryModel { return _rowEntryList[position] }
 }

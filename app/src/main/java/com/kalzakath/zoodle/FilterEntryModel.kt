@@ -4,9 +4,10 @@ import androidx.recyclerview.widget.RecyclerView
 
 class FilterEntryModel (
     var title: String = "",
-    override var key: String = "default_row_key",
     override var date: String = "1990-01-01",
-    override var time: String = "09:09"
+    override var time: String = "09:09",
+    override var key: String = "default_row_key"
+
         ): RowEntryModel {
 
     @Transient
