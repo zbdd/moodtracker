@@ -1,30 +1,7 @@
 package com.kalzakath.zoodle
 
+import com.kalzakath.zoodle.interfaces.DataController
 import java.util.logging.Logger
-
-interface DataController: DataControllerAccessors, DataControllerEventHandlers
-
-interface DataControllerEventHandlers {
-    var onDataChangeListener: ((RowControllerEvent)->Unit)?
-}
-
-interface DataControllerAccessors {
-    fun add(rowEntryModel: RowEntryModel, callUpdate: Boolean = true)
-    fun add(rowEntryList: ArrayList<RowEntryModel>)
-
-    fun remove(rowEntryModel: RowEntryModel, callUpdate: Boolean = true)
-    fun remove(rowEntryList: ArrayList<RowEntryModel>)
-    fun removeAt(position: Int, callUpdate: Boolean = true)
-
-    fun update(rowEntryModel: RowEntryModel, callUpdate: Boolean = true)
-    fun update(updateRowEntryList: ArrayList<RowEntryModel>)
-    fun updateAt(position: Int, rowEntryModel: RowEntryModel, callUpdate: Boolean = true): Boolean
-
-    fun size(): Int
-
-    fun indexOf(rowEntryModel: RowEntryModel): Int
-    fun get(position: Int): RowEntryModel
-}
 
 class RowController: DataController {
     private var _rowEntryList = arrayListOf<RowEntryModel>()
@@ -36,17 +13,18 @@ class RowController: DataController {
     }
 
     override fun add(rowEntryModel: RowEntryModel, callUpdate: Boolean) {
-        log.info("Row added")
         _rowEntryList.add(rowEntryModel)
 
         if (callUpdate) {
+            log.info("Row added")
             callChangeEvent(_rowEntryList, RowControllerEvent.ADDITION )
             sort()
         }
     }
 
     override fun add(rowEntryList: ArrayList<RowEntryModel>) {
-        log.info("Attempting to add rows...")
+        log.info("Attempting to add ${rowEntryList.size} rows")
+
         for(i in rowEntryList.indices) {
             val rw = rowEntryList[i]
             val index = _rowEntryList.indices.find {
@@ -119,10 +97,13 @@ class RowController: DataController {
         _rowEntryList.clear()
         _rowEntryList.addAll(sorted)
 
+        /* Not implemented
         _rowEntryList.indices.forEach {
             val index = oldList.indexOf(_rowEntryList[it])
             if (index != it) callChangeEvent(arrayListOf(_rowEntryList[it]), RowControllerEvent.UPDATE)
         }
+
+         */
     }
 
     override fun update(updateRowEntryList: ArrayList<RowEntryModel>) {

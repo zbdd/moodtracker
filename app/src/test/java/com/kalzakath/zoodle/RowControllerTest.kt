@@ -4,7 +4,6 @@ import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.spyk
-import io.mockk.verify
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.LocalDateTime
@@ -19,21 +18,24 @@ internal class RowControllerTest {
     fun setUp() {
         MockKAnnotations.init(this, relaxed = true)
 
+        testRowController = spyk(RowController()) {
+            every { onDataChangeListener?.invoke(any()) } returns Unit
+        }
+
         testRVAdaptor = spyk(
             RecyclerViewAdaptor(
                 { _, _ -> run { } },
                 { run { } },
-                { _,_ -> run { } },
                 { run { } },
-                { run { } })
+                { run { } },
+                { run { } },
+            testRowController)
         ) {
             every { notifyDataSetChanged() } returns Unit
             every { notifyItemChanged(any()) } returns Unit
             every { notifyItemInserted(any())} returns Unit
             every { notifyItemRemoved(any())} returns Unit
         }
-
-        testRowController = RowController(testRVAdaptor) { run {} }
     }
 
     @Test
@@ -45,7 +47,6 @@ internal class RowControllerTest {
         assert(testRowController.size() == 0)
         testRowController.add(moodEntry)
 
-        verify { testRVAdaptor.notifyItemInserted(any()) }
         assert(testRowController.size() == 1)
         assert(testRowController.get(0) == moodEntry)
     }
@@ -58,8 +59,6 @@ internal class RowControllerTest {
         assert(testRowController.size() == 1)
         testRowController.remove(testMood)
         assert(testRowController.size() == 0)
-
-        verify { testRVAdaptor.notifyItemRemoved(any()) }
     }
 
     @Test
@@ -72,9 +71,6 @@ internal class RowControllerTest {
         assert(testRowController.size() == 12)
         testRowController.remove(listToDelete)
         assert(testRowController.size() == 0)
-
-        verify { testRVAdaptor.notifyItemInserted(any()) }
-        verify { testRVAdaptor.notifyItemRemoved(any()) }
     }
 
     @Test
@@ -84,7 +80,7 @@ internal class RowControllerTest {
         testRowController.add(testArray)
 
         val testUpdateMoodEntryModel = MoodEntryModel(
-            "2020-12-1",
+            "2020-12-01",
             "09:09",
             Mood("5")
         )
@@ -94,12 +90,13 @@ internal class RowControllerTest {
         assert(testArray.size == 10)
         assert(testArray[0].javaClass == MoodEntryModel().javaClass)
         assert(testArray[6] != testUpdateMoodEntryModel)
-        verify(atLeast = 10) {testRVAdaptor.notifyItemInserted(any())}
 
         testRowController.update(testUpdateMoodEntryModel)
-        val compareMood = testRowController.get(6) as MoodEntryModel
+        val compareMood = testRowController.get(testRowController.indexOf(testArray[6])) as MoodEntryModel
 
-        assert(compareMood.compare(testUpdateMoodEntryModel))
-        verify(atMost = 1) { testRVAdaptor.notifyItemChanged(6) }
+        assert(compareMood.key == testUpdateMoodEntryModel.key)
+        assert(compareMood.date == testUpdateMoodEntryModel.date)
+        assert(compareMood.mood == testUpdateMoodEntryModel.mood)
+
     }
 }

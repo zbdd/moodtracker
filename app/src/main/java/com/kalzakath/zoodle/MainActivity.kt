@@ -23,6 +23,7 @@ import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import com.google.firebase.auth.FirebaseUser
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
+import com.kalzakath.zoodle.interfaces.DataController
 import java.lang.reflect.Modifier
 import java.time.LocalDateTime
 import java.util.logging.Logger
@@ -72,14 +73,14 @@ class MainActivity : AppCompatActivity() {
         readSettingsDataFromJson(settingsString)
 
         rowController = RowController()
-        val recyclerViewAdaptor = setupRecycleView()
+        setupRecycleView()
 
         dataHandler = DataHandler(secureFileHandler, applicationContext)
 
         onlineDataHandler = OnlineDataHandler {rowEntryList -> updateList(rowEntryList)}
 
-        initButtons(recyclerViewAdaptor)
-        setActivityListeners(recyclerViewAdaptor)
+        initButtons()
+        setActivityListeners()
 
         //dataHandler = TestSuite.useLocalData(secureFileHandler, applicationContext)
         //TestSuite.setDefaultSettings()
@@ -99,7 +100,7 @@ class MainActivity : AppCompatActivity() {
         val recyclerViewAdaptor = RecyclerViewAdaptor(
             { moodEntry, moodList -> onItemDismissed(moodEntry, moodList) },
             { moodList -> handleListUpdated(moodList) },
-            { moodEntry, recycleViewAdaptor -> setupMoodPicker(moodEntry, recycleViewAdaptor) },
+            { moodEntry -> setupMoodPicker(moodEntry) },
             { moodEntry -> startActivityActivities(moodEntry) },
             { moodEntry -> startActivityFeelings(moodEntry) },
         rowController)
@@ -171,7 +172,7 @@ class MainActivity : AppCompatActivity() {
         if (user != null) onlineDataHandler.write(moodList)
     }
 
-    private fun setupMoodPicker(moodEntry: MoodEntryModel, recyclerViewAdaptor: RecyclerViewAdaptor) {
+    private fun setupMoodPicker(moodEntry: MoodEntryModel) {
         val numberPicker: NumberPicker = findViewById(R.id.npNumberPicker)
         val numberArray = Array(Settings.moodMax) { (it + 1).toString() }
         val mvHelper = MoodValueHelper()
@@ -219,7 +220,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setActivityListeners(recyclerViewAdaptor: RecyclerViewAdaptor) {
+    private fun setActivityListeners() {
         getActivitiesActivityResult =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
                 val data = it.data?.getStringArrayListExtra("AvailableActivities")
@@ -275,7 +276,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun initButtons(recyclerViewAdaptor: RecyclerViewAdaptor) {
+    private fun initButtons() {
         val addNewButton: ImageButton = findViewById(R.id.addNewButton)
 
         addNewButton.setOnClickListener {

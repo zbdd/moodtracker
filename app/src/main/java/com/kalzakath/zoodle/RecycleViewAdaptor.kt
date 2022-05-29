@@ -6,6 +6,7 @@ import android.app.TimePickerDialog
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView.Adapter
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
+import com.kalzakath.zoodle.interfaces.DataController
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -16,10 +17,11 @@ import java.util.stream.IntStream
 class RecyclerViewAdaptor(
     val onSwiped: (MoodEntryModel, ArrayList<MoodEntryModel>) -> Unit,
     val onListUpdated: (ArrayList<MoodEntryModel>) -> Unit,
-    val onMoodValueClicked: (MoodEntryModel, RecyclerViewAdaptor) -> Unit,
+    val onMoodValueClicked: (MoodEntryModel) -> Unit,
     val onStartActivitiesActivity: (MoodEntryModel) -> Unit,
     val startFeelingsActivity: (MoodEntryModel) -> Unit,
-    private val rowController: DataController):
+    private val rowController: DataController
+):
     Adapter<ViewHolder>(), SwipeHelperCallback.ItemTouchHelperAdaptor {
 
     private val log = Logger.getLogger(MainActivity::class.java.name + "****************************************")
@@ -93,13 +95,13 @@ class RecyclerViewAdaptor(
                     minDate = LocalDate.parse(date, format)
                     pos = IntStream.range(0, moodList.size-1)
                         .filter { moodList[it].viewType == MoodEntryModel().viewType }
-                        .filter { LocalDate.parse((moodList[it] as MoodEntryModel).date!!, format) < maxDate
-                                && LocalDate.parse((moodList[it] as MoodEntryModel).date!!, format) > minDate }
+                        .filter { LocalDate.parse((moodList[it] as MoodEntryModel).date, format) < maxDate
+                                && LocalDate.parse((moodList[it] as MoodEntryModel).date, format) > minDate }
                         .findFirst()
                     posLast = IntStream.range(0, moodList.size-1)
                         .filter { moodList[it].viewType == MoodEntryModel().viewType }
-                        .filter { LocalDate.parse((moodList[it] as MoodEntryModel).date!!, format) >= maxDate
-                                && LocalDate.parse((moodList[it] as MoodEntryModel).date!!, format) <= minDate }
+                        .filter { LocalDate.parse((moodList[it] as MoodEntryModel).date, format) >= maxDate
+                                && LocalDate.parse((moodList[it] as MoodEntryModel).date, format) <= minDate }
                         .findFirst()
                 }
                 "Last Year" -> {
@@ -107,20 +109,20 @@ class RecyclerViewAdaptor(
                     minDate = LocalDate.parse("${LocalDate.now().year - 2}-12-31", format)
                     pos = IntStream.range(0, moodList.size-1)
                         .filter { moodList[it].viewType == MoodEntryModel().viewType }
-                        .filter { LocalDate.parse((moodList[it] as MoodEntryModel).date!!, format) < maxDate
-                                && LocalDate.parse((moodList[it] as MoodEntryModel).date!!, format) > minDate }
+                        .filter { LocalDate.parse((moodList[it] as MoodEntryModel).date, format) < maxDate
+                                && LocalDate.parse((moodList[it] as MoodEntryModel).date, format) > minDate }
                         .findFirst()
                     posLast = IntStream.range(0, moodList.size-1)
                         .filter { moodList[it].viewType == MoodEntryModel().viewType }
-                        .filter { LocalDate.parse((moodList[it] as MoodEntryModel).date!!, format) >= maxDate
-                                && LocalDate.parse((moodList[it] as MoodEntryModel).date!!, format) <= minDate }
+                        .filter { LocalDate.parse((moodList[it] as MoodEntryModel).date, format) >= maxDate
+                                && LocalDate.parse((moodList[it] as MoodEntryModel).date, format) <= minDate }
                         .findFirst()
                 }
                 "Years Ago" -> {
                     maxDate = LocalDate.parse("${LocalDate.now().year - 1}-01-01", format)
                     pos = IntStream.range(0, moodList.size-1)
                         .filter { moodList[it].viewType == MoodEntryModel().viewType }
-                        .filter { LocalDate.parse((moodList[it] as MoodEntryModel).date!!, format) < maxDate }
+                        .filter { LocalDate.parse((moodList[it] as MoodEntryModel).date, format) < maxDate }
                         .findFirst()
                 }
             }
@@ -185,7 +187,7 @@ class RecyclerViewAdaptor(
                 : Calendar = Calendar.getInstance(TimeZone.getDefault())
 
         mHolder.moodText.setOnClickListener {
-            onMoodValueClicked(moodEntry, this)
+            onMoodValueClicked(moodEntry)
         }
 
         val timeSetListener = TimePickerDialog.OnTimeSetListener { _, hour, minute ->

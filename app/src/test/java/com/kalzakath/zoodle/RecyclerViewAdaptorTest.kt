@@ -56,14 +56,15 @@ class RecyclerViewAdaptorTest {
             dateTimeFormat.format(date)
         ))
 
+        rowController = RowController()
+
         recyclerViewAdaptor = RecyclerViewAdaptor(
             { _, _ -> onItemDismissed() },
             { run { } },
-            { _,_ -> run { } },
             { run { } },
-            { run { } })
-
-        rowController = RowController(recyclerViewAdaptor) { run {} }
+            { run { } },
+            { run { } },
+        rowController)
 
         mockkStatic(Looper::class)
         val looper = mockk<Looper> {
@@ -82,9 +83,10 @@ class RecyclerViewAdaptorTest {
         mockAdapter = spyk(RecyclerViewAdaptor(
             { _, _ -> onItemDismissed() },
             { run { } },
-            { _,_ -> run { } },
             { run { } },
-            { run { } })) {
+            { run { } },
+            { run { } },
+        rowController)) {
             every { notifyDataSetChanged() } returns Unit
             every { notifyItemChanged(any()) } returns Unit
         }
