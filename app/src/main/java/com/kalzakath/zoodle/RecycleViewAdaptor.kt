@@ -18,17 +18,21 @@ class RecyclerViewAdaptor(
     val onListUpdated: (ArrayList<MoodEntryModel>) -> Unit,
     val onMoodValueClicked: (MoodEntryModel, RecyclerViewAdaptor) -> Unit,
     val onStartActivitiesActivity: (MoodEntryModel) -> Unit,
-    val startFeelingsActivity: (MoodEntryModel) -> Unit):
+    val startFeelingsActivity: (MoodEntryModel) -> Unit,
+    private val rowController: DataController):
     Adapter<ViewHolder>(), SwipeHelperCallback.ItemTouchHelperAdaptor {
 
     private val log = Logger.getLogger(MainActivity::class.java.name + "****************************************")
-    private lateinit var _rowController: DataController
-    lateinit var moodList: ArrayList<RowEntryModel>
+    var moodList: ArrayList<RowEntryModel> = arrayListOf()
     lateinit var viewHolder: ViewHolder
 
-    fun connectController(rowController: RowController) {
-        _rowController = rowController
-        _rowController.onDataChangeListener = { addFilterView()}
+    init {
+        rowController.onDataChangeListener = {
+            moodList.clear()
+            moodList.addAll(it.data)
+            addFilterView()
+            notifyDataSetChanged()
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -48,7 +52,7 @@ class RecyclerViewAdaptor(
         var posLast: OptionalInt = OptionalInt.empty()
 
         val arrayDelete = arrayListOf<RowEntryModel>()
-        moodList.forEach { if (it is FilterEntryModel) arrayDelete.add(it)  }
+        moodList.forEach { if (it is FilterEntryModel) { log.info("Deleting FEM"); arrayDelete.add(it) }}
         arrayDelete.forEach { moodList.remove(it) }
 
         log.info("Adding FilterEntryViews")
@@ -162,7 +166,7 @@ class RecyclerViewAdaptor(
         holder.timeText.text = timeFormat.format(calendar.time)
 
         val newMood = MoodEntryModel(dateFormat.format(calendar.time), timeFormat.format(calendar.time),mood.mood,mood.feelings,mood.activities,mood.key)
-        _rowController.update(newMood)
+        rowController.update(newMood)
         //updateMoodEntry(newMood)
     }
 
@@ -251,6 +255,6 @@ class RecyclerViewAdaptor(
     }
 
     override fun onItemDismiss(position: Int) {
-        _rowController.removeAt(position)
+        rowController.removeAt(position)
     }
 }

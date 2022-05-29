@@ -5,7 +5,7 @@ import java.util.logging.Logger
 interface DataController: DataControllerAccessors, DataControllerEventHandlers
 
 interface DataControllerEventHandlers {
-    var onDataChangeListener: (()->Unit)?
+    var onDataChangeListener: ((RowControllerEvent)->Unit)?
 }
 
 interface DataControllerAccessors {
@@ -26,28 +26,18 @@ interface DataControllerAccessors {
     fun get(position: Int): RowEntryModel
 }
 
-class RowController(recyclerViewAdaptor: RecyclerViewAdaptor,
-    private var onDataChangeEvent: (RowControllerEvent) -> Unit): DataController {
+class RowController: DataController {
     private var _rowEntryList = arrayListOf<RowEntryModel>()
-    private val _rvAdaptor = recyclerViewAdaptor
     private val log = Logger.getLogger(MainActivity::class.java.name + "****************************************")
-    override var onDataChangeListener: (() -> Unit)? = null
-
-    init {
-        _rvAdaptor.moodList = _rowEntryList
-        _rvAdaptor.connectController(this)
-    }
-
+    override var onDataChangeListener: ((RowControllerEvent) -> Unit)? = null
 
     private fun callChangeEvent(data: ArrayList<RowEntryModel>, eventType: Int) {
-        onDataChangeEvent(RowControllerEvent(data, eventType))
-        onDataChangeListener?.invoke()
+        onDataChangeListener?.invoke(RowControllerEvent(_rowEntryList, eventType))
     }
 
     override fun add(rowEntryModel: RowEntryModel, callUpdate: Boolean) {
         log.info("Row added")
         _rowEntryList.add(rowEntryModel)
-        _rvAdaptor.notifyItemInserted(_rowEntryList.size)
 
         if (callUpdate) {
             callChangeEvent(_rowEntryList, RowControllerEvent.ADDITION )
@@ -70,7 +60,6 @@ class RowController(recyclerViewAdaptor: RecyclerViewAdaptor,
     }
 
     override fun removeAt(position: Int, callUpdate: Boolean) {
-        _rvAdaptor.notifyItemRemoved(position)
         _rowEntryList.removeAt(position)
         if (callUpdate) callChangeEvent(_rowEntryList, RowControllerEvent.REMOVE )
     }
@@ -89,6 +78,7 @@ class RowController(recyclerViewAdaptor: RecyclerViewAdaptor,
     override fun update(rowEntryModel: RowEntryModel, callUpdate: Boolean) {
         val index = indexOf(rowEntryModel)
         if (index != -1) updateAt(index, rowEntryModel, callUpdate)
+        else add(rowEntryModel)
     }
 
     override fun updateAt(position: Int, rowEntryModel: RowEntryModel, callUpdate: Boolean): Boolean {
@@ -103,7 +93,6 @@ class RowController(recyclerViewAdaptor: RecyclerViewAdaptor,
 
                 if (newMoodEntryUpdated > moodEntryUpdated) {
                     _rowEntryList[position] = rowEntryModel
-                    _rvAdaptor.notifyItemChanged(position)
                     if (callUpdate) {
                         callChangeEvent(_rowEntryList, RowControllerEvent.UPDATE )
                         sort()
@@ -132,7 +121,7 @@ class RowController(recyclerViewAdaptor: RecyclerViewAdaptor,
 
         _rowEntryList.indices.forEach {
             val index = oldList.indexOf(_rowEntryList[it])
-            if (index != it) _rvAdaptor.notifyItemMoved(it, index)
+            if (index != it) callChangeEvent(arrayListOf(_rowEntryList[it]), RowControllerEvent.UPDATE)
         }
     }
 

@@ -33,7 +33,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var getSettingsActivityResult: ActivityResultLauncher<Intent>
     private lateinit var getFeelingsActivityResult: ActivityResultLauncher<Intent>
     private lateinit var getTrendViewActivitiesResult: ActivityResultLauncher<Intent>
-    private lateinit var rowController: RowController
+    private lateinit var rowController: DataController
     private lateinit var secureFileHandler: SecureFileHandler
     private lateinit var onlineDataHandler: OnlineDataHandler
     private lateinit var dataHandler: DataHandler
@@ -71,9 +71,8 @@ class MainActivity : AppCompatActivity() {
         val settingsString = secureFileHandler.read("settings.json")
         readSettingsDataFromJson(settingsString)
 
+        rowController = RowController()
         val recyclerViewAdaptor = setupRecycleView()
-        rowController = RowController(recyclerViewAdaptor
-        ) { event -> handleOnDataChangeEvent(event) }
 
         dataHandler = DataHandler(secureFileHandler, applicationContext)
 
@@ -102,7 +101,8 @@ class MainActivity : AppCompatActivity() {
             { moodList -> handleListUpdated(moodList) },
             { moodEntry, recycleViewAdaptor -> setupMoodPicker(moodEntry, recycleViewAdaptor) },
             { moodEntry -> startActivityActivities(moodEntry) },
-            { moodEntry -> startActivityFeelings(moodEntry) })
+            { moodEntry -> startActivityFeelings(moodEntry) },
+        rowController)
 
         val callback: ItemTouchHelper.Callback = SwipeHelperCallback(recyclerViewAdaptor)
         val mItemTouchHelper = ItemTouchHelper(callback)
