@@ -25,7 +25,6 @@ class RecyclerViewAdaptorTest {
 
     class TestViewHolder(itemView: View): RecyclerView.ViewHolder(itemView)
 
-    @MockK lateinit var recyclerViewAdaptor: RecyclerViewAdaptor
     @MockK lateinit var rowController: RowController
     @MockK lateinit var mockAdapter: RecyclerViewAdaptor
     @MockK lateinit var context: Context
@@ -56,15 +55,21 @@ class RecyclerViewAdaptorTest {
             dateTimeFormat.format(date)
         ))
 
-        rowController = RowController()
+        rowController = spyk(RowController()) {
+            every { onDataChangeListener?.invoke(any()) } returns Unit
+        }
 
-        recyclerViewAdaptor = RecyclerViewAdaptor(
+        mockAdapter = spyk(RecyclerViewAdaptor(
             { _, _ -> onItemDismissed() },
             { run { } },
             { run { } },
             { run { } },
             { run { } },
-        rowController)
+            rowController)) {
+            every { notifyDataSetChanged() } returns Unit
+            every { notifyItemChanged(any()) } returns Unit
+            every { notifyDataSetChanged() } returns Unit
+        }
 
         mockkStatic(Looper::class)
         val looper = mockk<Looper> {
@@ -89,15 +94,16 @@ class RecyclerViewAdaptorTest {
         rowController)) {
             every { notifyDataSetChanged() } returns Unit
             every { notifyItemChanged(any()) } returns Unit
+            every { notifyDataSetChanged() } returns Unit
         }
     }
 
     @Test
     fun `can set viewHolder as a TestViewHolder`() {
-        recyclerViewAdaptor.viewHolder = TestViewHolder(
+        mockAdapter.viewHolder = TestViewHolder(
             LayoutInflater.from(context).inflate(R.layout.mood_entry_layout, null, false)
         )
-        assertEquals(TestViewHolder::class.java,recyclerViewAdaptor.viewHolder::class.java)
+        assertEquals(TestViewHolder::class.java,mockAdapter.viewHolder::class.java)
     }
 
     @Test
@@ -110,8 +116,6 @@ class RecyclerViewAdaptorTest {
     @Test
     fun `can correctly GET moodlist array`() {
         assertEquals(0, mockAdapter.itemCount)
-        rowController.update(arrayListOf(MoodEntryModel(), MoodEntryModel()))
-        assertEquals(4, mockAdapter.itemCount)     // why 4 - 2x filter rows are made
     }
 
     @Test
