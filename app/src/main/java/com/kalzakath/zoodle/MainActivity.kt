@@ -24,6 +24,7 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import com.kalzakath.zoodle.interfaces.DataController
+import com.kalzakath.zoodle.interfaces.OnlineDataHandler
 import java.lang.reflect.Modifier
 import java.time.LocalDateTime
 import java.util.logging.Logger
@@ -77,7 +78,7 @@ class MainActivity : AppCompatActivity() {
 
         dataHandler = DataHandler(secureFileHandler, applicationContext)
 
-        onlineDataHandler = OnlineDataHandler {rowEntryList -> updateList(rowEntryList)}
+        onlineDataHandler = FirebaseConnectionHandler { rowEntryList -> updateList(rowEntryList)}
 
         initButtons()
         setActivityListeners()

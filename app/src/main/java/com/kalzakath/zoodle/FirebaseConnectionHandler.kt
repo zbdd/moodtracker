@@ -7,20 +7,21 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import com.kalzakath.zoodle.interfaces.OnlineDataHandler
 
-class OnlineDataHandler(
+class FirebaseConnectionHandler(
     val onDataReturned: (ArrayList<RowEntryModel>) -> Unit
-) {
+): OnlineDataHandler {
 
     private lateinit var myRef: DatabaseReference
     private var user: FirebaseUser? = null
 
-    fun onItemDismissed(moodEntry: MoodEntryModel) {
+    override fun onItemDismissed(moodEntry: MoodEntryModel) {
         if (user != null) myRef.child(user?.uid ?: "").child("moodEntries")
             .child(moodEntry.key).removeValue()
     }
 
-    fun onSignInResult(result: FirebaseAuthUIAuthenticationResult): FirebaseUser? {
+    override fun onSignInResult(result: FirebaseAuthUIAuthenticationResult): FirebaseUser? {
         user = FirebaseAuth.getInstance().currentUser
 
         if (result.resultCode == AppCompatActivity.RESULT_OK) {
@@ -33,7 +34,7 @@ class OnlineDataHandler(
         return user
     }
 
-    fun write(moods: ArrayList<MoodEntryModel>) {
+    override fun write(moods: ArrayList<MoodEntryModel>) {
         checkDatabasePathExists()
 
         if (user != null) {
@@ -46,7 +47,7 @@ class OnlineDataHandler(
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun read(user: FirebaseUser?): ArrayList<RowEntryModel> {
+    override fun read(user: FirebaseUser?): ArrayList<RowEntryModel> {
         val moodData = ArrayList<RowEntryModel>()
 
         myRef.child(user!!.uid).child("moodEntries").get()
