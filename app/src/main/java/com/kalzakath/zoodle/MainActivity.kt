@@ -23,6 +23,7 @@ import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import com.google.firebase.auth.FirebaseUser
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
+import com.kalzakath.zoodle.debug.TestSuite
 import com.kalzakath.zoodle.interfaces.DataController
 import com.kalzakath.zoodle.interfaces.OnlineDataHandler
 import java.lang.reflect.Modifier
@@ -84,7 +85,7 @@ class MainActivity : AppCompatActivity() {
         setActivityListeners()
 
         //dataHandler = TestSuite.useLocalData(secureFileHandler, applicationContext)
-        //TestSuite.setDefaultSettings()
+        TestSuite.setDefaultSettings()
 
         rowController.update(dataHandler.read())
     }
@@ -178,22 +179,22 @@ class MainActivity : AppCompatActivity() {
         val numberArray = Array(Settings.moodMax) { (it + 1).toString() }
         val mvHelper = MoodValueHelper()
 
-        when (moodEntry.mood!!.moodMode) {
-            Mood.MOOD_MODE_NUMBERS -> {
+        when (Settings.moodMode) {
+            Settings.MoodModes.NUMBERS -> {
                 numberPicker.displayedValues = numberArray
                 numberPicker.maxValue = Settings.moodMax.minus(1)
                 numberPicker.minValue = 0
                 numberPicker.wrapSelectorWheel = true
                 numberPicker.textColor = Color.WHITE
-                numberPicker.value = moodEntry.mood.value!!.toInt().minus(1)
+                numberPicker.value = moodEntry.mood?.value!!.toInt().minus(1)
 
             }
-            Mood.MOOD_MODE_FACES -> {
+            else -> {
                 numberPicker.displayedValues = resources.getStringArray(R.array.mood_faces)
                 numberPicker.minValue = 0
                 numberPicker.maxValue = resources.getStringArray(R.array.mood_faces).size - 1
                 numberPicker.value =
-                    mvHelper.getSanitisedNumber(moodEntry.mood.value!!.toInt(), Settings.moodMax).minus(1)
+                    mvHelper.getSanitisedNumber(moodEntry.mood?.value!!.toInt(), Settings.moodMax).minus(1)
             }
         }
 
@@ -203,9 +204,9 @@ class MainActivity : AppCompatActivity() {
         val bNpConfirm: Button = findViewById(R.id.bNpConfirm)
 
         bNpConfirm.setOnClickListener {
-            val moodValue: Mood = when (moodEntry.mood.moodMode) {
-                Mood.MOOD_MODE_NUMBERS -> Mood((numberPicker.value + 1).toString(), Mood.MOOD_MODE_NUMBERS)
-                else -> Mood(mvHelper.getUnsanitisedNumber(numberPicker.value + 1, Settings.moodMax).toString(), Mood.MOOD_MODE_FACES)
+            val moodValue: Mood = when (Settings.moodMode) {
+                Settings.MoodModes.NUMBERS -> Mood((numberPicker.value + 1).toString())
+                else -> Mood(mvHelper.getUnsanitisedNumber(numberPicker.value + 1, Settings.moodMax).toString())
             }
             val newMood = MoodEntryModel(
                 moodEntry.date,

@@ -22,8 +22,4 @@ class FilterEntryModel (
     override fun getViewHolder(): RecyclerView.ViewHolder {
         return viewHolder
     }
-
-    override fun update(settings: Settings) {
-        //do nothing
-    }
 }

@@ -26,7 +26,6 @@ open class DataHandler(private var secureFileHandler: SecureFileHandler,
             if (moodEntries.isEmpty()) return moodData
 
             for (x in moodEntries.indices) {
-                moodEntries[x].mood!!.moodMode = Settings.moodMode
                 moodData.add(moodEntries[x])
             }
         }
@@ -65,23 +64,13 @@ open class DataHandler(private var secureFileHandler: SecureFileHandler,
         dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
         val time = dateTimeNow.format(dateTimeFormatter)
 
-        return when (Settings.moodMode) {
-            Mood.MOOD_MODE_NUMBERS -> MoodEntryModel(
+        return MoodEntryModel(
                 date,
                 time,
-                Mood("3", Mood.MOOD_MODE_NUMBERS),
+                Mood("3"),
                 feelings,
                 list,
                 UUID.randomUUID().toString()
             )
-            else -> MoodEntryModel(
-                date,
-                time,
-                Mood("3", Mood.MOOD_MODE_FACES),
-                ArrayList(),
-                ArrayList(),
-                UUID.randomUUID().toString()
-            )
-        }
     }
 }

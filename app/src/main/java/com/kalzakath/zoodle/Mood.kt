@@ -2,23 +2,11 @@ package com.kalzakath.zoodle
 
 import java.io.Serializable
 
-class Mood (nValue: String = "5", mode: Int = MOOD_MODE_FACES): Serializable {
+class Mood (nValue: String = "5"): Serializable {
     var value: String? = nValue
-    var moodMode: Int = mode
-        get() = field
-        set(value) {
-            field = when (value) {
-                MOOD_MODE_NUMBERS -> { toNumber(); MOOD_MODE_NUMBERS
-                }
-                MOOD_MODE_FACES -> { toFaces(); MOOD_MODE_FACES
-                }
-                else -> -1
-            }
-        }
 
     constructor(moodMap: HashMap<String, Any>) : this() {
         value = moodMap["value"].toString()
-        moodMode = moodMap["moodMode"].toString().toInt()
     }
 
     fun toFaces(convertValue: String? = value): String {
@@ -43,10 +31,5 @@ class Mood (nValue: String = "5", mode: Int = MOOD_MODE_FACES): Serializable {
             else -> convertValue
         }
         return num as String
-    }
-
-    companion object {
-        const val MOOD_MODE_NUMBERS: Int = 0
-        const val MOOD_MODE_FACES: Int = 1
     }
 }

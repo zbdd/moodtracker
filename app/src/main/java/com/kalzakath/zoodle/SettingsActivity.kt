@@ -43,11 +43,11 @@ class SettingsActivity() : AppCompatActivity() {
 
         //val settings = intent.getParcelableExtra<Settings>("Settings")
 
-        sMoodNumerals.isChecked = Settings.moodMode == Mood.MOOD_MODE_NUMBERS
+        sMoodNumerals.isChecked = Settings.moodMode == Settings.MoodModes.NUMBERS
 
         sMoodNumerals.setOnCheckedChangeListener { compoundButton, isChecked ->
-            if (isChecked) Settings.moodMode = Mood.MOOD_MODE_NUMBERS
-            else Settings.moodMode = Mood.MOOD_MODE_FACES
+            if (isChecked) Settings.moodMode = Settings.MoodModes.NUMBERS
+            else Settings.moodMode = Settings.MoodModes.FACES
         }
 
         tvSettingsExport.setOnClickListener {

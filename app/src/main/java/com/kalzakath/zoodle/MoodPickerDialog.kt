@@ -35,7 +35,7 @@ class MoodPickerDialog(context: Context, val onCreateMoodEntry: (MoodEntryModel)
         return MoodEntryModel(
             date.text.toString(),
             time.text.toString(),
-            Mood(mood.text.toString(), Settings.moodMode)
+            Mood(mood.text.toString())
         )
     }
 

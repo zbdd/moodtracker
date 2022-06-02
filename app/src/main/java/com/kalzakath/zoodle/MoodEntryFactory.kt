@@ -57,8 +57,7 @@ class MoodEntryFactory: RowEntryFactory() {
         val randomTime = random.nextInt(10,23).toString() + ":" + random.nextInt(10,59).toString()
         val time = randomTime.format(dateTimeFormatter)
 
-        return when (Settings.moodMode) {
-            Mood.MOOD_MODE_NUMBERS -> MoodEntryModel(
+        return MoodEntryModel(
                 dateTime.toString(),
                 time,
                 Mood(moodVal),
@@ -66,15 +65,6 @@ class MoodEntryFactory: RowEntryFactory() {
                 list,
                 UUID.randomUUID().toString()
             )
-            else -> MoodEntryModel(
-                dateTime.toString(),
-                time,
-                Mood(moodVal, Mood.MOOD_MODE_FACES),
-                ArrayList(),
-                ArrayList(),
-                UUID.randomUUID().toString()
-            )
-        }
     }
 }
 

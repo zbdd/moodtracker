@@ -52,27 +52,13 @@ class DebugDataHandler (secureFileHandler: SecureFileHandler,
             feelings.add(availFeelings[random.nextInt(0, availFeelings.size - 1)])
         }
 
-        var mood = MoodEntryModel()
-        when (Settings.moodMode) {
-            Mood.MOOD_MODE_NUMBERS -> mood = MoodEntryModel(
-                "$randomYear-$randMonth-$randDay",
-                "12:34",
-                Mood(randMood),
-                feelings,
-                list,
-                "test_" + UUID.randomUUID().toString()
-            )
-            Mood.MOOD_MODE_FACES -> {
-                mood = MoodEntryModel(
-                    "$randomYear-$randMonth-$randDay",
-                    "12:34",
-                    Mood("3", Mood.MOOD_MODE_FACES),
-                    feelings,
-                    list,
-                    "test_" + UUID.randomUUID().toString()
-                )
-            }
-        }
-        return mood
+        return MoodEntryModel(
+            "$randomYear-$randMonth-$randDay",
+            "12:34",
+            Mood(randMood),
+            feelings,
+            list,
+            "test_" + UUID.randomUUID().toString()
+        )
     }
 }

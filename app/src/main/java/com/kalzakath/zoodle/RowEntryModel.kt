@@ -11,6 +11,4 @@ interface RowEntryModel {
     fun bindToViewHolder(holder: RecyclerView.ViewHolder)
 
     fun getViewHolder(): RecyclerView.ViewHolder
-
-    fun update(settings: Settings)
 }

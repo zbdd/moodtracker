@@ -58,7 +58,7 @@ class MoodEntryModel(
         val moodHelper = MoodValueHelper()
 
         if (mood != null) {
-            if (mood.moodMode == Mood.MOOD_MODE_FACES)
+            if (Settings.moodMode == Settings.MoodModes.FACES)
 
                 mViewHolder.moodText.text = mViewHolder.itemView.resources.getString(
                     moodHelper.getEmoji(
@@ -104,9 +104,5 @@ class MoodEntryModel(
                 !!.toInt() == 3 -> mViewHolder.moodText.setBackgroundResource(R.drawable.mood_rating_colour)
             }
         }
-    }
-
-    override fun update(settings: Settings) {
-        mood!!.moodMode = Settings.moodMode
     }
 }

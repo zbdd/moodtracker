@@ -2,11 +2,16 @@ package com.kalzakath.zoodle
 
 object Settings {
     object Default {
-        const val moodMode: Int = Mood.MOOD_MODE_NUMBERS
+        const val moodMode: Int = MoodModes.NUMBERS
         const val moodMax: Int = 5
         const val onlineEnabled = false
         const val debugMode = true
         const val isPremiumEdition = true
+    }
+
+    object MoodModes {
+        const val NUMBERS = 0
+        const val FACES = 1
     }
 
     var moodMode: Int = Default.moodMode
