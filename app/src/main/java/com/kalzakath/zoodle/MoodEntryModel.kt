@@ -27,7 +27,7 @@ class MoodEntryModel(
     override var viewType: Int = 1
 
     @Exclude
-    fun toMap(): Map<String, Any?> {
+    override fun toMap(): Map<String, Any?> {
         return mapOf(
             "date" to date,
             "time" to time,
