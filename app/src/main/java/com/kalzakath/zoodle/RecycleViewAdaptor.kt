@@ -14,6 +14,7 @@ import java.util.*
 import java.util.logging.Logger
 import java.util.stream.IntStream
 
+@SuppressLint("NotifyDataSetChanged")
 class RecyclerViewAdaptor(
     val onSwiped: (MoodEntryModel, ArrayList<MoodEntryModel>) -> Unit,
     val onListUpdated: (ArrayList<MoodEntryModel>) -> Unit,
@@ -34,6 +35,7 @@ class RecyclerViewAdaptor(
             moodList.addAll(it.data)
             addFilterView()
             notifyDataSetChanged()
+
         }
     }
 
@@ -52,10 +54,6 @@ class RecyclerViewAdaptor(
         var minDate: LocalDate
         var pos: OptionalInt = OptionalInt.empty()
         var posLast: OptionalInt = OptionalInt.empty()
-
-        val arrayDelete = arrayListOf<RowEntryModel>()
-        moodList.forEach { if (it is FilterEntryModel) { log.info("Deleting FEM"); arrayDelete.add(it) }}
-        arrayDelete.forEach { moodList.remove(it) }
 
         log.info("Adding FilterEntryViews")
 
@@ -132,6 +130,7 @@ class RecyclerViewAdaptor(
                     title,
                     moodList[pos.asInt].date,
                     MoodEntryHelper.convertStringToTime(moodList[pos.asInt].time).plusMinutes(1).toString()))
+                notifyItemInserted(pos.asInt)
                 pos = OptionalInt.of(pos.asInt + 1)
 
                 if (posLast != OptionalInt.empty()) {
@@ -142,9 +141,12 @@ class RecyclerViewAdaptor(
                     moodList.add(posLast.asInt, FilterEntryModel("",
                         moodList[posLast.asInt].date,
                         MoodEntryHelper.convertStringToTime(moodList[posLast.asInt].time).plusMinutes(1).toString()))
+                    notifyItemInserted(posLast.asInt)
                 } else { moodList.add(FilterEntryModel("",
                     moodList[moodList.size-1].date,
-                    MoodEntryHelper.convertStringToTime(moodList[moodList.size-1].time).minusMinutes(1).toString())) }
+                    MoodEntryHelper.convertStringToTime(moodList[moodList.size-1].time).minusMinutes(1).toString()))
+                    notifyItemInserted(moodList.size-1)
+                }
             }
         }
 
@@ -156,6 +158,7 @@ class RecyclerViewAdaptor(
                         if (moodList[i - 1].key != "")
                             if (moodList[i -1].viewType == FilterEntryModel().viewType) {
                                 moodList.removeAt(i - 1)
+                                notifyItemRemoved(i-1)
                             }
         }
     }
@@ -257,6 +260,6 @@ class RecyclerViewAdaptor(
     }
 
     override fun onItemDismiss(position: Int) {
-        rowController.removeAt(position)
+        rowController.remove(moodList[position])
     }
 }

@@ -14,11 +14,11 @@ class RowController: DataController {
 
     override fun add(rowEntryModel: RowEntryModel, callUpdate: Boolean) {
         _rowEntryList.add(rowEntryModel)
+        sort()
 
         if (callUpdate) {
             log.info("Row added")
             callChangeEvent(_rowEntryList, RowControllerEvent.ADDITION )
-            sort()
         }
     }
 
@@ -33,12 +33,14 @@ class RowController: DataController {
             if (index != null && index != -1) updateAt(index, rw)
             else add(rw)
         }
-        callChangeEvent(_rowEntryList, RowControllerEvent.ADDITION )
         sort()
+        callChangeEvent(_rowEntryList, RowControllerEvent.ADDITION )
     }
 
     override fun removeAt(position: Int, callUpdate: Boolean) {
+        log.info("Removing row at position $position\n${_rowEntryList[position].toMap()}")
         _rowEntryList.removeAt(position)
+        sort()
         if (callUpdate) callChangeEvent(_rowEntryList, RowControllerEvent.REMOVE )
     }
 
@@ -50,6 +52,7 @@ class RowController: DataController {
     override fun remove(rowEntryList: ArrayList<RowEntryModel>) {
         log.info("Attempting to remove rows...")
         rowEntryList.forEach { toDelete -> _rowEntryList.find { toDelete.key == it.key } ?.let { remove(it, false) } }
+        sort()
         callChangeEvent(_rowEntryList, RowControllerEvent.REMOVE )
     }
 
@@ -72,8 +75,8 @@ class RowController: DataController {
                 if (newMoodEntryUpdated > moodEntryUpdated) {
                     _rowEntryList[position] = rowEntryModel
                     if (callUpdate) {
-                        callChangeEvent(_rowEntryList, RowControllerEvent.UPDATE )
                         sort()
+                        callChangeEvent(_rowEntryList, RowControllerEvent.UPDATE )
                     }
                     return true
                 }
@@ -116,8 +119,8 @@ class RowController: DataController {
             if (index != null && index != -1) updateAt(index, updateRow, false)
             else add(updateRow, false)
         }
-        callChangeEvent(_rowEntryList, RowControllerEvent.UPDATE )
         sort()
+        callChangeEvent(_rowEntryList, RowControllerEvent.UPDATE )
     }
 
     override fun size(): Int { return _rowEntryList.size }

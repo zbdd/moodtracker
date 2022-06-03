@@ -1,6 +1,7 @@
 package com.kalzakath.zoodle
 
 import androidx.recyclerview.widget.RecyclerView
+import com.google.firebase.database.Exclude
 
 interface RowEntryModel {
     var date: String
@@ -11,4 +12,7 @@ interface RowEntryModel {
     fun bindToViewHolder(holder: RecyclerView.ViewHolder)
 
     fun getViewHolder(): RecyclerView.ViewHolder
+
+    @Exclude
+    fun toMap(): Map<String, Any?>
 }

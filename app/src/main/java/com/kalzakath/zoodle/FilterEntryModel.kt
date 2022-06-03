@@ -22,4 +22,13 @@ class FilterEntryModel (
     override fun getViewHolder(): RecyclerView.ViewHolder {
         return viewHolder
     }
+
+    override fun toMap(): Map<String, Any?> {
+        return mapOf(
+            "title" to title,
+            "date" to date,
+            "time" to time,
+            "key" to key
+        )
+    }
 }
