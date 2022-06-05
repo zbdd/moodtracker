@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black"
+    tools:context=".FrontPageActivity">
+
+    <ImageButton
+        android:id="@+id/ibFrontLogin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="10dp"
+        android:contentDescription="@string/login_content_description"
+        android:minHeight="48dp"
+        android:tooltipText="@string/click_to_login"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/fui_ic_anonymous_white_24dp"
+        tools:ignore="RedundantDescriptionCheck" />
+
+    <TextView
+        android:id="@+id/tvFrontTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="5dp"
+        android:text="@string/app_name"
+        android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:textColor="@color/white"
+        android:textSize="24sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/llFront"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="200dp"
+        android:background="#4E4E4E"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvFrontTitle">
+
+        <LinearLayout
+            android:id="@+id/llFrontMood"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:layout_weight="0"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvFrontMoodTitle"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_margin="5dp"
+                android:layout_weight="0"
+                android:background="@drawable/activity_row_rounded_corner"
+                android:gravity="center_horizontal|center_vertical"
+                android:text="@string/front_mood_title"
+                android:textColor="@color/black"
+                android:textSize="16sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_weight="0"
+                android:orientation="horizontal">
+
+                <ImageButton
+                    android:id="@+id/ibFrontVeryBad"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    app:srcCompat="@drawable/mood_rating_colour_low" />
+
+                <ImageButton
+                    android:id="@+id/ibFrontBad"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    app:srcCompat="@drawable/mood_rating_colour_low" />
+
+                <ImageButton
+                    android:id="@+id/ibFrontOk"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    app:srcCompat="@drawable/mood_rating_colour" />
+
+                <ImageButton
+                    android:id="@+id/ibFrontGood"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    app:srcCompat="@drawable/mood_rating_colour_high" />
+
+                <ImageButton
+                    android:id="@+id/ibFrontVeryGood"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    app:srcCompat="@drawable/mood_rating_colour_high" />
+
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/llFrontSleep"
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvFrontSleepTitle"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_margin="5dp"
+                android:layout_weight="0"
+                android:background="@drawable/activity_row_rounded_corner"
+                android:gravity="center_horizontal|center_vertical"
+                android:text="@string/front_sleep_title"
+                android:textColor="@color/black"
+                android:textSize="16sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_weight="0"
+                android:orientation="horizontal">
+
+                <ImageButton
+                    android:id="@+id/ibSleepVeryBad"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    app:srcCompat="@drawable/mood_rating_colour_low" />
+
+                <ImageButton
+                    android:id="@+id/ibSleepBad"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    app:srcCompat="@drawable/mood_rating_colour_low" />
+
+                <ImageButton
+                    android:id="@+id/ibSleepOk"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    app:srcCompat="@drawable/mood_rating_colour" />
+
+                <ImageButton
+                    android:id="@+id/ibSleepGood"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    app:srcCompat="@drawable/mood_rating_colour_high" />
+
+                <ImageButton
+                    android:id="@+id/ibFrontSleepGood"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    app:srcCompat="@drawable/mood_rating_colour_high" />
+
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/llMedication"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_weight="0"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/tvFrontMedicationTitle"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_margin="5dp"
+                android:layout_weight="2"
+                android:background="@drawable/activity_row_rounded_corner"
+                android:gravity="center_horizontal|center_vertical"
+                android:text="@string/front_medication_title"
+                android:textColor="@color/black"
+                android:textSize="16sp" />
+
+            <CheckBox
+                android:id="@+id/cbFrontMedication"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:layout_weight="1"
+                android:background="@drawable/activity_row_rounded_corner" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/llFrontButtons"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_weight="0"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/llFront">
+
+        <Button
+            android:id="@+id/bFrontSeeData"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="See Data" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -9,7 +9,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Rows">
         <activity
-            android:name=".createMoodEntryActivity"
+            android:name=".FrontPageActivity"
             android:exported="false" />
         <activity
             android:name=".FeelingsActivity"

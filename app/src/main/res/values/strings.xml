@@ -22,6 +22,10 @@
     <string name="mood_picker_mood_title">Mood</string>
     <string name="mood_picker_mood_value">3</string>
 
+    <string name="front_mood_title">How are you feeling today?</string>
+    <string name="front_sleep_title">How did you sleep last night?</string>
+    <string name="front_medication_title">Did you take your medication?</string>
+
     <string name="confirm_change">Confirm</string>
     <string name="remove">Remove</string>
     <string name="add">Add</string>

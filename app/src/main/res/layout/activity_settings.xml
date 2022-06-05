@@ -36,7 +36,7 @@
         tools:ignore="RedundantDescriptionCheck" />
 
     <LinearLayout
-        android:id="@+id/llSettings"
+        android:id="@+id/llFront"
         android:layout_width="0dp"
         android:layout_height="500dp"
         android:layout_marginStart="10dp"
@@ -56,7 +56,7 @@
             android:orientation="horizontal">
 
             <TextView
-                android:id="@+id/tvSettingsImport"
+                android:id="@+id/tvFrontMoodTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_margin="5dp"
@@ -123,5 +123,5 @@
         android:text="@string/confirm_change"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/llSettings" />
+        app:layout_constraintTop_toBottomOf="@+id/llFront" />
 </androidx.constraintlayout.widget.ConstraintLayout>
