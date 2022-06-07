@@ -60,8 +60,8 @@
     <string name="feelings_name">Feeling</string>
     <string name="feelings_delete">Press to delete</string>
     <string name="feelings_cross">X</string>
-    <string name="feelings_add_new">Click here to add a new Feeling</string>
-    <string name="feelings_add_new_description">Clickable button to add new Feeling</string>
+    <string name="feelings_add_new">Click here to add a new feeling</string>
+    <string name="feelings_add_new_description">Clickable button to add new feeling</string>
     <string name="feelings_add_new_feeling">New Feeling</string>
     <string name="feelings_enable_delete">Delete Feeling</string>
     <string name="feelings_add_new_activity_name_hint">Record a new feeling</string>
