@@ -165,7 +165,7 @@
                     app:srcCompat="@drawable/mood_rating_colour_high" />
 
                 <ImageButton
-                    android:id="@+id/ibFrontSleepGood"
+                    android:id="@+id/ibSleepVeryGood"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
@@ -200,6 +200,72 @@
                 android:layout_weight="1"
                 android:background="@drawable/activity_row_rounded_corner" />
 
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/llActivities"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvFrontActivitiesTitle"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_margin="5dp"
+                android:layout_weight="0"
+                android:background="@drawable/activity_row_rounded_corner"
+                android:gravity="center_horizontal|center_vertical"
+                android:text="@string/activities_add_new"
+                android:textColor="@color/black"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/tvFrontActivities"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="5dp"
+                android:layout_weight="0"
+                android:background="@drawable/activity_row_rounded_corner"
+                android:minHeight="30dp"
+                android:textAlignment="center"
+                android:textColor="#000000"
+                android:textSize="16sp"
+                android:visibility="invisible" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/llFeelings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvFrontFeelingsTitle"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_margin="5dp"
+                android:layout_weight="0"
+                android:background="@drawable/activity_row_rounded_corner"
+                android:gravity="center_horizontal|center_vertical"
+                android:text="@string/feelings_add_new"
+                android:textColor="@color/black"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/tvFrontFeelings"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="5dp"
+                android:layout_weight="0"
+                android:background="@drawable/activity_row_rounded_corner"
+                android:minHeight="30dp"
+                android:textAlignment="center"
+                android:textColor="#000000"
+                android:textSize="16sp"
+                android:visibility="invisible" />
         </LinearLayout>
 
     </LinearLayout>

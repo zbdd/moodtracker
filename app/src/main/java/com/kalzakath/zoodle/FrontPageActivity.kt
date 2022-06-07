@@ -3,8 +3,10 @@ package com.kalzakath.zoodle
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.view.View
 import android.widget.CheckBox
 import android.widget.ImageButton
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -25,19 +27,20 @@ class FrontPageActivity : AppCompatActivity() {
 
         val moodEntry = prepMoodEntry()
 
-        initActivityListeners()
+        initActivityListeners(moodEntry)
         initButtons(moodEntry)
 
     }
 
-    private fun initActivityListeners() {
+    private fun initActivityListeners(moodEntry: MoodEntryModel) {
+
         getActivitiesActivityResult =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
                 val data = it.data?.getStringArrayListExtra("AvailableActivities")
                 if (data != null) {
                     secureFileHandler.write(data as ArrayList<*>, "available.json")
-                    val updateMoodEntry = it.data?.getSerializableExtra("MoodEntry") as MoodEntryModel
-
+                    moodEntry.update(it.data?.getSerializableExtra("MoodEntry") as MoodEntryModel)
+                    updateButtons(moodEntry)
                 }
             }
 
@@ -45,7 +48,8 @@ class FrontPageActivity : AppCompatActivity() {
             val data = it.data?.getStringArrayListExtra("AvailableFeelings")
             if (data != null) {
                 secureFileHandler.write(data as ArrayList<*>, "feelings.json")
-                val moodEntryUpdate = it.data?.getSerializableExtra("MoodEntry") as MoodEntryModel
+                moodEntry.update(it.data?.getSerializableExtra("MoodEntry") as MoodEntryModel)
+                updateButtons(moodEntry)
             }
         }
     }
@@ -90,6 +94,32 @@ class FrontPageActivity : AppCompatActivity() {
         return MoodEntryModel(LocalDate.now().toString(), LocalDateTime.now().toString().subSequence(0,5).toString())
     }
 
+    private fun updateButtons(moodEntry: MoodEntryModel) {
+        val activities: TextView = findViewById(R.id.tvFrontActivities)
+        val feelings: TextView = findViewById(R.id.tvFrontFeelings)
+        val activityTitle: TextView = findViewById(R.id.tvFrontActivitiesTitle)
+        val feelingsTitle: TextView = findViewById(R.id.tvFrontFeelingsTitle)
+
+        if (moodEntry.activities.isNotEmpty()) {
+            activityTitle.text = resources.getString(R.string.main_row_activities)
+            activities.text = moodEntry.activities.toString().removeSurrounding("[","]")
+            activities.visibility = View.VISIBLE
+        } else {
+            activities.text = ""
+            activities.visibility = View.INVISIBLE
+            activityTitle.text = resources.getString(R.string.activities_add_new)
+        }
+        if (moodEntry.feelings.isNotEmpty()) {
+            feelingsTitle.text = resources.getString(R.string.main_row_feelings)
+            feelings.text = moodEntry.feelings.toString().removeSurrounding("[","]")
+            feelings.visibility = View.VISIBLE
+        } else {
+            feelings.text = ""
+            feelings.visibility = View.INVISIBLE
+            feelingsTitle.text = resources.getString(R.string.feelings_add_new)
+        }
+    }
+
     private fun initButtons(moodEntry: MoodEntryModel) {
         val moodVeryBad: ImageButton = findViewById(R.id.ibFrontVeryBad)
         val moodBad: ImageButton = findViewById(R.id.ibFrontBad)
@@ -105,8 +135,8 @@ class FrontPageActivity : AppCompatActivity() {
 
         val medicationCheck: CheckBox = findViewById(R.id.cbFrontMedication)
 
-        val activityTitle: TextView = findViewById(R.id.tvFrontActivitiesTitle)
-        val feelingsTitle: TextView = findViewById(R.id.tvFrontFeelingsTitle)
+        val activityTitle: LinearLayout = findViewById(R.id.llActivities)
+        val feelingsTitle: LinearLayout = findViewById(R.id.llFeelings)
 
         val btnMoodArray = arrayOf(moodVeryBad, moodBad, moodOk, moodGood, moodVeryGood)
         val btnSleepArray = arrayOf(sleepVeryBad, sleepBad, sleepOk, sleepGood, sleepVeryGood)

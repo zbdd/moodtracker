@@ -6,14 +6,16 @@ import com.google.firebase.database.IgnoreExtraProperties
 import java.io.Serializable
 import java.time.LocalDateTime
 import java.util.*
+import kotlin.reflect.KMutableProperty
+import kotlin.reflect.full.memberProperties
 
 @IgnoreExtraProperties
 class MoodEntryModel(
     override var date: String = "1987-11-06",
     override var time: String = "08:30",
     val mood: Mood? = Mood(),
-    val feelings: MutableList<String> = ArrayList(),
-    val activities: MutableList<String> = ArrayList(),
+    var feelings: MutableList<String> = ArrayList(),
+    var activities: MutableList<String> = ArrayList(),
     override var key: String = "local_" + UUID.randomUUID().toString(),
     var lastUpdated: String = LocalDateTime.now().toString()
 ):RowEntryModel,
@@ -37,6 +39,19 @@ class MoodEntryModel(
             "key" to key,
             "lastUpdated" to lastUpdated
         )
+    }
+
+    fun update(moodEntry: MoodEntryModel) {
+        for (prop in MoodEntryModel::class.memberProperties) {
+            val updateValues =
+                moodEntry::class.java.declaredFields.find { it.name == prop.name }
+            if (updateValues != null)
+                if (updateValues.name != "viewHolder")
+                    if (prop is KMutableProperty<*>) {
+                        println("INFO INFO: ${updateValues.name}")
+                        prop.setter.call(this, updateValues.get(moodEntry))
+                    }
+        }
     }
 
     fun compare(moodEntry: MoodEntryModel): Boolean {
