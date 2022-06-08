@@ -205,7 +205,7 @@
         <LinearLayout
             android:id="@+id/llActivities"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="100dp"
             android:layout_weight="0"
             android:orientation="vertical">
 
@@ -238,7 +238,7 @@
         <LinearLayout
             android:id="@+id/llFeelings"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="100dp"
             android:layout_weight="0"
             android:orientation="vertical">
 

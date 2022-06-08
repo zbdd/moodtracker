@@ -14,6 +14,10 @@ import java.util.*
 import java.util.logging.Logger
 import java.util.stream.IntStream
 
+interface RecycleRowOnEvent {
+    var onLongPress: ((MoodEntryModel) -> Unit)?
+}
+
 @SuppressLint("NotifyDataSetChanged")
 class RecyclerViewAdaptor(
     val onSwiped: (MoodEntryModel, ArrayList<MoodEntryModel>) -> Unit,
@@ -23,8 +27,9 @@ class RecyclerViewAdaptor(
     val startFeelingsActivity: (MoodEntryModel) -> Unit,
     private val rowController: DataController
 ):
-    Adapter<ViewHolder>(), SwipeHelperCallback.ItemTouchHelperAdaptor {
+    Adapter<ViewHolder>(), SwipeHelperCallback.ItemTouchHelperAdaptor, RecycleRowOnEvent {
 
+    override var onLongPress: ((MoodEntryModel) -> Unit)? = null
     private val log = Logger.getLogger(MainActivity::class.java.name + "****************************************")
     var moodList: ArrayList<RowEntryModel> = arrayListOf()
     lateinit var viewHolder: ViewHolder
@@ -189,6 +194,10 @@ class RecyclerViewAdaptor(
         val calendar
                 : Calendar = Calendar.getInstance(TimeZone.getDefault())
 
+        mHolder.moodText.setOnLongClickListener {
+            onLongPress?.invoke(row)
+            return@setOnLongClickListener true
+        }
         mHolder.moodText.setOnClickListener {
             onMoodValueClicked(moodEntry)
         }
@@ -214,6 +223,10 @@ class RecyclerViewAdaptor(
                 ).show()
             }
 
+        mHolder.dateText.setOnLongClickListener {
+            onLongPress?.invoke(row)
+            return@setOnLongClickListener true
+        }
         mHolder.dateText.setOnClickListener {
             DatePickerDialog(
                 mHolder.itemView.context, dateSetListener,
@@ -223,6 +236,10 @@ class RecyclerViewAdaptor(
             ).show()
         }
 
+        mHolder.timeText.setOnLongClickListener {
+            onLongPress?.invoke(row)
+            return@setOnLongClickListener true
+        }
         mHolder.timeText.setOnClickListener {
             DatePickerDialog(
                 mHolder.itemView.context, dateSetListener,
@@ -232,10 +249,18 @@ class RecyclerViewAdaptor(
             ).show()
         }
 
+        mHolder.activityText.setOnLongClickListener {
+            onLongPress?.invoke(row)
+            return@setOnLongClickListener true
+        }
         mHolder.activityText.setOnClickListener {
             onStartActivitiesActivity(moodEntry)
         }
 
+        mHolder.feelingsText.setOnLongClickListener {
+            onLongPress?.invoke(row)
+            return@setOnLongClickListener true
+        }
         mHolder.feelingsText.setOnClickListener {
             startFeelingsActivity(moodEntry)
         }

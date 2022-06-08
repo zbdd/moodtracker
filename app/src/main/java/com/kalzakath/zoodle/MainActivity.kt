@@ -36,6 +36,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var getSettingsActivityResult: ActivityResultLauncher<Intent>
     private lateinit var getFeelingsActivityResult: ActivityResultLauncher<Intent>
     private lateinit var getTrendViewActivitiesResult: ActivityResultLauncher<Intent>
+    private lateinit var getFrontPageActivityResult: ActivityResultLauncher<Intent>
     private lateinit var rowController: DataController
     private lateinit var secureFileHandler: SecureFileHandler
     private lateinit var onlineDataHandler: OnlineDataHandler
@@ -88,6 +89,9 @@ class MainActivity : AppCompatActivity() {
         TestSuite.setDefaultSettings()
 
         rowController.update(dataHandler.read())
+
+        val moodEntry = intent.getSerializableExtra("MoodEntry") as MoodEntryModel
+        rowController.update(moodEntry)
     }
 
     private fun handleOnDataChangeEvent(event: RowControllerEvent) {
@@ -106,6 +110,11 @@ class MainActivity : AppCompatActivity() {
             { moodEntry -> startActivityActivities(moodEntry) },
             { moodEntry -> startActivityFeelings(moodEntry) },
         rowController)
+
+        recyclerViewAdaptor.onLongPress = {
+            log.info("Consumed onLongPress")
+            startActivityFrontPage(it)
+        }
 
         val callback: ItemTouchHelper.Callback = SwipeHelperCallback(recyclerViewAdaptor)
         val mItemTouchHelper = ItemTouchHelper(callback)
@@ -139,6 +148,12 @@ class MainActivity : AppCompatActivity() {
     private fun startActivitySettings() {
         val intent = Intent(this, SettingsActivity::class.java)
         getSettingsActivityResult.launch(intent)
+    }
+
+    private fun startActivityFrontPage(moodEntry: MoodEntryModel) {
+        val intent = Intent(this, FrontPageActivity::class.java)
+        intent.putExtra("MoodEntry", moodEntry)
+        getFrontPageActivityResult.launch(intent)
     }
 
     private fun startActivityTrendView() {
@@ -233,6 +248,11 @@ class MainActivity : AppCompatActivity() {
             }
 
         getTrendViewActivitiesResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        }
+
+        getFrontPageActivityResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            val data = it.data?.getSerializableExtra("MoodEntry") as MoodEntryModel
+            rowController.update(data)
         }
 
         getFeelingsActivityResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {

@@ -27,10 +27,13 @@ class FrontPageActivity : AppCompatActivity() {
         setContentView(R.layout.activity_front_page)
         secureFileHandler = SecureFileHandler(applicationContext)
 
-        val moodEntry = prepMoodEntry()
+        val moodEntry: MoodEntryModel
+        val data = intent.getSerializableExtra("MoodEntry")
+        if (data == null) moodEntry = prepMoodEntry()
+        else moodEntry = data as MoodEntryModel
 
         initActivityListeners(moodEntry)
-        initButtons(moodEntry)
+        initButtons(moodEntry, data != null)
     }
 
     private fun initActivityListeners(moodEntry: MoodEntryModel) {
@@ -132,7 +135,7 @@ class FrontPageActivity : AppCompatActivity() {
         }
     }
 
-    private fun initButtons(moodEntry: MoodEntryModel) {
+    private fun initButtons(moodEntry: MoodEntryModel, preset: Boolean = false) {
         val moodVeryBad: ImageButton = findViewById(R.id.ibFrontVeryBad)
         val moodBad: ImageButton = findViewById(R.id.ibFrontBad)
         val moodOk: ImageButton = findViewById(R.id.ibFrontOk)
@@ -154,6 +157,11 @@ class FrontPageActivity : AppCompatActivity() {
 
         val btnMoodArray = arrayOf(moodVeryBad, moodBad, moodOk, moodGood, moodVeryGood)
         val btnSleepArray = arrayOf(sleepVeryBad, sleepBad, sleepOk, sleepGood, sleepVeryGood)
+
+        if (preset) {
+            btnMoodArray.indices.forEach { if(it == moodEntry.mood!!.value!!.toInt()-1) btnMoodArray[it].setBackgroundColor(Color.WHITE) else btnMoodArray[it].setBackgroundColor(Color.DKGRAY) }
+            updateButtons(moodEntry)
+        }
 
         btnMoodArray.forEach { btn -> btn.setOnClickListener {
             it.setBackgroundColor(Color.WHITE)
