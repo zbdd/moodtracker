@@ -4,7 +4,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
-import android.widget.CheckBox
+import android.widget.Button
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -14,10 +14,12 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.gson.GsonBuilder
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 class FrontPageActivity : AppCompatActivity() {
     private lateinit var getActivitiesActivityResult: ActivityResultLauncher<Intent>
     private lateinit var getFeelingsActivityResult: ActivityResultLauncher<Intent>
+    private lateinit var getMainActivityResult: ActivityResultLauncher<Intent>
     private lateinit var secureFileHandler: SecureFileHandler
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,7 +31,6 @@ class FrontPageActivity : AppCompatActivity() {
 
         initActivityListeners(moodEntry)
         initButtons(moodEntry)
-
     }
 
     private fun initActivityListeners(moodEntry: MoodEntryModel) {
@@ -52,6 +53,10 @@ class FrontPageActivity : AppCompatActivity() {
                 updateButtons(moodEntry)
             }
         }
+
+        getMainActivityResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            // dont really need anything
+        }
     }
 
     private fun startActivityActivities(moodEntry: MoodEntryModel) {
@@ -70,6 +75,12 @@ class FrontPageActivity : AppCompatActivity() {
 
         intent.putExtra("MoodEntry", moodEntry)
         getActivitiesActivityResult.launch(intent)
+    }
+
+    private fun startActivityMain(moodEntry: MoodEntryModel) {
+        val intent = Intent(this, MainActivity::class.java)
+        intent.putExtra("MoodEntry", moodEntry)
+        getMainActivityResult.launch(intent)
     }
 
     private fun startActivityFeelings(moodEntry: MoodEntryModel) {
@@ -91,7 +102,8 @@ class FrontPageActivity : AppCompatActivity() {
     }
 
     private fun prepMoodEntry(): MoodEntryModel {
-        return MoodEntryModel(LocalDate.now().toString(), LocalDateTime.now().toString().subSequence(0,5).toString())
+        val timeFormat = DateTimeFormatter.ofPattern("HH:mm")
+        return MoodEntryModel(LocalDate.now().toString(), timeFormat.format(LocalDateTime.now()))
     }
 
     private fun updateButtons(moodEntry: MoodEntryModel) {
@@ -133,17 +145,15 @@ class FrontPageActivity : AppCompatActivity() {
         val sleepGood: ImageButton = findViewById(R.id.ibSleepGood)
         val sleepVeryGood: ImageButton = findViewById(R.id.ibSleepVeryGood)
 
-        val medicationCheck: CheckBox = findViewById(R.id.cbFrontMedication)
+        //val medicationCheck: CheckBox = findViewById(R.id.cbFrontMedication)
 
         val activityTitle: LinearLayout = findViewById(R.id.llActivities)
         val feelingsTitle: LinearLayout = findViewById(R.id.llFeelings)
 
+        val mainActivity: Button = findViewById(R.id.bFrontSeeData)
+
         val btnMoodArray = arrayOf(moodVeryBad, moodBad, moodOk, moodGood, moodVeryGood)
         val btnSleepArray = arrayOf(sleepVeryBad, sleepBad, sleepOk, sleepGood, sleepVeryGood)
-        var moodChoice: ImageButton
-        var sleepChoice: ImageButton
-
-        var medicationChoice = medicationCheck.isChecked
 
         btnMoodArray.forEach { btn -> btn.setOnClickListener {
             it.setBackgroundColor(Color.WHITE)
@@ -154,7 +164,6 @@ class FrontPageActivity : AppCompatActivity() {
 
         btnSleepArray.forEach { btn -> btn.setOnClickListener {
             it.setBackgroundColor(Color.WHITE)
-            sleepChoice = btn
             btnSleepArray.forEach { ib ->
                 if (ib != it) ib.setBackgroundColor(Color.DKGRAY)
             } } }
@@ -165,6 +174,10 @@ class FrontPageActivity : AppCompatActivity() {
 
         feelingsTitle.setOnClickListener {
             startActivityFeelings(moodEntry)
+        }
+
+        mainActivity.setOnClickListener {
+            startActivityMain(moodEntry)
         }
     }
 }
