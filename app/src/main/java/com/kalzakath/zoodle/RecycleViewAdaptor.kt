@@ -1,13 +1,10 @@
 package com.kalzakath.zoodle
 
 import android.annotation.SuppressLint
-import android.app.DatePickerDialog
-import android.app.TimePickerDialog
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView.Adapter
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.kalzakath.zoodle.interfaces.DataController
-import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -168,18 +165,6 @@ class RecyclerViewAdaptor(
         }
     }
 
-    private fun updateDateText(calendar: Calendar, holder: MoodViewHolder, mood: MoodEntryModel) {
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
-        holder.dateText.text = dateFormat.format(calendar.time)
-
-        val timeFormat = SimpleDateFormat("HH:mm", Locale.ENGLISH)
-        holder.timeText.text = timeFormat.format(calendar.time)
-
-        val newMood = MoodEntryModel(dateFormat.format(calendar.time), timeFormat.format(calendar.time),mood.mood,mood.feelings,mood.activities,mood.key)
-        rowController.update(newMood)
-        //updateMoodEntry(newMood)
-    }
-
     override fun getItemViewType(position: Int): Int {
         return moodList[position].viewType
     }
@@ -191,8 +176,11 @@ class RecyclerViewAdaptor(
         val moodEntry = row as MoodEntryModel
         val mHolder = viewHolder as MoodViewHolder
 
-        val calendar
-                : Calendar = Calendar.getInstance(TimeZone.getDefault())
+        val dtPicker = DateTimePicker()
+        dtPicker.initButtons(mHolder, row)
+        dtPicker.onUpdateListener = {
+            rowController.update(it)
+        }
 
         mHolder.moodText.setOnLongClickListener {
             onLongPress?.invoke(row)
@@ -202,51 +190,14 @@ class RecyclerViewAdaptor(
             onMoodValueClicked(moodEntry)
         }
 
-        val timeSetListener = TimePickerDialog.OnTimeSetListener { _, hour, minute ->
-            calendar.set(Calendar.HOUR_OF_DAY, hour)
-            calendar.set(Calendar.MINUTE, minute)
-            updateDateText(calendar, mHolder, moodEntry)
-        }
-
-        val dateSetListener =
-            DatePickerDialog.OnDateSetListener { _, year, month, day ->
-                calendar.set(Calendar.YEAR, year)
-                calendar.set(Calendar.MONTH, month)
-                calendar.set(Calendar.DAY_OF_MONTH, day)
-
-                TimePickerDialog(
-                    mHolder.itemView.context,
-                    timeSetListener,
-                    calendar.get(Calendar.HOUR_OF_DAY),
-                    calendar.get(Calendar.MINUTE),
-                    true
-                ).show()
-            }
-
         mHolder.dateText.setOnLongClickListener {
             onLongPress?.invoke(row)
             return@setOnLongClickListener true
-        }
-        mHolder.dateText.setOnClickListener {
-            DatePickerDialog(
-                mHolder.itemView.context, dateSetListener,
-                calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH)
-            ).show()
         }
 
         mHolder.timeText.setOnLongClickListener {
             onLongPress?.invoke(row)
             return@setOnLongClickListener true
-        }
-        mHolder.timeText.setOnClickListener {
-            DatePickerDialog(
-                mHolder.itemView.context, dateSetListener,
-                calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH)
-            ).show()
         }
 
         mHolder.activityText.setOnLongClickListener {
