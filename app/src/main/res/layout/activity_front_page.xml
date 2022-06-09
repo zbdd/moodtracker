@@ -37,22 +37,91 @@
     <LinearLayout
         android:id="@+id/llFront"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:layout_marginTop="10dp"
         android:layout_marginEnd="10dp"
-        android:layout_marginBottom="200dp"
         android:background="#4E4E4E"
         android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvFrontTitle">
 
         <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:layout_weight="0"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvFrontDateTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:layout_margin="5dp"
+                    android:layout_weight="0"
+                    android:background="@drawable/activity_row_rounded_corner"
+                    android:gravity="center_horizontal|center_vertical"
+                    android:text="@string/mood_picker_date_title"
+                    android:textColor="@color/black"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/tvFrontDate"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:layout_margin="5dp"
+                    android:layout_weight="0"
+                    android:background="@drawable/activity_row_rounded_corner"
+                    android:gravity="center_horizontal|center_vertical"
+                    android:text="@string/mood_picker_date_value"
+                    android:textColor="@color/black"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvFrontTimeTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:layout_margin="5dp"
+                    android:layout_weight="0"
+                    android:background="@drawable/activity_row_rounded_corner"
+                    android:gravity="center_horizontal|center_vertical"
+                    android:text="@string/mood_picker_time_title"
+                    android:textColor="@color/black"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/tvFrontTime"
+                    android:layout_width="match_parent"
+                    android:layout_height="30dp"
+                    android:layout_margin="5dp"
+                    android:layout_weight="0"
+                    android:background="@drawable/activity_row_rounded_corner"
+                    android:gravity="center_horizontal|center_vertical"
+                    android:text="@string/mood_picker_time_value"
+                    android:textColor="@color/black"
+                    android:textSize="16sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/llFrontMood"
             android:layout_width="match_parent"
             android:layout_height="100dp"
+            android:layout_margin="5dp"
             android:layout_weight="0"
             android:orientation="vertical">
 
@@ -116,6 +185,7 @@
             android:id="@+id/llFrontSleep"
             android:layout_width="match_parent"
             android:layout_height="100dp"
+            android:layout_margin="5dp"
             android:orientation="vertical">
 
             <TextView
@@ -178,6 +248,7 @@
             android:id="@+id/llMedication"
             android:layout_width="match_parent"
             android:layout_height="40dp"
+            android:layout_margin="5dp"
             android:layout_weight="0"
             android:gravity="center_vertical">
 
@@ -205,7 +276,8 @@
         <LinearLayout
             android:id="@+id/llActivities"
             android:layout_width="match_parent"
-            android:layout_height="100dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
             android:layout_weight="0"
             android:orientation="vertical">
 
@@ -228,7 +300,7 @@
                 android:layout_marginHorizontal="5dp"
                 android:layout_weight="0"
                 android:background="@drawable/activity_row_rounded_corner"
-                android:minHeight="30dp"
+                android:gravity="center_vertical"
                 android:textAlignment="center"
                 android:textColor="#000000"
                 android:textSize="16sp"
@@ -238,7 +310,8 @@
         <LinearLayout
             android:id="@+id/llFeelings"
             android:layout_width="match_parent"
-            android:layout_height="100dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
             android:layout_weight="0"
             android:orientation="vertical">
 
@@ -261,7 +334,7 @@
                 android:layout_marginHorizontal="5dp"
                 android:layout_weight="0"
                 android:background="@drawable/activity_row_rounded_corner"
-                android:minHeight="30dp"
+                android:gravity="center_vertical"
                 android:textAlignment="center"
                 android:textColor="#000000"
                 android:textSize="16sp"

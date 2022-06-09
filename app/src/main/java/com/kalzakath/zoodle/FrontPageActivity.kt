@@ -29,8 +29,8 @@ class FrontPageActivity : AppCompatActivity() {
 
         val moodEntry: MoodEntryModel
         val data = intent.getSerializableExtra("MoodEntry")
-        if (data == null) moodEntry = prepMoodEntry()
-        else moodEntry = data as MoodEntryModel
+        moodEntry = if (data == null) prepMoodEntry()
+        else data as MoodEntryModel
 
         initActivityListeners(moodEntry)
         initButtons(moodEntry, data != null)
