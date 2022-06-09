@@ -10,6 +10,7 @@ class RowController: DataController {
 
     private fun callChangeEvent(data: ArrayList<RowEntryModel>, eventType: Int) {
         onDataChangeListener?.invoke(RowControllerEvent(_rowEntryList, eventType))
+        log.info("Call event triggered")
     }
 
     override fun add(rowEntryModel: RowEntryModel, callUpdate: Boolean) {
@@ -64,6 +65,8 @@ class RowController: DataController {
 
     override fun updateAt(position: Int, rowEntryModel: RowEntryModel, callUpdate: Boolean): Boolean {
         if (position > size()) return false
+        log.info("Updating row at position $position")
+        log.info("${if(rowEntryModel is MoodEntryModel) rowEntryModel.toMap() else "not mood"}")
 
         when (val toUpdateRow = get(position)) {
             is MoodEntryModel -> {
@@ -72,7 +75,7 @@ class RowController: DataController {
                 val newEntryModel = rowEntryModel as MoodEntryModel
                 val newMoodEntryUpdated = MoodEntryHelper.convertStringToDateTime(newEntryModel.lastUpdated)
 
-                if (newMoodEntryUpdated > moodEntryUpdated) {
+                if (newMoodEntryUpdated >= moodEntryUpdated) {
                     _rowEntryList[position] = rowEntryModel
                     if (callUpdate) {
                         sort()
