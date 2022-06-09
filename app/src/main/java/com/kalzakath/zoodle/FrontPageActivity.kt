@@ -16,12 +16,14 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
+import java.util.logging.Logger
 
 class FrontPageActivity : AppCompatActivity() {
     private lateinit var getActivitiesActivityResult: ActivityResultLauncher<Intent>
     private lateinit var getFeelingsActivityResult: ActivityResultLauncher<Intent>
     private lateinit var getMainActivityResult: ActivityResultLauncher<Intent>
     private lateinit var secureFileHandler: SecureFileHandler
+    private val log = Logger.getLogger(MainActivity::class.java.name + "****************************************")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,9 +31,11 @@ class FrontPageActivity : AppCompatActivity() {
         secureFileHandler = SecureFileHandler(applicationContext)
 
         val moodEntry = prepMoodEntry()
+        val data = intent.getSerializableExtra("MoodEntry")
 
         initActivityListeners(moodEntry)
-        initButtons(moodEntry)
+        if (data != null) initButtons(data as MoodEntryModel, true)
+        else initButtons(moodEntry)
     }
 
     private fun initActivityListeners(moodEntry: MoodEntryModel) {
@@ -57,6 +61,7 @@ class FrontPageActivity : AppCompatActivity() {
 
         getMainActivityResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             val data = intent.getSerializableExtra("MoodEntry")
+            log.info("Start from main")
             initButtons(data as MoodEntryModel, true)
 
         }
