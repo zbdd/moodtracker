@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView.Adapter
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.kalzakath.zoodle.interfaces.DataController
+import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -169,6 +170,19 @@ class RecyclerViewAdaptor(
         return moodList[position].viewType
     }
 
+    private fun updateDateText(calendar: Calendar, holder: MoodViewHolder, mood: MoodEntryModel) {
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
+        holder.dateText.text = dateFormat.format(calendar.time)
+
+        val timeFormat = SimpleDateFormat("HH:mm", Locale.ENGLISH)
+        holder.timeText.text = timeFormat.format(calendar.time)
+
+        mood.date = dateFormat.format(calendar.time)
+        mood.time = timeFormat.format(calendar.time)
+
+        rowController.update(mood)
+    }
+
     private fun initButtons(viewHolder: ViewHolder, row: RowEntryModel) {
 
         if (row.viewType != MoodEntryModel().viewType) return
@@ -177,9 +191,8 @@ class RecyclerViewAdaptor(
         val mHolder = viewHolder as MoodViewHolder
 
         val dtPicker = DateTimePicker()
-        dtPicker.initButtons(mHolder, row)
         dtPicker.onUpdateListener = {
-            rowController.update(it)
+            updateDateText(it, mHolder, moodEntry)
         }
 
         mHolder.moodText.setOnLongClickListener {
@@ -214,6 +227,14 @@ class RecyclerViewAdaptor(
         }
         mHolder.feelingsText.setOnClickListener {
             startFeelingsActivity(moodEntry)
+        }
+
+        mHolder.dateText.setOnClickListener {
+            dtPicker.show(mHolder.itemView.context)
+        }
+
+        mHolder.timeText.setOnClickListener {
+            dtPicker.show(mHolder.itemView.context)
         }
     }
 

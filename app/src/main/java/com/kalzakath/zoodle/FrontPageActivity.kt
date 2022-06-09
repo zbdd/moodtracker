@@ -15,6 +15,7 @@ import com.google.gson.GsonBuilder
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.util.*
 
 class FrontPageActivity : AppCompatActivity() {
     private lateinit var getActivitiesActivityResult: ActivityResultLauncher<Intent>
@@ -27,13 +28,10 @@ class FrontPageActivity : AppCompatActivity() {
         setContentView(R.layout.activity_front_page)
         secureFileHandler = SecureFileHandler(applicationContext)
 
-        val moodEntry: MoodEntryModel
-        val data = intent.getSerializableExtra("MoodEntry")
-        moodEntry = if (data == null) prepMoodEntry()
-        else data as MoodEntryModel
+        val moodEntry = prepMoodEntry()
 
         initActivityListeners(moodEntry)
-        initButtons(moodEntry, data != null)
+        initButtons(moodEntry)
     }
 
     private fun initActivityListeners(moodEntry: MoodEntryModel) {
@@ -58,7 +56,9 @@ class FrontPageActivity : AppCompatActivity() {
         }
 
         getMainActivityResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            // dont really need anything
+            val data = intent.getSerializableExtra("MoodEntry")
+            initButtons(data as MoodEntryModel, true)
+
         }
     }
 
@@ -105,7 +105,7 @@ class FrontPageActivity : AppCompatActivity() {
     }
 
     private fun prepMoodEntry(): MoodEntryModel {
-        val timeFormat = DateTimeFormatter.ofPattern("HH:mm")
+        val timeFormat = DateTimeFormatter.ofPattern("HH:mm", Locale.ENGLISH)
         return MoodEntryModel(LocalDate.now().toString(), timeFormat.format(LocalDateTime.now()))
     }
 
@@ -157,6 +157,12 @@ class FrontPageActivity : AppCompatActivity() {
 
         val btnMoodArray = arrayOf(moodVeryBad, moodBad, moodOk, moodGood, moodVeryGood)
         val btnSleepArray = arrayOf(sleepVeryBad, sleepBad, sleepOk, sleepGood, sleepVeryGood)
+
+        val date: TextView = findViewById(R.id.tvFrontDate)
+        val time: TextView = findViewById(R.id.tvFrontTime)
+
+        date.text = moodEntry.date
+        time.text = moodEntry.time
 
         if (preset) {
             btnMoodArray.indices.forEach { if(it == moodEntry.mood!!.value!!.toInt()-1) btnMoodArray[it].setBackgroundColor(Color.WHITE) else btnMoodArray[it].setBackgroundColor(Color.DKGRAY) }
