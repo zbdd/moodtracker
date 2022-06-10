@@ -13,9 +13,9 @@ class DebugDataHandler (secureFileHandler: SecureFileHandler,
 
     override fun read(): ArrayList<RowEntryModel> {
         val debugArrayList = arrayListOf<RowEntryModel>()
-        for (i in 1..121) {
+        for (i in 1..3) {
             debugArrayList.add(createNewMoodEntry())
-        }
+       }
         val dateTimeNow = LocalDateTime.now()
         debugArrayList.add(MoodEntryModel(DateTimeFormatter.ofPattern("yyyy-MM-dd").format(dateTimeNow)))
         return debugArrayList

@@ -27,7 +27,10 @@ import com.kalzakath.zoodle.debug.TestSuite
 import com.kalzakath.zoodle.interfaces.DataController
 import com.kalzakath.zoodle.interfaces.OnlineDataHandler
 import java.lang.reflect.Modifier
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.*
 import java.util.logging.Logger
 
 class MainActivity : AppCompatActivity() {
@@ -85,13 +88,16 @@ class MainActivity : AppCompatActivity() {
         initButtons()
         setActivityListeners()
 
-        //dataHandler = TestSuite.useLocalData(secureFileHandler, applicationContext)
+        dataHandler = TestSuite.useLocalData(secureFileHandler, applicationContext)
         TestSuite.setDefaultSettings()
 
         rowController.update(dataHandler.read())
 
-        val moodEntry = intent.getSerializableExtra("MoodEntry") as MoodEntryModel
-        rowController.update(moodEntry)
+        val moodEntry = intent.getSerializableExtra("MoodEntry")
+        if (moodEntry != null) rowController.update(moodEntry as MoodEntryModel)
+
+        val todayMoodEntry: RowEntryModel? = rowController.find("Date", DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH).format(LocalDate.now()))
+        if (todayMoodEntry == null) startActivityFrontPage(null)
     }
 
     private fun handleOnDataChangeEvent(event: RowControllerEvent) {
@@ -150,9 +156,9 @@ class MainActivity : AppCompatActivity() {
         getSettingsActivityResult.launch(intent)
     }
 
-    private fun startActivityFrontPage(moodEntry: MoodEntryModel) {
+    private fun startActivityFrontPage(moodEntry: MoodEntryModel?) {
         val intent = Intent(this, FrontPageActivity::class.java)
-        intent.putExtra("MoodEntry", moodEntry)
+        if (moodEntry != null) intent.putExtra("MoodEntry", moodEntry)
         getFrontPageActivityResult.launch(intent)
     }
 

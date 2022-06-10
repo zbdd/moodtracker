@@ -58,6 +58,7 @@ class RowController: DataController {
     }
 
     override fun update(rowEntryModel: RowEntryModel, callUpdate: Boolean) {
+        log.info("Attempting to update row ${rowEntryModel.toMap()}")
         val index = indexOf(rowEntryModel)
         if (index != -1) updateAt(index, rowEntryModel, callUpdate)
         else add(rowEntryModel)
@@ -129,8 +130,21 @@ class RowController: DataController {
     override fun size(): Int { return _rowEntryList.size }
 
     override fun indexOf(rowEntryModel: RowEntryModel): Int {
-        return _rowEntryList.indexOfFirst { it.key == rowEntryModel.key }
+        val moody = rowEntryModel as MoodEntryModel
+        log.info("Looking for key ${moody.key}")
+        return _rowEntryList.filterIsInstance<MoodEntryModel>().indexOfFirst {
+            val mood = it as MoodEntryModel
+            println(mood.key)
+            it.key == moody.key }
     }
 
     override fun get(position: Int): RowEntryModel { return _rowEntryList[position] }
+
+    override fun <T> find(type: String, condition: T): RowEntryModel? {
+        val found: MoodEntryModel? = _rowEntryList.filterIsInstance<MoodEntryModel>().let {
+            it.find { mood -> mood.toMap()[type.lowercase()] == condition }
+        }
+        log.info("Looking for $type as ${condition.toString()}")
+        return found
+    }
 }

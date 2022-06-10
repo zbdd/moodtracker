@@ -30,11 +30,12 @@ class FrontPageActivity : AppCompatActivity() {
         setContentView(R.layout.activity_front_page)
         secureFileHandler = SecureFileHandler(applicationContext)
 
-        val moodEntry = prepMoodEntry()
         val data = intent.getSerializableExtra("MoodEntry")
+        val moodEntry = if (data != null) data as MoodEntryModel
+        else prepMoodEntry()
 
         initActivityListeners(moodEntry)
-        if (data != null) initButtons(data as MoodEntryModel, true)
+        if (data != null) initButtons(moodEntry, true)
         else initButtons(moodEntry)
     }
 

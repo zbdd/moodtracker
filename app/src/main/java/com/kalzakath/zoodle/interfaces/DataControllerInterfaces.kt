@@ -25,4 +25,6 @@ interface DataControllerAccessors {
 
     fun indexOf(rowEntryModel: RowEntryModel): Int
     fun get(position: Int): RowEntryModel
+
+    fun <T> find(type: String, condition: T): RowEntryModel?
 }

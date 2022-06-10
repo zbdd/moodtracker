@@ -42,6 +42,8 @@ class MoodEntryModel(
     }
 
     fun update(moodEntry: MoodEntryModel) {
+        lastUpdated = LocalDateTime.now().toString()
+
         for (prop in MoodEntryModel::class.memberProperties) {
             val updateValues =
                 moodEntry::class.java.declaredFields.find { it.name == prop.name }
