@@ -13,6 +13,12 @@ Online availability
 You will require your own google-services.json with a ssh key registered between your app and the Firebase services
 
 
-
 Basic flow
+----------
 ![Imgur Image](https://i.imgur.com/ut44I6C.png)
+
+
+Beta test
+----------
+Closed testing is via Google Play
+Request permission via <27nbwdz1o@mozmail.com>
