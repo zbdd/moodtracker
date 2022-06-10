@@ -30,3 +30,12 @@ Beta test
 Closed testing is via Google Play
 
 Request permission via <27nbwdz1o@mozmail.com>
+
+### Main List View
+![Imgur Image](https://i.imgur.com/lT8Bi2d.png)
+
+### Trend View
+![Imgur Image](https://i.imgur.com/wL2ggXE.png)
+
+### Activities View
+![Imgur Image](https://i.imgur.com/P5lDy3m.png)
