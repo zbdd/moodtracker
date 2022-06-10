@@ -9,8 +9,10 @@ activities, feelings and soon to be implemented: sleep quality and a medication 
 
 
 Online availability
-
+-------------
 You will require your own google-services.json with a ssh key registered between your app and the Firebase services
+
+Then the service will use the configured online storage (default: Firebase) to backup in realtime
 
 
 Basic flow
@@ -18,7 +20,13 @@ Basic flow
 ![Imgur Image](https://i.imgur.com/ut44I6C.png)
 
 
+Design wireframe
+----------
+![Imgur Image](https://i.imgur.com/hoNjwSb.png)
+
+
 Beta test
 ----------
 Closed testing is via Google Play
+
 Request permission via <27nbwdz1o@mozmail.com>
