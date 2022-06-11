@@ -65,7 +65,7 @@ class SecureFileHandlerTest {
         val fileName = "myFile.json"
         val fileData = jsonString.toByteArray(Charsets.UTF_32)
         every { secureFileHandler.invokeNoArgs("getSecretKey") } returns secretKey
-        every { secureFileHandler.invoke("encryptData").withArguments(listOf(secretKey, fileData))} returns ByteArray(1)
+        every { secureFileHandler.invoke("encryptData").withArguments(listOf(fileData))} returns ByteArray(1)
 
         assert(secureFileHandler.write(jsonString, fileName))
     }
@@ -77,7 +77,7 @@ class SecureFileHandlerTest {
         val gson = Gson()
         val fileData = gson.toJson(testList).toByteArray(Charsets.UTF_32)
 
-        every { secureFileHandler.invoke("encryptData").withArguments(listOf(secretKey, fileData))} returns ByteArray(1)
+        every { secureFileHandler.invoke("encryptData").withArguments(listOf(fileData))} returns ByteArray(1)
 
         assert(secureFileHandler.write(testList))
         assert(secureFileHandler.write(testList, testFile))
@@ -90,7 +90,7 @@ class SecureFileHandlerTest {
         val gson = Gson()
         val fileData = gson.toJson(testList).toByteArray(Charsets.UTF_32)
 
-        every { secureFileHandler.invoke("encryptData").withArguments(listOf(secretKey, fileData))} returns ByteArray(1)
+        every { secureFileHandler.invoke("encryptData").withArguments(listOf(fileData))} returns ByteArray(1)
 
         assert(secureFileHandler.write(testList))
         assert(secureFileHandler.write(testList, testFile))
@@ -102,7 +102,7 @@ class SecureFileHandlerTest {
         val gson = GsonBuilder().excludeFieldsWithModifiers(Modifier.TRANSIENT).create()
         val fileData = gson.toJson(Settings).toByteArray(Charsets.UTF_32)
 
-        every { secureFileHandler.invoke("encryptData").withArguments(listOf(secretKey, fileData))} returns ByteArray(1)
+        every { secureFileHandler.invoke("encryptData").withArguments(listOf(fileData))} returns ByteArray(1)
 
         assert(secureFileHandler.write(Settings))
         assert(secureFileHandler.write(Settings, testFile))
@@ -116,7 +116,7 @@ class SecureFileHandlerTest {
 
         assert(secureFileHandler.read() == null)
         every { secureFileHandler.invoke("readDataFromFile").withArguments(listOf("testData.json")) } returns testData
-        every { secureFileHandler.invoke("decrypt").withArguments(listOf(secretKey, testData ))} returns testDecryptedData
+        every { secureFileHandler.invoke("decrypt").withArguments(listOf(testData ))} returns testDecryptedData
         assertEquals(testRawData, secureFileHandler.read())
     }
 
