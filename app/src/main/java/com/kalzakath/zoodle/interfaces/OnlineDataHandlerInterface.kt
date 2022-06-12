@@ -15,7 +15,7 @@ interface OnlineDataHandlerEventHandler {
 }
 
 interface OnlineDataHandler: OnlineDataHandlerEventHandler {
-    fun onItemDismissed(moodEntry: MoodEntryModel)
+    fun remove(moodEntry: MoodEntryModel)
 
     fun onSignInResult(result: FirebaseAuthUIAuthenticationResult): FirebaseUser?
 

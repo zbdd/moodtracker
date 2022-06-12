@@ -188,7 +188,7 @@ class MainActivity : AppCompatActivity(), DataControllerEventListener, OnlineDat
     private fun onItemDismissed(moodEntry: MoodEntryModel?, moodList: ArrayList<RowEntryModel>) {
         log.info("On item dismissed in Main called")
         secureFileHandler.write(moodList)
-        if (user != null && moodEntry != null) onlineDataHandler.onItemDismissed(moodEntry)
+        if (user != null && moodEntry != null) onlineDataHandler.remove(moodEntry)
     }
 
     private fun setupMoodPicker(moodEntry: MoodEntryModel) {
@@ -360,7 +360,8 @@ class MainActivity : AppCompatActivity(), DataControllerEventListener, OnlineDat
         // Create and launch sign-in intent
         val signInIntent = AuthUI.getInstance()
             .createSignInIntentBuilder()
-            .setIsSmartLockEnabled(true)
+            .setLogo(R.mipmap.ic_alfielauncher_foreground)
+            .setIsSmartLockEnabled(false)
             .setAvailableProviders(providers)
             .build()
         signInLauncher.launch(signInIntent)

@@ -9,14 +9,16 @@ import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.kalzakath.zoodle.interfaces.OnlineDataHandler
 import com.kalzakath.zoodle.interfaces.OnlineDataHandlerEventListener
+import java.util.logging.Logger
 
 class FirebaseConnectionHandler: OnlineDataHandler {
 
     private lateinit var myRef: DatabaseReference
     private var user: FirebaseUser? = null
     private val listeners = ArrayList<OnlineDataHandlerEventListener>()
+    private val log = Logger.getLogger(MainActivity::class.java.name)
 
-    override fun onItemDismissed(moodEntry: MoodEntryModel) {
+    override fun remove(moodEntry: MoodEntryModel) {
         if (user != null) myRef.child(user?.uid ?: "").child("moodEntries")
             .child(moodEntry.key).removeValue()
     }
@@ -24,18 +26,21 @@ class FirebaseConnectionHandler: OnlineDataHandler {
     override fun onSignInResult(result: FirebaseAuthUIAuthenticationResult): FirebaseUser? {
         user = FirebaseAuth.getInstance().currentUser
 
-        if (result.resultCode == AppCompatActivity.RESULT_OK) {
+        return if (result.resultCode == AppCompatActivity.RESULT_OK) {
+            log.info("Logged into account")
             val database =
                 Firebase.database("https://silent-blend-161710-default-rtdb.asia-southeast1.firebasedatabase.app")
             myRef = database.reference
-            checkDatabasePathExists()
+            touch()
+            user
+        } else {
+            log.info("Problem encountered logging in")
+            null
         }
-
-        return user
     }
 
     override fun write(moods: ArrayList<MoodEntryModel>) {
-        checkDatabasePathExists()
+        touch()
 
         if (user != null) {
             for (moodEntry in moods) {
@@ -88,7 +93,7 @@ class FirebaseConnectionHandler: OnlineDataHandler {
         listeners.forEach { it.onUpdateFromOnlineDataHandler(data) }
     }
 
-    private fun checkDatabasePathExists() {
+    private fun touch() {
         if (myRef.child(user?.uid ?: "").child("moodEntries") == null) myRef.child(user?.uid ?: "")
             .child("moodEntries").setValue("")
     }
