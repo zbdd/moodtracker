@@ -21,7 +21,6 @@ import java.util.logging.Logger
 class FrontPageActivity : AppCompatActivity() {
     private lateinit var getActivitiesActivityResult: ActivityResultLauncher<Intent>
     private lateinit var getFeelingsActivityResult: ActivityResultLauncher<Intent>
-    private lateinit var getMainActivityResult: ActivityResultLauncher<Intent>
     private lateinit var secureFileHandler: SecureFileHandler
     private val log = Logger.getLogger(MainActivity::class.java.name + "****************************************")
 
@@ -59,13 +58,6 @@ class FrontPageActivity : AppCompatActivity() {
                 updateButtons(moodEntry)
             }
         }
-
-        getMainActivityResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            val data = intent.getSerializableExtra("MoodEntry")
-            log.info("Start from main")
-            initButtons(data as MoodEntryModel, true)
-
-        }
     }
 
     private fun startActivityActivities(moodEntry: MoodEntryModel) {
@@ -84,12 +76,6 @@ class FrontPageActivity : AppCompatActivity() {
 
         intent.putExtra("MoodEntry", moodEntry)
         getActivitiesActivityResult.launch(intent)
-    }
-
-    private fun startActivityMain(moodEntry: MoodEntryModel) {
-        val intent = Intent(this, MainActivity::class.java)
-        intent.putExtra("MoodEntry", moodEntry)
-        getMainActivityResult.launch(intent)
     }
 
     private fun startActivityFeelings(moodEntry: MoodEntryModel) {
@@ -197,7 +183,10 @@ class FrontPageActivity : AppCompatActivity() {
         }
 
         mainActivity.setOnClickListener {
-            startActivityMain(moodEntry)
+            val intent = Intent(this, MainActivity::class.java)
+            intent.putExtra("MoodEntry", moodEntry)
+            setResult(RESULT_OK, intent)
+            finish()
         }
     }
 }
