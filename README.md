@@ -35,7 +35,7 @@ Request permission via <27nbwdz1o@mozmail.com>
 <img style="width: 270px; height: auto;" src="https://i.imgur.com/lT8Bi2d.png">
 
 ### Trend View
-<img style="width: 270px; height: auto;" src="https://i.imgur.com/wL2ggXE.png">
+<img style="width: 270px; height: auto;" src="https://i.imgur.com/xC8SRtx.png">
 
 ### Activities View
 <img style="width: 270px; height: auto;" src="https://i.imgur.com/P5lDy3m.png">
