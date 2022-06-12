@@ -9,7 +9,7 @@ import java.util.*
 import java.util.logging.Logger
 import kotlin.random.Random
 
-open class DataHandler(private var secureFileHandler: SecureFileHandler,
+open class DataHandler(var secureFileHandler: SecureFileHandler,
                        private var context: Context
 ) {
     private val log = Logger.getLogger(MainActivity::class.java.name + "****************************************")
