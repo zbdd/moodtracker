@@ -55,9 +55,8 @@ class MainActivity : AppCompatActivity(), DataControllerEventListener, OnlineDat
         }
 
     override fun onUpdateFromDataController(event: RowControllerEvent) {
-        when (event.type) {
-            RowControllerEvent.REMOVE -> onItemDismissed(null, event.data)
-        }
+        secureFileHandler.write(event.data)
+        onlineDataHandler.write(event.data)
     }
 
     private fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
@@ -183,12 +182,6 @@ class MainActivity : AppCompatActivity(), DataControllerEventListener, OnlineDat
         intent.putExtra("MoodEntry", moodEntry)
 
         getFeelingsActivityResult.launch(intent)
-    }
-
-    private fun onItemDismissed(moodEntry: MoodEntryModel?, moodList: ArrayList<RowEntryModel>) {
-        log.info("On item dismissed in Main called")
-        secureFileHandler.write(moodList)
-        if (user != null && moodEntry != null) onlineDataHandler.remove(moodEntry)
     }
 
     private fun setupMoodPicker(moodEntry: MoodEntryModel) {
@@ -344,10 +337,6 @@ class MainActivity : AppCompatActivity(), DataControllerEventListener, OnlineDat
 
     private fun addNewMoodEntry(moodEntry: MoodEntryModel) {
         rowController.add(moodEntry)
-    }
-
-    private fun updateList(rowEntryList: ArrayList<RowEntryModel>) {
-        rowController.update(rowEntryList)
     }
 
     private fun launchSignInEvent() {

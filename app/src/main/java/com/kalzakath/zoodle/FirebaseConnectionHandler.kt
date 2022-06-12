@@ -16,7 +16,7 @@ class FirebaseConnectionHandler: OnlineDataHandler {
     private lateinit var myRef: DatabaseReference
     private var user: FirebaseUser? = null
     private val listeners = ArrayList<OnlineDataHandlerEventListener>()
-    private val log = Logger.getLogger(MainActivity::class.java.name)
+    private val log = Logger.getLogger(MainActivity::class.java.name + "****************************************")
 
     override fun remove(moodEntry: MoodEntryModel) {
         if (user != null) myRef.child(user?.uid ?: "").child("moodEntries")
@@ -39,16 +39,16 @@ class FirebaseConnectionHandler: OnlineDataHandler {
         }
     }
 
-    override fun write(moods: ArrayList<MoodEntryModel>) {
-        touch()
-
+    override fun write(moods: ArrayList<RowEntryModel>) {
         if (user != null) {
+            touch()
+            log.info("Attempt to write to online database: PASS")
             for (moodEntry in moods) {
                 val moodHash = moodEntry.toMap()
                 val update = hashMapOf<String, Any>("moodEntries/${moodEntry.key}" to moodHash)
                 myRef.child(user?.uid ?: "").updateChildren(update)
             }
-        }
+        } else log.info("Attempt to write to online database: FAIL")
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -56,7 +56,7 @@ class FirebaseConnectionHandler: OnlineDataHandler {
         val moodData = ArrayList<RowEntryModel>()
 
         myRef.child(user!!.uid).child("moodEntries").get()
-            .addOnSuccessListener (){
+            .addOnSuccessListener {
                 if (it.value?.javaClass == HashMap<String, Any>().javaClass) {
                     println("Value: " + it.value)
                     println("Children: " + it.childrenCount)

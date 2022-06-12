@@ -19,7 +19,7 @@ interface OnlineDataHandler: OnlineDataHandlerEventHandler {
 
     fun onSignInResult(result: FirebaseAuthUIAuthenticationResult): FirebaseUser?
 
-    fun write(moods: ArrayList<MoodEntryModel>)
+    fun write(moods: ArrayList<RowEntryModel>)
     fun read(user: FirebaseUser?): ArrayList<RowEntryModel>
 
 }
