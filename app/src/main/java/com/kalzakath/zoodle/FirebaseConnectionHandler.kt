@@ -8,13 +8,13 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.kalzakath.zoodle.interfaces.OnlineDataHandler
+import com.kalzakath.zoodle.interfaces.OnlineDataHandlerEventListener
 
-class FirebaseConnectionHandler(
-    val onDataReturned: (ArrayList<RowEntryModel>) -> Unit
-): OnlineDataHandler {
+class FirebaseConnectionHandler: OnlineDataHandler {
 
     private lateinit var myRef: DatabaseReference
     private var user: FirebaseUser? = null
+    private val listeners = ArrayList<OnlineDataHandlerEventListener>()
 
     override fun onItemDismissed(moodEntry: MoodEntryModel) {
         if (user != null) myRef.child(user?.uid ?: "").child("moodEntries")
@@ -67,13 +67,25 @@ class FirebaseConnectionHandler(
                             )
                         )
                     }
-                    onDataReturned(moodData)
+                    notifyListeners(moodData)
                 }
             }.addOnFailureListener {
                 println("Unable to get data from DB")
             }
         println("Size: " + moodData.size)
         return moodData
+    }
+
+    override fun registerForUpdates(listener: OnlineDataHandlerEventListener) {
+        listeners.add(listener)
+    }
+
+    override fun unregisterForUpdates(listener: OnlineDataHandlerEventListener) {
+        listeners.remove(listener)
+    }
+
+    private fun notifyListeners(data: ArrayList<RowEntryModel>) {
+        listeners.forEach { it.onUpdateFromOnlineDataHandler(data) }
     }
 
     private fun checkDatabasePathExists() {

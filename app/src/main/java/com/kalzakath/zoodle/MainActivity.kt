@@ -27,6 +27,7 @@ import com.kalzakath.zoodle.debug.TestSuite
 import com.kalzakath.zoodle.interfaces.DataController
 import com.kalzakath.zoodle.interfaces.DataControllerEventListener
 import com.kalzakath.zoodle.interfaces.OnlineDataHandler
+import com.kalzakath.zoodle.interfaces.OnlineDataHandlerEventListener
 import java.lang.reflect.Modifier
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -34,7 +35,7 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 import java.util.logging.Logger
 
-class MainActivity : AppCompatActivity(), DataControllerEventListener {
+class MainActivity : AppCompatActivity(), DataControllerEventListener, OnlineDataHandlerEventListener {
 
     private lateinit var getActivitiesActivityResult: ActivityResultLauncher<Intent>
     private lateinit var getSettingsActivityResult: ActivityResultLauncher<Intent>
@@ -91,7 +92,8 @@ class MainActivity : AppCompatActivity(), DataControllerEventListener {
 
         dataHandler = DataHandler(secureFileHandler, applicationContext)
 
-        onlineDataHandler = FirebaseConnectionHandler { rowEntryList -> updateList(rowEntryList)}
+        onlineDataHandler = FirebaseConnectionHandler()
+        onlineDataHandler.registerForUpdates(this)
 
         initButtons()
         setActivityListeners()
@@ -362,5 +364,9 @@ class MainActivity : AppCompatActivity(), DataControllerEventListener {
             .setAvailableProviders(providers)
             .build()
         signInLauncher.launch(signInIntent)
+    }
+
+    override fun onUpdateFromOnlineDataHandler(data: ArrayList<RowEntryModel>) {
+        rowController.update(data)
     }
 }
