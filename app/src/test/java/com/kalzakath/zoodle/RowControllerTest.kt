@@ -1,7 +1,7 @@
 package com.kalzakath.zoodle
 
+import com.kalzakath.zoodle.interfaces.DataController
 import io.mockk.MockKAnnotations
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.spyk
 import org.junit.jupiter.api.BeforeEach
@@ -10,7 +10,7 @@ import java.time.LocalDateTime
 
 internal class RowControllerTest {
 
-    @MockK lateinit var testRowController: RowController
+    @MockK lateinit var testRowController: DataController
     @MockK lateinit var testRVAdaptor: RecyclerViewAdaptor
     //private val Log = Logger.getLogger(MainActivity::class.java.name)
 
@@ -18,24 +18,7 @@ internal class RowControllerTest {
     fun setUp() {
         MockKAnnotations.init(this, relaxed = true)
 
-        testRowController = spyk(RowController()) {
-            every { onDataChangeListener?.invoke(any()) } returns Unit
-        }
-
-        testRVAdaptor = spyk(
-            RecyclerViewAdaptor(
-                { _, _ -> run { } },
-                { run { } },
-                { run { } },
-                { run { } },
-                { run { } },
-            testRowController)
-        ) {
-            every { notifyDataSetChanged() } returns Unit
-            every { notifyItemChanged(any()) } returns Unit
-            every { notifyItemInserted(any())} returns Unit
-            every { notifyItemRemoved(any())} returns Unit
-        }
+        testRowController = spyk(RowController())
     }
 
     @Test

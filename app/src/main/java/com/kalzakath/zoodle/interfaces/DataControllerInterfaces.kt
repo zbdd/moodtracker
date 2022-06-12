@@ -6,7 +6,12 @@ import com.kalzakath.zoodle.RowEntryModel
 interface DataController: DataControllerAccessors, DataControllerEventHandlers
 
 interface DataControllerEventHandlers {
-    var onDataChangeListener: ((RowControllerEvent)->Unit)?
+    fun registerForUpdates(listener: DataControllerEventListener)
+    fun unregisterForUpdates(listener: DataControllerEventListener)
+}
+
+interface DataControllerEventListener {
+    fun onUpdateFromDataController(event: RowControllerEvent)
 }
 
 interface DataControllerAccessors {

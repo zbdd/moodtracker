@@ -25,6 +25,7 @@ import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import com.kalzakath.zoodle.debug.TestSuite
 import com.kalzakath.zoodle.interfaces.DataController
+import com.kalzakath.zoodle.interfaces.DataControllerEventListener
 import com.kalzakath.zoodle.interfaces.OnlineDataHandler
 import java.lang.reflect.Modifier
 import java.time.LocalDate
@@ -33,7 +34,7 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 import java.util.logging.Logger
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), DataControllerEventListener {
 
     private lateinit var getActivitiesActivityResult: ActivityResultLauncher<Intent>
     private lateinit var getSettingsActivityResult: ActivityResultLauncher<Intent>
@@ -51,6 +52,12 @@ class MainActivity : AppCompatActivity() {
         registerForActivityResult(FirebaseAuthUIActivityResultContract()) { res ->
             this.onSignInResult(res)
         }
+
+    override fun onUpdateFromDataController(event: RowControllerEvent) {
+        when (event.type) {
+            RowControllerEvent.REMOVE -> onItemDismissed(null, event.data)
+        }
+    }
 
     private fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
         user = onlineDataHandler.onSignInResult(result)
@@ -79,6 +86,7 @@ class MainActivity : AppCompatActivity() {
         readSettingsDataFromJson(settingsString)
 
         rowController = RowController()
+        rowController.registerForUpdates(this)
         setupRecycleView()
 
         dataHandler = DataHandler(secureFileHandler, applicationContext)
@@ -100,18 +108,8 @@ class MainActivity : AppCompatActivity() {
         if (todayMoodEntry == null) startActivityFrontPage(null)
     }
 
-    private fun handleOnDataChangeEvent(event: RowControllerEvent) {
-        log.info("Change event: ${event.type} called")
-        when (event.type) {
-            RowControllerEvent.NOTHING -> {}
-            else -> secureFileHandler.write(event.data)
-        }
-    }
-
     private fun setupRecycleView(): RecyclerViewAdaptor {
         val recyclerViewAdaptor = RecyclerViewAdaptor(
-            { moodEntry, moodList -> onItemDismissed(moodEntry, moodList) },
-            { moodList -> handleListUpdated(moodList) },
             { moodEntry -> setupMoodPicker(moodEntry) },
             { moodEntry -> startActivityActivities(moodEntry) },
             { moodEntry -> startActivityFeelings(moodEntry) },
@@ -185,14 +183,10 @@ class MainActivity : AppCompatActivity() {
         getFeelingsActivityResult.launch(intent)
     }
 
-    private fun onItemDismissed(moodEntry: MoodEntryModel, moodList: ArrayList<MoodEntryModel>) {
+    private fun onItemDismissed(moodEntry: MoodEntryModel?, moodList: ArrayList<RowEntryModel>) {
+        log.info("On item dismissed in Main called")
         secureFileHandler.write(moodList)
-        if (user != null) onlineDataHandler.onItemDismissed(moodEntry)
-    }
-
-    private fun handleListUpdated(moodList: ArrayList<MoodEntryModel>) {
-        secureFileHandler.write(moodList)
-        if (user != null) onlineDataHandler.write(moodList)
+        if (user != null && moodEntry != null) onlineDataHandler.onItemDismissed(moodEntry)
     }
 
     private fun setupMoodPicker(moodEntry: MoodEntryModel) {

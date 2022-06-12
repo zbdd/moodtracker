@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView.Adapter
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.kalzakath.zoodle.interfaces.DataController
+import com.kalzakath.zoodle.interfaces.DataControllerEventListener
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -18,14 +19,12 @@ interface RecycleRowOnEvent {
 
 @SuppressLint("NotifyDataSetChanged")
 class RecyclerViewAdaptor(
-    val onSwiped: (MoodEntryModel, ArrayList<MoodEntryModel>) -> Unit,
-    val onListUpdated: (ArrayList<MoodEntryModel>) -> Unit,
     val onMoodValueClicked: (MoodEntryModel) -> Unit,
     val onStartActivitiesActivity: (MoodEntryModel) -> Unit,
     val startFeelingsActivity: (MoodEntryModel) -> Unit,
     private val rowController: DataController
 ):
-    Adapter<ViewHolder>(), SwipeHelperCallback.ItemTouchHelperAdaptor, RecycleRowOnEvent {
+    Adapter<ViewHolder>(), SwipeHelperCallback.ItemTouchHelperAdaptor, RecycleRowOnEvent, DataControllerEventListener {
 
     override var onLongPress: ((MoodEntryModel) -> Unit)? = null
     private val log = Logger.getLogger(MainActivity::class.java.name + "****************************************")
@@ -33,13 +32,14 @@ class RecyclerViewAdaptor(
     lateinit var viewHolder: ViewHolder
 
     init {
-        rowController.onDataChangeListener = {
-            moodList.clear()
-            moodList.addAll(it.data)
-            addFilterView()
-            notifyDataSetChanged()
+        rowController.registerForUpdates(this)
+    }
 
-        }
+    override fun onUpdateFromDataController(event: RowControllerEvent) {
+        moodList.clear()
+        moodList.addAll(event.data)
+        addFilterView()
+        notifyDataSetChanged()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {

@@ -1,15 +1,26 @@
 package com.kalzakath.zoodle
 
 import com.kalzakath.zoodle.interfaces.DataController
+import com.kalzakath.zoodle.interfaces.DataControllerEventListener
 import java.util.logging.Logger
 
 class RowController: DataController {
     private var _rowEntryList = arrayListOf<RowEntryModel>()
     private val log = Logger.getLogger(MainActivity::class.java.name + "****************************************")
-    override var onDataChangeListener: ((RowControllerEvent) -> Unit)? = null
+    private val listeners = ArrayList<DataControllerEventListener>()
+
+    override fun registerForUpdates(listener: DataControllerEventListener) {
+        listeners.add(listener)
+    }
+
+    override fun unregisterForUpdates(listener: DataControllerEventListener) {
+        listeners.remove(listener)
+    }
+
 
     private fun callChangeEvent(data: ArrayList<RowEntryModel>, eventType: Int) {
-        onDataChangeListener?.invoke(RowControllerEvent(_rowEntryList, eventType))
+        val event = RowControllerEvent(data, eventType)
+        listeners.forEach { it.onUpdateFromDataController(event) }
         log.info("Call event triggered")
     }
 
@@ -67,7 +78,6 @@ class RowController: DataController {
     override fun updateAt(position: Int, rowEntryModel: RowEntryModel, callUpdate: Boolean): Boolean {
         if (position > size()) return false
         log.info("Updating row at position $position")
-        log.info("${if(rowEntryModel is MoodEntryModel) rowEntryModel.toMap() else "not mood"}")
 
         when (val toUpdateRow = get(position)) {
             is MoodEntryModel -> {
@@ -133,8 +143,6 @@ class RowController: DataController {
         val moody = rowEntryModel as MoodEntryModel
         log.info("Looking for key ${moody.key}")
         return _rowEntryList.filterIsInstance<MoodEntryModel>().indexOfFirst {
-            val mood = it as MoodEntryModel
-            println(mood.key)
             it.key == moody.key }
     }
 
