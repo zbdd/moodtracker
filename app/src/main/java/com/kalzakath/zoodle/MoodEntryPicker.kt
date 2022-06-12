@@ -9,7 +9,7 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
-class MoodPickerDialog(context: Context, val onCreateMoodEntry: (MoodEntryModel) -> Unit) : Dialog(context) {
+class MoodEntryPicker(context: Context, val onCreateMoodEntry: (MoodEntryModel) -> Unit) : Dialog(context) {
 
     private var dialog = Dialog(context)
 

@@ -283,7 +283,7 @@ class MainActivity : AppCompatActivity(), DataControllerEventListener, OnlineDat
     }
 
     private fun createMoodPicker() {
-        val moodPicker = MoodPickerDialog(this) { moodEntry -> addNewMoodEntry(moodEntry) }
+        val moodPicker = MoodEntryPicker(this) { moodEntry -> addNewMoodEntry(moodEntry) }
         moodPicker.showPopup()
     }
 
