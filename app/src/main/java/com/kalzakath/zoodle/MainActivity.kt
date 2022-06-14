@@ -28,6 +28,8 @@ import com.kalzakath.zoodle.interfaces.DataController
 import com.kalzakath.zoodle.interfaces.DataControllerEventListener
 import com.kalzakath.zoodle.interfaces.OnlineDataHandler
 import com.kalzakath.zoodle.interfaces.OnlineDataHandlerEventListener
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.lang.reflect.Modifier
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -55,8 +57,14 @@ class MainActivity : AppCompatActivity(), DataControllerEventListener, OnlineDat
         }
 
     override fun onUpdateFromDataController(event: RowControllerEvent) {
-        secureFileHandler.write(event.data)
-        onlineDataHandler.write(event.data)
+        // this writes a local dump of the whole list
+        secureFileHandler.write(rowController.mainRowEntryList)
+
+        // this is more specific in it's operations
+        when (event.type) {
+            RowControllerEvent.REMOVE -> { onlineDataHandler.remove(event.data) }
+            else -> { onlineDataHandler.write (event.data) }
+        }
     }
 
     private fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
@@ -70,12 +78,17 @@ class MainActivity : AppCompatActivity(), DataControllerEventListener, OnlineDat
         }
         else {
             loginBtn.background = AppCompatResources.getDrawable(applicationContext, R.drawable.main_login_green)
-
-            val moodData = onlineDataHandler.read(user)
-
-            rowController.update(moodData)
+            Toast.makeText(applicationContext, "Retrieving online information...", Toast.LENGTH_SHORT)
+                .show()
+            runBlocking {
+                launch {
+                    val moodData = onlineDataHandler.read(user)
+                    rowController.update(moodData)
+                }
+            }
         }
     }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -97,7 +110,7 @@ class MainActivity : AppCompatActivity(), DataControllerEventListener, OnlineDat
         initButtons()
         setActivityListeners()
 
-        dataHandler = TestSuite.useLocalData(secureFileHandler, applicationContext)
+        //dataHandler = TestSuite.useLocalData(secureFileHandler, applicationContext)
         TestSuite.setDefaultSettings()
 
         rowController.update(dataHandler.read())
@@ -114,7 +127,7 @@ class MainActivity : AppCompatActivity(), DataControllerEventListener, OnlineDat
             { moodEntry -> setupMoodPicker(moodEntry) },
             { moodEntry -> startActivityActivities(moodEntry) },
             { moodEntry -> startActivityFeelings(moodEntry) },
-        rowController)
+            rowController)
 
         recyclerViewAdaptor.onLongPress = {
             log.info("Consumed onLongPress")
@@ -271,7 +284,7 @@ class MainActivity : AppCompatActivity(), DataControllerEventListener, OnlineDat
                 secureFileHandler.write(Settings)
 //                recyclerViewAdaptor.updateListConfig()
 
-               rowController.update(moodData)
+                rowController.update(moodData)
             }
     }
 

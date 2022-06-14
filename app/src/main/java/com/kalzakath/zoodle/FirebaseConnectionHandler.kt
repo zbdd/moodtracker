@@ -18,9 +18,13 @@ class FirebaseConnectionHandler: OnlineDataHandler {
     private val listeners = ArrayList<OnlineDataHandlerEventListener>()
     private val log = Logger.getLogger(MainActivity::class.java.name + "****************************************")
 
-    override fun remove(moodEntry: MoodEntryModel) {
-        if (user != null) myRef.child(user?.uid ?: "").child("moodEntries")
-            .child(moodEntry.key).removeValue()
+    override fun remove(data: ArrayList<RowEntryModel>) {
+        if (user != null) {
+            data.forEach {
+                myRef.child(user?.uid ?: "").child("moodEntries")
+                    .child(it.key).removeValue()
+            }
+        }
     }
 
     override fun onSignInResult(result: FirebaseAuthUIAuthenticationResult): FirebaseUser? {
@@ -58,8 +62,6 @@ class FirebaseConnectionHandler: OnlineDataHandler {
         myRef.child(user!!.uid).child("moodEntries").get()
             .addOnSuccessListener {
                 if (it.value?.javaClass == HashMap<String, Any>().javaClass) {
-                    println("Value: " + it.value)
-                    println("Children: " + it.childrenCount)
                     for ((key, hashmap) in it.value as HashMap<String, HashMap<String, Any>>) {
                         moodData.add(
                             MoodEntryModel(

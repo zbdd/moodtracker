@@ -15,6 +15,8 @@ interface DataControllerEventListener {
 }
 
 interface DataControllerAccessors {
+    var mainRowEntryList: ArrayList<RowEntryModel>
+
     fun add(rowEntryModel: RowEntryModel, callUpdate: Boolean = true)
     fun add(rowEntryList: ArrayList<RowEntryModel>)
 

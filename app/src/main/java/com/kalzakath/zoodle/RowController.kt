@@ -5,7 +5,7 @@ import com.kalzakath.zoodle.interfaces.DataControllerEventListener
 import java.util.logging.Logger
 
 class RowController: DataController {
-    private var _rowEntryList = arrayListOf<RowEntryModel>()
+    override var mainRowEntryList = arrayListOf<RowEntryModel>()
     private val log = Logger.getLogger(MainActivity::class.java.name + "****************************************")
     private val listeners = ArrayList<DataControllerEventListener>()
 
@@ -17,20 +17,17 @@ class RowController: DataController {
         listeners.remove(listener)
     }
 
-
     private fun callChangeEvent(data: ArrayList<RowEntryModel>, eventType: Int) {
-        val event = RowControllerEvent(data, eventType)
+        mainRowEntryList = sort(mainRowEntryList)
+        val event = RowControllerEvent(sort(data), eventType)
         listeners.forEach { it.onUpdateFromDataController(event) }
-        log.info("Call event triggered")
     }
 
     override fun add(rowEntryModel: RowEntryModel, callUpdate: Boolean) {
-        _rowEntryList.add(rowEntryModel)
-        sort()
+        mainRowEntryList.add(rowEntryModel)
 
         if (callUpdate) {
-            log.info("Row added")
-            callChangeEvent(_rowEntryList, RowControllerEvent.ADDITION )
+            callChangeEvent(arrayListOf(rowEntryModel), RowControllerEvent.ADDITION )
         }
     }
 
@@ -39,21 +36,20 @@ class RowController: DataController {
 
         for(i in rowEntryList.indices) {
             val rw = rowEntryList[i]
-            val index = _rowEntryList.indices.find {
-                rw.key == _rowEntryList[it].key
+            val index = mainRowEntryList.indices.find {
+                rw.key == mainRowEntryList[it].key
             }
-            if (index != null && index != -1) updateAt(index, rw)
-            else add(rw)
+            if (index != null && index != -1) updateAt(index, rw, false)
+            else add(rw, false)
         }
-        sort()
-        callChangeEvent(_rowEntryList, RowControllerEvent.ADDITION )
+        callChangeEvent(mainRowEntryList, RowControllerEvent.ADDITION )
     }
 
     override fun removeAt(position: Int, callUpdate: Boolean) {
-        log.info("Removing row at position $position\n${_rowEntryList[position].toMap()}")
-        _rowEntryList.removeAt(position)
-        sort()
-        if (callUpdate) callChangeEvent(_rowEntryList, RowControllerEvent.REMOVE )
+        val toRemove = mainRowEntryList[position]
+        log.info("Removing row at position $position\n${mainRowEntryList[position].toMap()}")
+        mainRowEntryList.removeAt(position)
+        if (callUpdate) callChangeEvent(arrayListOf(toRemove), RowControllerEvent.REMOVE )
     }
 
     override fun remove(rowEntryModel: RowEntryModel, callUpdate: Boolean) {
@@ -63,9 +59,8 @@ class RowController: DataController {
 
     override fun remove(rowEntryList: ArrayList<RowEntryModel>) {
         log.info("Attempting to remove rows...")
-        rowEntryList.forEach { toDelete -> _rowEntryList.find { toDelete.key == it.key } ?.let { remove(it, false) } }
-        sort()
-        callChangeEvent(_rowEntryList, RowControllerEvent.REMOVE )
+        rowEntryList.forEach { toDelete -> mainRowEntryList.find { toDelete.key == it.key } ?.let { remove(it, false) } }
+        callChangeEvent(rowEntryList, RowControllerEvent.REMOVE )
     }
 
     override fun update(rowEntryModel: RowEntryModel, callUpdate: Boolean) {
@@ -87,10 +82,9 @@ class RowController: DataController {
                 val newMoodEntryUpdated = MoodEntryHelper.convertStringToDateTime(newEntryModel.lastUpdated)
 
                 if (newMoodEntryUpdated >= moodEntryUpdated) {
-                    _rowEntryList[position] = rowEntryModel
+                    mainRowEntryList[position] = rowEntryModel
                     if (callUpdate) {
-                        sort()
-                        callChangeEvent(_rowEntryList, RowControllerEvent.UPDATE )
+                        callChangeEvent(arrayListOf(rowEntryModel), RowControllerEvent.UPDATE )
                     }
                     return true
                 }
@@ -100,19 +94,18 @@ class RowController: DataController {
         return false
     }
 
-    private fun sort() {
+    private fun sort(arrayList: ArrayList<RowEntryModel>): ArrayList<RowEntryModel> {
         val comparator = compareBy { row: RowEntryModel ->
             MoodEntryHelper.convertStringToDateTime(
                 row.date + "T" + row.time,
                 16
             )
         }.reversed()
-        val sorted = _rowEntryList.sortedWith(comparator)
-        val oldList: ArrayList<RowEntryModel> = arrayListOf()
-        oldList.addAll(_rowEntryList)
+        val sorted = arrayList.sortedWith(comparator)
+        val arrayListToReturn = ArrayList<RowEntryModel>()
+        arrayListToReturn.addAll(sorted)
 
-        _rowEntryList.clear()
-        _rowEntryList.addAll(sorted)
+        return arrayListToReturn
 
         /* Not implemented
         _rowEntryList.indices.forEach {
@@ -127,29 +120,28 @@ class RowController: DataController {
         log.info("Attempting to update list of size: ${updateRowEntryList.size}")
 
         for(updateRow in updateRowEntryList) {
-            val index = _rowEntryList.indices.find {
-                updateRow.key == _rowEntryList[it].key
+            val index = mainRowEntryList.indices.find {
+                updateRow.key == mainRowEntryList[it].key
             }
             if (index != null && index != -1) updateAt(index, updateRow, false)
             else add(updateRow, false)
         }
-        sort()
-        callChangeEvent(_rowEntryList, RowControllerEvent.UPDATE )
+        callChangeEvent(updateRowEntryList, RowControllerEvent.UPDATE )
     }
 
-    override fun size(): Int { return _rowEntryList.size }
+    override fun size(): Int { return mainRowEntryList.size }
 
     override fun indexOf(rowEntryModel: RowEntryModel): Int {
         val moody = rowEntryModel as MoodEntryModel
         log.info("Looking for key ${moody.key}")
-        return _rowEntryList.filterIsInstance<MoodEntryModel>().indexOfFirst {
+        return mainRowEntryList.filterIsInstance<MoodEntryModel>().indexOfFirst {
             it.key == moody.key }
     }
 
-    override fun get(position: Int): RowEntryModel { return _rowEntryList[position] }
+    override fun get(position: Int): RowEntryModel { return mainRowEntryList[position] }
 
     override fun <T> find(type: String, condition: T): RowEntryModel? {
-        val found: MoodEntryModel? = _rowEntryList.filterIsInstance<MoodEntryModel>().let {
+        val found: MoodEntryModel? = mainRowEntryList.filterIsInstance<MoodEntryModel>().let {
             it.find { mood -> mood.toMap()[type.lowercase()] == condition }
         }
         log.info("Looking for $type as ${condition.toString()}")

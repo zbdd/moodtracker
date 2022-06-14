@@ -2,7 +2,6 @@ package com.kalzakath.zoodle.interfaces
 
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import com.google.firebase.auth.FirebaseUser
-import com.kalzakath.zoodle.MoodEntryModel
 import com.kalzakath.zoodle.RowEntryModel
 
 interface OnlineDataHandlerEventListener {
@@ -15,7 +14,7 @@ interface OnlineDataHandlerEventHandler {
 }
 
 interface OnlineDataHandler: OnlineDataHandlerEventHandler {
-    fun remove(moodEntry: MoodEntryModel)
+    fun remove(data: ArrayList<RowEntryModel>)
 
     fun onSignInResult(result: FirebaseAuthUIAuthenticationResult): FirebaseUser?
 
