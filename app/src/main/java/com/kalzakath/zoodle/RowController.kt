@@ -116,7 +116,7 @@ class RowController: DataController {
          */
     }
 
-    override fun update(updateRowEntryList: ArrayList<RowEntryModel>) {
+    override fun update(updateRowEntryList: ArrayList<RowEntryModel>, callUpdate: Boolean) {
         log.info("Attempting to update list of size: ${updateRowEntryList.size}")
 
         for(updateRow in updateRowEntryList) {
@@ -126,7 +126,7 @@ class RowController: DataController {
             if (index != null && index != -1) updateAt(index, updateRow, false)
             else add(updateRow, false)
         }
-        callChangeEvent(updateRowEntryList, RowControllerEvent.UPDATE )
+        if (callUpdate) callChangeEvent(updateRowEntryList, RowControllerEvent.UPDATE )
     }
 
     override fun size(): Int { return mainRowEntryList.size }

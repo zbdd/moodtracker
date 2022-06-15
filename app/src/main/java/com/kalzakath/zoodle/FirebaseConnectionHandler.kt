@@ -7,11 +7,12 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import com.kalzakath.zoodle.interfaces.FirebaseAuthentication
 import com.kalzakath.zoodle.interfaces.OnlineDataHandler
 import com.kalzakath.zoodle.interfaces.OnlineDataHandlerEventListener
 import java.util.logging.Logger
 
-class FirebaseConnectionHandler: OnlineDataHandler {
+class FirebaseConnectionHandler: OnlineDataHandler, FirebaseAuthentication {
 
     private lateinit var myRef: DatabaseReference
     private var user: FirebaseUser? = null
@@ -36,9 +37,11 @@ class FirebaseConnectionHandler: OnlineDataHandler {
                 Firebase.database("https://silent-blend-161710-default-rtdb.asia-southeast1.firebasedatabase.app")
             myRef = database.reference
             touch()
+            notifyListenersOfLoginEventResult("SUCCESS")
             user
         } else {
             log.info("Problem encountered logging in")
+            notifyListenersOfLoginEventResult("FAILURE")
             null
         }
     }
@@ -56,8 +59,9 @@ class FirebaseConnectionHandler: OnlineDataHandler {
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun read(user: FirebaseUser?): ArrayList<RowEntryModel> {
+    override fun read(): ArrayList<RowEntryModel> {
         val moodData = ArrayList<RowEntryModel>()
+        if (user == null) return moodData
 
         myRef.child(user!!.uid).child("moodEntries").get()
             .addOnSuccessListener {
@@ -74,7 +78,7 @@ class FirebaseConnectionHandler: OnlineDataHandler {
                             )
                         )
                     }
-                    notifyListeners(moodData)
+                    notifyListenersOfDatabaseUpdate(moodData)
                 }
             }.addOnFailureListener {
                 println("Unable to get data from DB")
@@ -91,8 +95,12 @@ class FirebaseConnectionHandler: OnlineDataHandler {
         listeners.remove(listener)
     }
 
-    private fun notifyListeners(data: ArrayList<RowEntryModel>) {
-        listeners.forEach { it.onUpdateFromOnlineDataHandler(data) }
+    private fun notifyListenersOfDatabaseUpdate(data: ArrayList<RowEntryModel>) {
+        listeners.forEach { it.onUpdateFromDatabase(data) }
+    }
+
+    private fun notifyListenersOfLoginEventResult(result: String) {
+        listeners.forEach { it.onLoginUpdateFromDatabase(result) }
     }
 
     private fun touch() {
