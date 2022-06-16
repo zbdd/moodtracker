@@ -36,8 +36,6 @@ class RecyclerViewAdaptor(
         onUpdateFromDataController(RowControllerEvent())
     }
 
-
-
     override fun onUpdateFromDataController(event: RowControllerEvent) {
         moodList.clear()
         moodList.addAll(rowController.mainRowEntryList)

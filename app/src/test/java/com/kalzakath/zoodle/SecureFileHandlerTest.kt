@@ -62,9 +62,4 @@ class SecureFileHandlerTest {
         assert(fakeSecureFileHandler.write(Settings))
         assert(fakeSecureFileHandler.write(Settings, testFile))
     }
-
-    @Test
-    fun `check read defaults`() {
-        assert(fakeSecureFileHandler.read() == "")
-    }
 }
