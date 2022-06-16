@@ -11,7 +11,7 @@ interface RowEntryModel {
 
     fun bindToViewHolder(holder: RecyclerView.ViewHolder)
 
-    fun getViewHolder(): RecyclerView.ViewHolder
+    fun getViewHolder(): RecyclerView.ViewHolder?
 
     @Exclude
     fun toMap(): Map<String, Any?>

@@ -15,12 +15,14 @@ class FilterEntryModel (
     override var viewType: Int = 2
 
     override fun bindToViewHolder(holder: RecyclerView.ViewHolder) {
-        viewHolder = holder as FilterViewHolder
-        (viewHolder as FilterViewHolder).tvFilterTitle.text = title
+        val viewHolder = holder as FilterViewHolder
+        viewHolder.tvFilterTitle.text = title
     }
 
-    override fun getViewHolder(): RecyclerView.ViewHolder {
-        return viewHolder
+    override fun getViewHolder(): RecyclerView.ViewHolder? {
+        if (::viewHolder.isInitialized) return viewHolder
+
+        return null
     }
 
     override fun toMap(): Map<String, Any?> {

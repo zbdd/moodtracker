@@ -22,10 +22,13 @@ class MoodEntryModel(
     Serializable {
 
     @Transient private lateinit var viewHolder: RecyclerView.ViewHolder
-    override fun getViewHolder(): RecyclerView.ViewHolder {
-        return viewHolder
+    override fun getViewHolder(): RecyclerView.ViewHolder? {
+        if (::viewHolder.isInitialized) return viewHolder
+
+        return null
     }
 
+    var isVisible = true
     override var viewType: Int = 1
 
     @Exclude
@@ -68,11 +71,18 @@ class MoodEntryModel(
         return isTheSame
     }
 
+    fun hideRow(mViewHolder: MoodViewHolder) {
+        if (isVisible) mViewHolder.body.maxHeight = 200
+        else mViewHolder.body.maxHeight = 1
+    }
+
     override fun bindToViewHolder(holder: RecyclerView.ViewHolder) {
         val mViewHolder = holder as MoodViewHolder
         mViewHolder.dateText.text = date
         mViewHolder.timeText.text = time
         val moodHelper = MoodValueHelper()
+
+        hideRow(mViewHolder)
 
         if (mood != null) {
             if (Settings.moodMode == Settings.MoodModes.FACES)

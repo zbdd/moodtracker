@@ -36,6 +36,8 @@ class RecyclerViewAdaptor(
         onUpdateFromDataController(RowControllerEvent())
     }
 
+
+
     override fun onUpdateFromDataController(event: RowControllerEvent) {
         moodList.clear()
         moodList.addAll(rowController.mainRowEntryList)
@@ -184,58 +186,83 @@ class RecyclerViewAdaptor(
         rowController.update(mood)
     }
 
+    private fun toggleFilterView(position: Int) {
+        for (i in position + 1 until moodList.size) {
+            val row = moodList[i]
+            if (row.viewType == MoodEntryModel().viewType) {
+                val mood = row as MoodEntryModel
+                mood.isVisible = !mood.isVisible
+
+                val viewHolder = mood.getViewHolder()
+                if (viewHolder != null) {
+                    val mVH = viewHolder as MoodViewHolder
+                    mood.hideRow(mVH)
+                }
+            }else {
+                break
+            }
+        }
+    }
+
     private fun initButtons(viewHolder: ViewHolder, row: RowEntryModel) {
 
-        if (row.viewType != MoodEntryModel().viewType) return
+        when (row.viewType) {
+            FilterEntryModel().viewType -> {
+                (viewHolder as FilterViewHolder).tvFilterTitle.setOnClickListener {
+                    toggleFilterView(moodList.indexOf(row))
+                }
+            }
+            MoodEntryModel().viewType -> {
+                val moodEntry = row as MoodEntryModel
+                val mHolder = viewHolder as MoodViewHolder
 
-        val moodEntry = row as MoodEntryModel
-        val mHolder = viewHolder as MoodViewHolder
+                val dtPicker = DateTimePicker()
+                dtPicker.onUpdateListener = {
+                    updateDateText(it, mHolder, moodEntry)
+                }
 
-        val dtPicker = DateTimePicker()
-        dtPicker.onUpdateListener = {
-            updateDateText(it, mHolder, moodEntry)
-        }
+                mHolder.moodText.setOnLongClickListener {
+                    onLongPress?.invoke(row)
+                    return@setOnLongClickListener true
+                }
+                mHolder.moodText.setOnClickListener {
+                    onMoodValueClicked(moodEntry)
+                }
 
-        mHolder.moodText.setOnLongClickListener {
-            onLongPress?.invoke(row)
-            return@setOnLongClickListener true
-        }
-        mHolder.moodText.setOnClickListener {
-            onMoodValueClicked(moodEntry)
-        }
+                mHolder.dateText.setOnLongClickListener {
+                    onLongPress?.invoke(row)
+                    return@setOnLongClickListener true
+                }
 
-        mHolder.dateText.setOnLongClickListener {
-            onLongPress?.invoke(row)
-            return@setOnLongClickListener true
-        }
+                mHolder.timeText.setOnLongClickListener {
+                    onLongPress?.invoke(row)
+                    return@setOnLongClickListener true
+                }
 
-        mHolder.timeText.setOnLongClickListener {
-            onLongPress?.invoke(row)
-            return@setOnLongClickListener true
-        }
+                mHolder.activityText.setOnLongClickListener {
+                    onLongPress?.invoke(row)
+                    return@setOnLongClickListener true
+                }
+                mHolder.activityText.setOnClickListener {
+                    onStartActivitiesActivity(moodEntry)
+                }
 
-        mHolder.activityText.setOnLongClickListener {
-            onLongPress?.invoke(row)
-            return@setOnLongClickListener true
-        }
-        mHolder.activityText.setOnClickListener {
-            onStartActivitiesActivity(moodEntry)
-        }
+                mHolder.feelingsText.setOnLongClickListener {
+                    onLongPress?.invoke(row)
+                    return@setOnLongClickListener true
+                }
+                mHolder.feelingsText.setOnClickListener {
+                    startFeelingsActivity(moodEntry)
+                }
 
-        mHolder.feelingsText.setOnLongClickListener {
-            onLongPress?.invoke(row)
-            return@setOnLongClickListener true
-        }
-        mHolder.feelingsText.setOnClickListener {
-            startFeelingsActivity(moodEntry)
-        }
+                mHolder.dateText.setOnClickListener {
+                    dtPicker.show(mHolder.itemView.context)
+                }
 
-        mHolder.dateText.setOnClickListener {
-            dtPicker.show(mHolder.itemView.context)
-        }
-
-        mHolder.timeText.setOnClickListener {
-            dtPicker.show(mHolder.itemView.context)
+                mHolder.timeText.setOnClickListener {
+                    dtPicker.show(mHolder.itemView.context)
+                }
+            }
         }
     }
 
@@ -248,7 +275,7 @@ class RecyclerViewAdaptor(
         return moodList.size
     }
 
-    override fun onItemMove(fromPosition: Int, toPosition: Int): Boolean {
+    override fun onItemMove(fromPosition: Int, toPosition: Int): kotlin.Boolean {
         return false
     }
 
