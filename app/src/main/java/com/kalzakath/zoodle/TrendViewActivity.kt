@@ -52,7 +52,8 @@ class TrendViewActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_trend_view)
 
-        val secureFileHandler = SecureFileHandler(applicationContext)
+        val securityHandler = SecurityHandler(applicationContext)
+        val secureFileHandler = SecureFileHandler(securityHandler)
 
         val jsonString = secureFileHandler.read()
         if (jsonString != null) moodData = getMoodListFromJSON(jsonString)

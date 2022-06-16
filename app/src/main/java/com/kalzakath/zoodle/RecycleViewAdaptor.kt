@@ -33,11 +33,12 @@ class RecyclerViewAdaptor(
 
     init {
         rowController.registerForUpdates(this)
+        onUpdateFromDataController(RowControllerEvent())
     }
 
     override fun onUpdateFromDataController(event: RowControllerEvent) {
         moodList.clear()
-        moodList.addAll(event.data)
+        moodList.addAll(rowController.mainRowEntryList)
         addFilterView()
         notifyDataSetChanged()
     }

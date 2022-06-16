@@ -22,20 +22,16 @@ import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import com.google.firebase.auth.FirebaseUser
 import com.google.gson.GsonBuilder
-import com.google.gson.reflect.TypeToken
 import com.kalzakath.zoodle.debug.TestSuite
 import com.kalzakath.zoodle.interfaces.DataController
-import com.kalzakath.zoodle.interfaces.DataControllerEventListener
-import com.kalzakath.zoodle.interfaces.OnlineDataHandler
-import com.kalzakath.zoodle.interfaces.OnlineDataHandlerEventListener
-import java.lang.reflect.Modifier
+import com.kalzakath.zoodle.interfaces.MainActivityInterface
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
 import java.util.logging.Logger
 
-class MainActivity : AppCompatActivity(), DataControllerEventListener, OnlineDataHandlerEventListener {
+class MainActivity : AppCompatActivity(), MainActivityInterface {
 
     private lateinit var getActivitiesActivityResult: ActivityResultLauncher<Intent>
     private lateinit var getSettingsActivityResult: ActivityResultLauncher<Intent>
@@ -44,20 +40,15 @@ class MainActivity : AppCompatActivity(), DataControllerEventListener, OnlineDat
     private lateinit var getFrontPageActivityResult: ActivityResultLauncher<Intent>
     private lateinit var rowController: DataController
     private lateinit var secureFileHandler: SecureFileHandler
-    private lateinit var onlineDataHandler: OnlineDataHandler
+    private lateinit var onlineDataHandler: FirebaseConnectionHandler
     private lateinit var dataHandler: DataHandler
     private val log = Logger.getLogger(MainActivity::class.java.name + "****************************************")
 
     private var user: FirebaseUser? = null
     private val signInLauncher =
-        registerForActivityResult(FirebaseAuthUIActivityResultContract()) { res ->
-            this.onSignInResult(res)
+        registerForActivityResult(FirebaseAuthUIActivityResultContract()) {
+            this.onSignInResult(it)
         }
-
-    override fun onUpdateFromDataController(event: RowControllerEvent) {
-        secureFileHandler.write(event.data)
-        onlineDataHandler.write(event.data)
-    }
 
     private fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
         user = onlineDataHandler.onSignInResult(result)
@@ -70,10 +61,8 @@ class MainActivity : AppCompatActivity(), DataControllerEventListener, OnlineDat
         }
         else {
             loginBtn.background = AppCompatResources.getDrawable(applicationContext, R.drawable.main_login_green)
-
-            val moodData = onlineDataHandler.read(user)
-
-            rowController.update(moodData)
+            Toast.makeText(applicationContext, "Retrieving online information...", Toast.LENGTH_SHORT)
+                .show()
         }
     }
 
@@ -81,26 +70,22 @@ class MainActivity : AppCompatActivity(), DataControllerEventListener, OnlineDat
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        secureFileHandler = SecureFileHandler(applicationContext)
-        val settingsString = secureFileHandler.read("settings.json")
-        readSettingsDataFromJson(settingsString)
-
+        val securityHandler = SecurityHandler(applicationContext)
+        secureFileHandler = SecureFileHandler(securityHandler)
         rowController = RowController()
-        rowController.registerForUpdates(this)
-        setupRecycleView()
-
-        dataHandler = DataHandler(secureFileHandler, applicationContext)
-
         onlineDataHandler = FirebaseConnectionHandler()
-        onlineDataHandler.registerForUpdates(this)
+        val moodTrackerMain = MoodTrackerMain(secureFileHandler,rowController,onlineDataHandler)
 
+        //dataHandler = DataHandler(secureFileHandler, applicationContext)
+
+        val rVA = setupRecycleView()
         initButtons()
         setActivityListeners()
 
-        dataHandler = TestSuite.useLocalData(secureFileHandler, applicationContext)
+        //dataHandler = TestSuite.useLocalData(secureFileHandler, applicationContext)
         TestSuite.setDefaultSettings()
 
-        rowController.update(dataHandler.read())
+        //rowController.update(dataHandler.read())
 
         val moodEntry = intent.getSerializableExtra("MoodEntry")
         if (moodEntry != null) rowController.update(moodEntry as MoodEntryModel)
@@ -109,12 +94,12 @@ class MainActivity : AppCompatActivity(), DataControllerEventListener, OnlineDat
         if (todayMoodEntry == null) startActivityFrontPage(null)
     }
 
-    private fun setupRecycleView(): RecyclerViewAdaptor {
+    override fun setupRecycleView(): RecyclerViewAdaptor {
         val recyclerViewAdaptor = RecyclerViewAdaptor(
-            { moodEntry -> setupMoodPicker(moodEntry) },
+            { moodEntry -> createMoodValuePicker(moodEntry) },
             { moodEntry -> startActivityActivities(moodEntry) },
             { moodEntry -> startActivityFeelings(moodEntry) },
-        rowController)
+            rowController)
 
         recyclerViewAdaptor.onLongPress = {
             log.info("Consumed onLongPress")
@@ -132,7 +117,7 @@ class MainActivity : AppCompatActivity(), DataControllerEventListener, OnlineDat
         return recyclerViewAdaptor
     }
 
-    private fun startActivityActivities(moodEntry: MoodEntryModel) {
+    override fun startActivityActivities(moodEntry: MoodEntryModel) {
         val intent = Intent(this, ActivitiesActivity::class.java)
         val jsonArray = secureFileHandler.read("available.json")
 
@@ -150,23 +135,23 @@ class MainActivity : AppCompatActivity(), DataControllerEventListener, OnlineDat
         getActivitiesActivityResult.launch(intent)
     }
 
-    private fun startActivitySettings() {
+    override fun startActivitySettings() {
         val intent = Intent(this, SettingsActivity::class.java)
         getSettingsActivityResult.launch(intent)
     }
 
-    private fun startActivityFrontPage(moodEntry: MoodEntryModel?) {
+    override fun startActivityFrontPage(moodEntry: MoodEntryModel?) {
         val intent = Intent(this, FrontPageActivity::class.java)
         if (moodEntry != null) intent.putExtra("MoodEntry", moodEntry)
         getFrontPageActivityResult.launch(intent)
     }
 
-    private fun startActivityTrendView() {
+    override fun startActivityTrendView() {
         val intent = Intent(this, TrendViewActivity::class.java)
         getTrendViewActivitiesResult.launch(intent)
     }
 
-    private fun startActivityFeelings(moodEntry: MoodEntryModel) {
+    override fun startActivityFeelings(moodEntry: MoodEntryModel) {
         val intent = Intent(this, FeelingsActivity::class.java)
         val jsonArray = secureFileHandler.read("feelings.json")
 
@@ -184,7 +169,7 @@ class MainActivity : AppCompatActivity(), DataControllerEventListener, OnlineDat
         getFeelingsActivityResult.launch(intent)
     }
 
-    private fun setupMoodPicker(moodEntry: MoodEntryModel) {
+    override fun createMoodValuePicker(moodEntry: MoodEntryModel) {
         val numberPicker: NumberPicker = findViewById(R.id.npNumberPicker)
         val numberArray = Array(Settings.moodMax) { (it + 1).toString() }
         val mvHelper = MoodValueHelper()
@@ -271,33 +256,20 @@ class MainActivity : AppCompatActivity(), DataControllerEventListener, OnlineDat
                 secureFileHandler.write(Settings)
 //                recyclerViewAdaptor.updateListConfig()
 
-               rowController.update(moodData)
+                rowController.update(moodData)
             }
     }
 
-    private fun createMoodPicker() {
-        val moodPicker = MoodEntryPicker(this) { moodEntry -> addNewMoodEntry(moodEntry) }
+    override fun createMoodEntryPicker() {
+        val moodPicker = MoodEntryPicker(this) { moodEntry -> rowController.add(moodEntry) }
         moodPicker.showPopup()
-    }
-
-    private fun readSettingsDataFromJson(jsonSettings: String?) {
-        val gson = GsonBuilder().excludeFieldsWithModifiers(Modifier.TRANSIENT).create()
-        val type = object : TypeToken<Settings>() {}.type
-        val data = gson.fromJson<Settings>(jsonSettings, type)
-        if (data != null) {
-            Settings.moodMode = data.moodMode
-            Settings.moodMax = data.moodMax
-        }
-        else {
-            secureFileHandler.write(Settings)
-        }
     }
 
     private fun initButtons() {
         val addNewButton: ImageButton = findViewById(R.id.addNewButton)
 
         addNewButton.setOnClickListener {
-            createMoodPicker()
+            createMoodEntryPicker()
         }
 
         val bViewTrend: Button = findViewById(R.id.bViewTrend)
@@ -313,7 +285,7 @@ class MainActivity : AppCompatActivity(), DataControllerEventListener, OnlineDat
         val ibAddNewDebug: ImageButton = findViewById(R.id.ibAddNewDebug)
         ibAddNewDebug.setOnClickListener {
             val debugMood = MoodEntryFactory().createDebug(applicationContext)
-            addNewMoodEntry(debugMood)
+            rowController.add(debugMood)
         }
 
         val ibLogin: ImageButton = findViewById(R.id.mainibLogin)
@@ -335,11 +307,7 @@ class MainActivity : AppCompatActivity(), DataControllerEventListener, OnlineDat
         }
     }
 
-    private fun addNewMoodEntry(moodEntry: MoodEntryModel) {
-        rowController.add(moodEntry)
-    }
-
-    private fun launchSignInEvent() {
+    override fun launchSignInEvent() {
         // Choose authentication providers
         val providers = arrayListOf(
             AuthUI.IdpConfig.EmailBuilder().build(),
@@ -354,9 +322,5 @@ class MainActivity : AppCompatActivity(), DataControllerEventListener, OnlineDat
             .setAvailableProviders(providers)
             .build()
         signInLauncher.launch(signInIntent)
-    }
-
-    override fun onUpdateFromOnlineDataHandler(data: ArrayList<RowEntryModel>) {
-        rowController.update(data)
     }
 }

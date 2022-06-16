@@ -22,12 +22,15 @@ class FrontPageActivity : AppCompatActivity() {
     private lateinit var getActivitiesActivityResult: ActivityResultLauncher<Intent>
     private lateinit var getFeelingsActivityResult: ActivityResultLauncher<Intent>
     private lateinit var secureFileHandler: SecureFileHandler
+    private lateinit var securityHandler: SecurityHandler
     private val log = Logger.getLogger(MainActivity::class.java.name + "****************************************")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_front_page)
-        secureFileHandler = SecureFileHandler(applicationContext)
+
+        securityHandler = SecurityHandler(applicationContext)
+        secureFileHandler = SecureFileHandler(securityHandler)
 
         val data = intent.getSerializableExtra("MoodEntry")
         val moodEntry = if (data != null) data as MoodEntryModel
