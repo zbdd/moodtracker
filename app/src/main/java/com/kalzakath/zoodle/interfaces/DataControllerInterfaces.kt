@@ -25,7 +25,7 @@ interface DataControllerAccessors {
     fun removeAt(position: Int, callUpdate: Boolean = true)
 
     fun update(rowEntryModel: RowEntryModel, callUpdate: Boolean = true)
-    fun update(updateRowEntryList: ArrayList<RowEntryModel>)
+    fun update(updateRowEntryList: ArrayList<RowEntryModel>, callUpdate: Boolean = true)
     fun updateAt(position: Int, rowEntryModel: RowEntryModel, callUpdate: Boolean = true): Boolean
 
     fun size(): Int

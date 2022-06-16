@@ -33,6 +33,7 @@ class RecyclerViewAdaptor(
 
     init {
         rowController.registerForUpdates(this)
+        onUpdateFromDataController(RowControllerEvent())
     }
 
     override fun onUpdateFromDataController(event: RowControllerEvent) {

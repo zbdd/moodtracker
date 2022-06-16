@@ -1,40 +1,44 @@
 package com.kalzakath.zoodle
 
-import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import java.io.BufferedInputStream
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
+import java.io.*
 import java.lang.reflect.Modifier
 import java.util.logging.Logger
 
-class SecureFileHandler(context: Context): SecurityHandler(context) {
-    private val Log = Logger.getLogger(MainActivity::class.java.name + "****************************************")
+open class SecureFileHandler(securityHandler: SecurityHandler) {
+    private val log = Logger.getLogger(MainActivity::class.java.name + "****************************************")
+    private val _securityHandler = securityHandler
 
-     fun write(jsonString: String, filename: String): Boolean {
-         Log.info("Writing to local storage")
-         //try {
+    fun write(jsonString: String, filename: String): Boolean {
+
              val fileData = jsonString.toByteArray(Charsets.UTF_32)
-             val encoded = encryptData(fileData)
+             val encoded = _securityHandler.encryptData(fileData)
 
-             val fos: FileOutputStream =
-                 context.openFileOutput(filename, AppCompatActivity.MODE_PRIVATE)
-             //val bos = BufferedOutputStream(fos)
-             fos.write(encoded)
-             fos.flush()
-             fos.close()
-        //} catch (e: Exception) {
-          //   return false
-        // }
-         return true
+             return writeEncodedToFile(encoded, filename)
+    }
+
+    open fun writeEncodedToFile(encoded: ByteArray, filename: String): Boolean {
+        return try {
+            val fos: FileOutputStream =
+                _securityHandler.context.openFileOutput(filename, AppCompatActivity.MODE_PRIVATE)
+            val bos = BufferedOutputStream(fos)
+            bos.write(encoded)
+            bos.flush()
+            bos.close()
+            log.info("Writing to local storage: SUCCESS")
+            true
+        } catch (e: Exception) {
+            log.info("Writing to local storage: FAIL")
+            log.info(e.toString())
+            false
+        }
     }
 
      fun write(data: ArrayList<*>, filename: String = "testData.json"): Boolean {
          val gson = Gson()
-         val jsonString: String = gson.toJson(data)
+         val jsonString: String = gson.toJson(data as ArrayList<MoodEntryModel>)
          return write(jsonString, filename)
     }
 
@@ -45,27 +49,27 @@ class SecureFileHandler(context: Context): SecurityHandler(context) {
     }
 
     private fun readDataFromFile(filename: String): ByteArray? {
-        val path = context.filesDir.absoluteFile
-
+        val path = _securityHandler.context.filesDir.absoluteFile
         val file = File("$path/$filename")
         if (file.isFile) {
             val fileContents = file.readBytes()
             val inputBuffer = BufferedInputStream(FileInputStream(file))
             inputBuffer.read(fileContents)
             inputBuffer.close()
-
             return fileContents
         }
+
         return null
     }
 
-    fun read(filename: String = "testData.json"): String? {
-        Log.info("Reading from local storage")
+    fun read(filename: String = "testData.json"): String {
+        val logString = "Reading from local file: $filename: "
         val data = readDataFromFile(filename)
         if (data?.isNotEmpty() == true) {
-            val decryptedData = decrypt(data)
+            val decryptedData = _securityHandler.decrypt(data)
+            log.info(logString + "SUCCESS")
             return decryptedData.toString(Charsets.UTF_32)
-        } else Log.info("No local storage to read from")
-        return null
+        } else log.info(logString + "FAILURE")
+        return ""
     }
 }
