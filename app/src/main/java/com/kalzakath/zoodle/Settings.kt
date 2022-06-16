@@ -1,5 +1,8 @@
 package com.kalzakath.zoodle
 
+import kotlin.reflect.KMutableProperty
+import kotlin.reflect.full.memberProperties
+
 object Settings {
     object Default {
         const val moodMode: Int = MoodModes.NUMBERS
@@ -19,4 +22,16 @@ object Settings {
     var onlineEnabled = Default.onlineEnabled
     var debugMode = Default.debugMode
     var isPremiumEdition = Default.isPremiumEdition
+
+    fun setDefaultSettings() {
+        for (prop in Settings::class.memberProperties) {
+            val defaultVal =
+                Default::class.java.declaredFields.find { it.name == prop.name }
+            if (defaultVal != null) {
+                if (prop is KMutableProperty<*>) {
+                    prop.setter.call(Settings, defaultVal.get(Default))
+                }
+            }
+        }
+    }
 }

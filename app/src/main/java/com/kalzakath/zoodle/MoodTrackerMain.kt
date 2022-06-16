@@ -25,7 +25,7 @@ class MoodTrackerMain(secureFileHandler: SecureFileHandler,
         loadSettingData()
     }
 
-    private fun convertToArrayList(jsonString: String): ArrayList<RowEntryModel> {
+    fun convertToArrayList(jsonString: String): ArrayList<RowEntryModel> {
         val myArrayList = arrayListOf<RowEntryModel>()
 
         if (jsonString.isNotEmpty()) {
@@ -41,17 +41,17 @@ class MoodTrackerMain(secureFileHandler: SecureFileHandler,
         return myArrayList
     }
 
-    private fun loadLocalData() {
+    fun loadLocalData() {
         val data = _secureFileHandler.read()
         if (data.isNotEmpty()) _rowController.update(convertToArrayList(data), false)
     }
 
-    private fun loadOnlineData() {
+    fun loadOnlineData() {
         val data = _onlineDataHandler.read()
         if (data.isNotEmpty()) _rowController.update(data, false)
     }
 
-    private fun loadSettingData() {
+    fun loadSettingData() {
         readSettingsDataFromJson(_secureFileHandler.read("settings.json"))
     }
 
@@ -66,7 +66,7 @@ class MoodTrackerMain(secureFileHandler: SecureFileHandler,
         }
     }
 
-    private fun saveLocalDataToOnline() {
+    fun saveLocalDataToOnline() {
         _onlineDataHandler.write(_rowController.mainRowEntryList)
     }
 
@@ -83,7 +83,7 @@ class MoodTrackerMain(secureFileHandler: SecureFileHandler,
         }
     }
 
-    private fun readSettingsDataFromJson(jsonSettings: String?) {
+    fun readSettingsDataFromJson(jsonSettings: String?) {
         val gson = GsonBuilder().excludeFieldsWithModifiers(Modifier.TRANSIENT).create()
         val type = object : TypeToken<Settings>() {}.type
         val data = gson.fromJson<Settings>(jsonSettings, type)
