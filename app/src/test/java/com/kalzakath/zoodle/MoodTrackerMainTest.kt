@@ -3,8 +3,11 @@ package com.kalzakath.zoodle
 import android.content.Context
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.kalzakath.zoodle.interfaces.OnlineDataHandler
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -19,6 +22,7 @@ class MoodTrackerMainTest {
     private lateinit var testJsonArrayString: String
     private lateinit var testJsonArray: ArrayList<MoodEntryModel>
     private lateinit var rowController: RowController
+    private lateinit var onlineDataHandler: OnlineDataHandler
 
     @BeforeAll
     fun setup() {
@@ -35,8 +39,16 @@ class MoodTrackerMainTest {
             every { read("settings.json") } returns ""
         }
         rowController = RowController()
-        val onlineDH = FirebaseConnectionHandler()
-        main = MoodTrackerMain(secureFH,rowController,onlineDH)
+        onlineDataHandler = mockk<FirebaseConnectionHandler>() {
+            every { registerForUpdates(any()) } returns Unit
+            every { read() } returns arrayListOf()
+        }
+        main = MoodTrackerMain(secureFH,rowController,onlineDataHandler)
+    }
+
+    @AfterEach
+    fun setdown() {
+        rowController.mainRowEntryList.clear()
     }
 
     @Test
@@ -57,6 +69,14 @@ class MoodTrackerMainTest {
 
     @Test
     fun loadOnlineData() {
+        main.loadOnlineData()
+        verify { secureFH.read() }
+
+        val testArray: ArrayList<RowEntryModel> = arrayListOf(MoodEntryModel())
+        every { onlineDataHandler.read() } returns testArray
+
+        main.loadOnlineData()
+        assert(rowController.indexOf(testArray[0]) != -1)
     }
 
     @Test
@@ -78,11 +98,26 @@ class MoodTrackerMainTest {
 
         assert(Settings.moodMax == testMoodMax)
         assert(Settings.moodMode == testMoodMode)
-
     }
 
     @Test
     fun onUpdateFromDataController() {
+        val testArray: ArrayList<RowEntryModel> = arrayListOf(MoodEntryModel(), MoodEntryModel())
+        val testEventRemove = RowControllerEvent(testArray,RowControllerEvent.REMOVE)
+        every { secureFH.write(arrayListOf<RowEntryModel>()) } returns true
+        every { onlineDataHandler.write(any()) } returns Unit
+        every { onlineDataHandler.remove(any()) } returns Unit
+
+        main.onUpdateFromDataController(testEventRemove)
+
+        verify { secureFH.write(arrayListOf<RowEntryModel>()) }
+        verify { onlineDataHandler.remove(testArray) }
+        verify(exactly = 0) { onlineDataHandler.write(testArray) }
+
+        val testEventOther = RowControllerEvent(testArray,RowControllerEvent.ADDITION)
+        main.onUpdateFromDataController(testEventOther)
+
+        verify { onlineDataHandler.write(testArray) }
     }
 
     @Test
