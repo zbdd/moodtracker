@@ -2,16 +2,14 @@ package com.kalzakath.zoodle
 
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
-import com.kalzakath.zoodle.interfaces.DataController
-import com.kalzakath.zoodle.interfaces.DataControllerEventListener
-import com.kalzakath.zoodle.interfaces.OnlineDataHandler
-import com.kalzakath.zoodle.interfaces.OnlineDataHandlerEventListener
+import com.kalzakath.zoodle.interfaces.*
 import java.lang.reflect.Modifier
 
 class MoodTrackerMain(secureFileHandler: SecureFileHandler,
                       rowController: DataController,
                       onlineDataHandler: OnlineDataHandler
-                        ): DataControllerEventListener, OnlineDataHandlerEventListener {
+                        ): DataControllerEventListener, OnlineDataHandlerEventListener,
+                        MoodTracker {
     private val _secureFileHandler = secureFileHandler
     private val _rowController = rowController
     private val _onlineDataHandler = onlineDataHandler
@@ -25,7 +23,7 @@ class MoodTrackerMain(secureFileHandler: SecureFileHandler,
         loadSettingData()
     }
 
-    fun convertToArrayList(jsonString: String): ArrayList<RowEntryModel> {
+    override fun convertToArrayList(jsonString: String): ArrayList<RowEntryModel> {
         val myArrayList = arrayListOf<RowEntryModel>()
 
         if (jsonString.isNotEmpty()) {
@@ -41,17 +39,17 @@ class MoodTrackerMain(secureFileHandler: SecureFileHandler,
         return myArrayList
     }
 
-    fun loadLocalData() {
+    override fun loadLocalData() {
         val data = _secureFileHandler.read()
         if (data.isNotEmpty()) _rowController.update(convertToArrayList(data), false)
     }
 
-    fun loadOnlineData() {
+    override fun loadOnlineData() {
         val data = _onlineDataHandler.read()
         if (data.isNotEmpty()) _rowController.update(data, false)
     }
 
-    fun loadSettingData() {
+    override fun loadSettingData() {
         readSettingsDataFromJson(_secureFileHandler.read("settings.json"))
     }
 
@@ -66,7 +64,7 @@ class MoodTrackerMain(secureFileHandler: SecureFileHandler,
         }
     }
 
-    fun saveLocalDataToOnline() {
+    override fun saveLocalDataToOnline() {
         _onlineDataHandler.write(_rowController.mainRowEntryList)
     }
 
@@ -83,7 +81,7 @@ class MoodTrackerMain(secureFileHandler: SecureFileHandler,
         }
     }
 
-    fun readSettingsDataFromJson(jsonSettings: String?) {
+    override fun readSettingsDataFromJson(jsonSettings: String?) {
         val gson = GsonBuilder().excludeFieldsWithModifiers(Modifier.TRANSIENT).create()
         val type = object : TypeToken<Settings>() {}.type
         val data = gson.fromJson<Settings>(jsonSettings, type)
