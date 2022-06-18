@@ -5,6 +5,7 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.widget.Button
 import android.widget.TextView
+import com.kalzakath.zoodle.model.MoodEntryModel
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -35,7 +36,7 @@ class MoodEntryPicker(context: Context, val onCreateMoodEntry: (MoodEntryModel) 
         return MoodEntryModel(
             date.text.toString(),
             time.text.toString(),
-            Mood(mood.text.toString())
+            mood.text.toString().toInt()
         )
     }
 

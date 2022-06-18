@@ -1,5 +1,7 @@
 package com.kalzakath.zoodle
 
+import com.kalzakath.zoodle.interfaces.RowEntryModel
+
 class RowControllerEvent (
     var data: ArrayList<RowEntryModel> = arrayListOf(),
     var type: Int = NOTHING

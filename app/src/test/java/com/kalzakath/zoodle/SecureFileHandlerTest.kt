@@ -1,5 +1,6 @@
 package com.kalzakath.zoodle
 
+import com.kalzakath.zoodle.model.MoodEntryModel
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.BeforeEach

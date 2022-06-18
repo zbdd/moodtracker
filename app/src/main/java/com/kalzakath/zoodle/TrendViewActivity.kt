@@ -16,6 +16,7 @@ import com.github.mikephil.charting.formatter.ValueFormatter
 import com.github.mikephil.charting.utils.EntryXComparator
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
+import com.kalzakath.zoodle.model.MoodEntryModel
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -56,9 +57,8 @@ class TrendViewActivity : AppCompatActivity() {
         val secureFileHandler = SecureFileHandler(securityHandler)
 
         val jsonString = secureFileHandler.read()
-        if (jsonString != null) moodData = getMoodListFromJSON(jsonString)
+        if (jsonString != "") moodData = getMoodListFromJSON(jsonString)
 
-        //settings = intent.getParcelableExtra("Settings")
         if (moodData.isNotEmpty()) setLineChartData()
 
         val bViewData: Button = findViewById(R.id.bViewData)
@@ -97,10 +97,10 @@ class TrendViewActivity : AppCompatActivity() {
         var format = "yyyy"
 
         for (moods in moodData) {
-            var moodNumber = moods.mood?.value
+            var moodNumber = moods.mood
             var timePeriod = ""
 
-            if (Settings.moodMode == Settings.MoodModes.NUMBERS) moodNumber = moods.mood?.toNumber() ?: "3"
+            if (Settings.moodMode == Settings.MoodModes.NUMBERS) moodNumber = moods.mood
 
             if (filter == "month") {
                 format = "yyyy-MM"
@@ -113,18 +113,18 @@ class TrendViewActivity : AppCompatActivity() {
                     Locale.ENGLISH
                 )
 
-                if (timePeriod == "" || timePeriod != moods.date?.substring(0, subStringLength)) {
+                if (timePeriod == "" || timePeriod != moods.date.substring(0, subStringLength)) {
                     timePeriod =
-                        moods.date?.substring(0, subStringLength) as String
+                        moods.date.substring(0, subStringLength)
                     if (timeArray[timePeriod] == null) timeArray[timePeriod] = ArrayList()
-                    val value = moods.mood?.toNumber()?.toInt() as Int
+                    val value = moods.mood
                     timeArray[timePeriod]?.add(value)
                 }
             } else {
                 entryList.add(
                     Entry(
-                        dateFormat.parse(moods.date.toString())?.time?.toFloat() ?: 0.0.toFloat(),
-                        (moodNumber?.toFloat() ?: 0.0) as Float
+                        dateFormat.parse(moods.date)?.time?.toFloat() ?: 0.0.toFloat(),
+                        (moodNumber.toFloat())
                     )
                 )
             }
@@ -176,7 +176,7 @@ class TrendViewActivity : AppCompatActivity() {
 
         val yAxis = chart.axisLeft
         yAxis.textColor = Color.WHITE
-        yAxis.axisMaximum = Settings.moodMax.toFloat() ?: 5f
+        yAxis.axisMaximum = Settings.moodMax.toFloat()
         yAxis.axisMinimum = 0f
         yAxis.granularity = 1f
         if (moodData.isNotEmpty()) if (Settings.moodMode == Settings.MoodModes.FACES) yAxis.valueFormatter = MyFormat(applicationContext

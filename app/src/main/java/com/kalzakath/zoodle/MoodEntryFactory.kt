@@ -1,6 +1,7 @@
 package com.kalzakath.zoodle
 
 import android.content.Context
+import com.kalzakath.zoodle.model.MoodEntryModel
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -31,7 +32,7 @@ class MoodEntryFactory: RowEntryFactory() {
 
         val availFeelings = context.resources.getStringArray(R.array.available_feelings)
 
-        val moodVal = random.nextInt(1,5).toString()
+        val moodVal = random.nextInt(1,5)
 
         val list: MutableList<String> = ArrayList()
         for (i in 1..random.nextInt(4)) {
@@ -50,17 +51,14 @@ class MoodEntryFactory: RowEntryFactory() {
             LocalDate.ofEpochDay(randomDate)
         } else date.toLocalDate()
 
-        var dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-        val date = dateTime.format(dateTimeFormatter)
-
-        dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+        val dateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
         val randomTime = random.nextInt(10,23).toString() + ":" + random.nextInt(10,59).toString()
         val time = randomTime.format(dateTimeFormatter)
 
         return MoodEntryModel(
                 dateTime.toString(),
                 time,
-                Mood(moodVal),
+                moodVal,
                 feelings,
                 list,
                 UUID.randomUUID().toString()

@@ -3,6 +3,8 @@ package com.kalzakath.zoodle
 import android.content.Context
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
+import com.kalzakath.zoodle.interfaces.RowEntryModel
+import com.kalzakath.zoodle.model.MoodEntryModel
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -17,9 +19,9 @@ open class DataHandler(var secureFileHandler: SecureFileHandler,
      open fun read(): ArrayList<RowEntryModel> {
         val jsonArray = secureFileHandler.read()
         val moodData = ArrayList<RowEntryModel>()
-        log.info("JsonArray found: ${jsonArray.toString()}")
+        log.info("JsonArray found: ${jsonArray}")
 
-        if (jsonArray?.isNotEmpty() == true) {
+        if (jsonArray.isNotEmpty()) {
             val gson = GsonBuilder().create()
             val type = object : TypeToken<Array<MoodEntryModel>>() {}.type
             val moodEntries = gson.fromJson<Array<MoodEntryModel>>(jsonArray, type)
@@ -67,7 +69,7 @@ open class DataHandler(var secureFileHandler: SecureFileHandler,
         return MoodEntryModel(
                 date,
                 time,
-                Mood("3"),
+                3,
                 feelings,
                 list,
                 UUID.randomUUID().toString()

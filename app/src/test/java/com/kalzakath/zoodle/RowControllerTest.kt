@@ -1,6 +1,8 @@
 package com.kalzakath.zoodle
 
 import com.kalzakath.zoodle.interfaces.DataController
+import com.kalzakath.zoodle.interfaces.RowEntryModel
+import com.kalzakath.zoodle.model.MoodEntryModel
 import io.mockk.MockKAnnotations
 import io.mockk.impl.annotations.MockK
 import io.mockk.spyk
@@ -65,7 +67,7 @@ internal class RowControllerTest {
         val testUpdateMoodEntryModel = MoodEntryModel(
             "2020-12-01",
             "09:09",
-            Mood("5")
+            5
         )
         testUpdateMoodEntryModel.key = testArray[6].key
         testUpdateMoodEntryModel.lastUpdated = LocalDateTime.now().plusSeconds(1).toString()

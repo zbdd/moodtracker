@@ -1,9 +1,11 @@
 package com.kalzakath.zoodle
 
-import android.content.Context
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.kalzakath.zoodle.interfaces.OnlineDataHandler
+import com.kalzakath.zoodle.interfaces.RowEntryModel
+import com.kalzakath.zoodle.model.MoodEntryModel
+import com.kalzakath.zoodle.model.compare
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -11,7 +13,6 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import java.io.File
 import java.lang.reflect.Modifier
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -30,11 +31,7 @@ class MoodTrackerMainTest {
         testJsonArray = arrayListOf(MoodEntryModel(), MoodEntryModel())
         testJsonArrayString = gson.toJson(testJsonArray)
 
-        val context = mockk<Context>() {
-            every { filesDir } returns File("")
-        }
-        val securityHandler = SecurityHandler(context)
-        secureFH = mockk<SecureFileHandler>() {
+        secureFH = mockk {
             every { read() } returns testJsonArrayString
             every { read("settings.json") } returns ""
         }

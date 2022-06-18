@@ -3,6 +3,7 @@ package com.kalzakath.zoodle
 import androidx.appcompat.app.AppCompatActivity
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.kalzakath.zoodle.model.MoodEntryModel
 import java.io.*
 import java.lang.reflect.Modifier
 import java.util.logging.Logger
@@ -38,7 +39,8 @@ open class SecureFileHandler(securityHandler: SecurityHandler) {
 
      fun write(data: ArrayList<*>, filename: String = "testData.json"): Boolean {
          val gson = Gson()
-         val jsonString: String = gson.toJson(data as ArrayList<MoodEntryModel>)
+         val moodArray = data.filterIsInstance<MoodEntryModel>()
+         val jsonString: String = gson.toJson(moodArray)
          return write(jsonString, filename)
     }
 

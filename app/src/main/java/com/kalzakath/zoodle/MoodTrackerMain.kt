@@ -3,7 +3,9 @@ package com.kalzakath.zoodle
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import com.kalzakath.zoodle.interfaces.*
+import com.kalzakath.zoodle.model.MoodEntryModel
 import java.lang.reflect.Modifier
+import java.util.logging.Logger
 
 class MoodTrackerMain(secureFileHandler: SecureFileHandler,
                       rowController: DataController,
@@ -13,6 +15,7 @@ class MoodTrackerMain(secureFileHandler: SecureFileHandler,
     private val _secureFileHandler = secureFileHandler
     private val _rowController = rowController
     private val _onlineDataHandler = onlineDataHandler
+    private val log = Logger.getLogger(MainActivity::class.java.name)
 
     init {
         _rowController.registerForUpdates(this)
@@ -27,12 +30,16 @@ class MoodTrackerMain(secureFileHandler: SecureFileHandler,
         val myArrayList = arrayListOf<RowEntryModel>()
 
         if (jsonString.isNotEmpty()) {
-            val gson = GsonBuilder().create()
-            val type = object : TypeToken<Array<MoodEntryModel>>() {}.type
-            val moodEntries = gson.fromJson<Array<MoodEntryModel>>(jsonString, type)
+            try {
+                val gson = GsonBuilder().create()
+                val type = object : TypeToken<Array<MoodEntryModel>>() {}.type
+                val moodEntries = gson.fromJson<Array<MoodEntryModel>>(jsonString, type)
 
-            for (x in moodEntries.indices) {
-                myArrayList.add(moodEntries[x])
+                for (x in moodEntries.indices) {
+                    myArrayList.add(moodEntries[x])
+                }
+            } catch (e: Exception) {
+                log.info("Unable to parse JSON - invalid format")
             }
         }
 

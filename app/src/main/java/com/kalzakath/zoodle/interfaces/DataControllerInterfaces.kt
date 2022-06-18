@@ -1,7 +1,6 @@
 package com.kalzakath.zoodle.interfaces
 
 import com.kalzakath.zoodle.RowControllerEvent
-import com.kalzakath.zoodle.RowEntryModel
 
 interface DataController: DataControllerAccessors, DataControllerEventHandlers
 

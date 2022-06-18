@@ -12,6 +12,8 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.google.gson.GsonBuilder
+import com.kalzakath.zoodle.model.MoodEntryModel
+import com.kalzakath.zoodle.model.update
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -68,7 +70,7 @@ class FrontPageActivity : AppCompatActivity() {
         val jsonArray = secureFileHandler.read("available.json")
 
         // Get activities that are stored in local json file
-        if (jsonArray?.isNotEmpty() == true) {
+        if (jsonArray.isNotEmpty()) {
             val gson = GsonBuilder().create()
             val activities = gson.fromJson(jsonArray, ArrayList::class.java)
             if (activities.isNotEmpty()) {
@@ -86,7 +88,7 @@ class FrontPageActivity : AppCompatActivity() {
         val jsonArray = secureFileHandler.read("feelings.json")
 
         // Get activities that are stored in local json file
-        if (jsonArray?.isNotEmpty() == true) {
+        if (jsonArray.isNotEmpty() == true) {
             val gson = GsonBuilder().create()
             val feelings = gson.fromJson(jsonArray, ArrayList::class.java)
             var data = ArrayList<String>()
@@ -160,13 +162,13 @@ class FrontPageActivity : AppCompatActivity() {
         time.text = moodEntry.time
 
         if (preset) {
-            btnMoodArray.indices.forEach { if(it == moodEntry.mood!!.value!!.toInt()-1) btnMoodArray[it].setBackgroundColor(Color.WHITE) else btnMoodArray[it].setBackgroundColor(Color.DKGRAY) }
+            btnMoodArray.indices.forEach { if(it == moodEntry.mood-1) btnMoodArray[it].setBackgroundColor(Color.WHITE) else btnMoodArray[it].setBackgroundColor(Color.DKGRAY) }
             updateButtons(moodEntry)
         }
 
         btnMoodArray.forEach { btn -> btn.setOnClickListener {
             it.setBackgroundColor(Color.WHITE)
-            moodEntry.mood!!.value = (btnMoodArray.indexOf(it) + 1).toString()
+            moodEntry.mood = btnMoodArray.indexOf(it) + 1
             btnMoodArray.forEach { ib ->
                 if (ib != it) ib.setBackgroundColor(Color.DKGRAY)
             } } }

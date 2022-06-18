@@ -25,6 +25,8 @@ import com.google.gson.GsonBuilder
 import com.kalzakath.zoodle.debug.TestSuite
 import com.kalzakath.zoodle.interfaces.DataController
 import com.kalzakath.zoodle.interfaces.MainActivityInterface
+import com.kalzakath.zoodle.interfaces.RowEntryModel
+import com.kalzakath.zoodle.model.MoodEntryModel
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -74,11 +76,11 @@ class MainActivity : AppCompatActivity(), MainActivityInterface {
         secureFileHandler = SecureFileHandler(securityHandler)
         rowController = RowController()
         onlineDataHandler = FirebaseConnectionHandler()
-        val moodTrackerMain = MoodTrackerMain(secureFileHandler,rowController,onlineDataHandler)
+        MoodTrackerMain(secureFileHandler,rowController,onlineDataHandler)
 
         //dataHandler = DataHandler(secureFileHandler, applicationContext)
 
-        val rVA = setupRecycleView()
+        setupRecycleView()
         initButtons()
         setActivityListeners()
 
@@ -122,7 +124,7 @@ class MainActivity : AppCompatActivity(), MainActivityInterface {
         val jsonArray = secureFileHandler.read("available.json")
 
         // Get activities that are stored in local json file
-        if (jsonArray?.isNotEmpty() == true) {
+        if (jsonArray.isNotEmpty()) {
             val gson = GsonBuilder().create()
             val activities = gson.fromJson(jsonArray, ArrayList::class.java)
             if (activities.isNotEmpty()) {
@@ -156,7 +158,7 @@ class MainActivity : AppCompatActivity(), MainActivityInterface {
         val jsonArray = secureFileHandler.read("feelings.json")
 
         // Get activities that are stored in local json file
-        if (jsonArray?.isNotEmpty() == true) {
+        if (jsonArray.isNotEmpty()) {
             val gson = GsonBuilder().create()
             val feelings = gson.fromJson(jsonArray, ArrayList::class.java)
             var data = ArrayList<String>()
@@ -181,7 +183,7 @@ class MainActivity : AppCompatActivity(), MainActivityInterface {
                 numberPicker.minValue = 0
                 numberPicker.wrapSelectorWheel = true
                 numberPicker.textColor = Color.WHITE
-                numberPicker.value = moodEntry.mood?.value!!.toInt().minus(1)
+                numberPicker.value = moodEntry.mood.minus(1)
 
             }
             else -> {
@@ -189,7 +191,7 @@ class MainActivity : AppCompatActivity(), MainActivityInterface {
                 numberPicker.minValue = 0
                 numberPicker.maxValue = resources.getStringArray(R.array.mood_faces).size - 1
                 numberPicker.value =
-                    mvHelper.getSanitisedNumber(moodEntry.mood?.value!!.toInt(), Settings.moodMax).minus(1)
+                    mvHelper.getSanitisedNumber(moodEntry.mood, Settings.moodMax).minus(1)
             }
         }
 
@@ -199,9 +201,9 @@ class MainActivity : AppCompatActivity(), MainActivityInterface {
         val bNpConfirm: Button = findViewById(R.id.bNpConfirm)
 
         bNpConfirm.setOnClickListener {
-            val moodValue: Mood = when (Settings.moodMode) {
-                Settings.MoodModes.NUMBERS -> Mood((numberPicker.value + 1).toString())
-                else -> Mood(mvHelper.getUnsanitisedNumber(numberPicker.value + 1, Settings.moodMax).toString())
+            val moodValue: Int = when (Settings.moodMode) {
+                Settings.MoodModes.NUMBERS -> numberPicker.value + 1
+                else -> mvHelper.getUnsanitisedNumber(numberPicker.value + 1, Settings.moodMax)
             }
             val newMood = MoodEntryModel(
                 moodEntry.date,

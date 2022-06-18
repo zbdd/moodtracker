@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
+import com.kalzakath.zoodle.model.MoodEntryModel
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -37,15 +38,15 @@ class SettingsActivity() : AppCompatActivity() {
         val bSettingsConfirm: Button = findViewById(R.id.bSettingsConfirm)
         val dataImport = ArrayList<MoodEntryModel>()
 
-        var moodData = ArrayList<MoodEntryModel>()
+        var parcelData: ArrayList<Parcelable>? = null
+        val moodData = ArrayList<MoodEntryModel>()
         val moodEntries = intent.getParcelableArrayListExtra<Parcelable>("MoodEntries")
-        if (moodEntries != null) moodData = intent.getParcelableArrayListExtra<Parcelable>("MoodEntries") as ArrayList<MoodEntryModel>
-
-        //val settings = intent.getParcelableExtra<Settings>("Settings")
+        if (moodEntries != null) parcelData = intent.getParcelableArrayListExtra<Parcelable>("MoodEntries")
+        parcelData?.filterIsInstanceTo(moodData)
 
         sMoodNumerals.isChecked = Settings.moodMode == Settings.MoodModes.NUMBERS
 
-        sMoodNumerals.setOnCheckedChangeListener { compoundButton, isChecked ->
+        sMoodNumerals.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) Settings.moodMode = Settings.MoodModes.NUMBERS
             else Settings.moodMode = Settings.MoodModes.FACES
         }
@@ -69,8 +70,7 @@ class SettingsActivity() : AppCompatActivity() {
 
         bSettingsConfirm.setOnClickListener {
             val finishIntent = Intent()
-            //finishIntent.putExtra("Settings", settings)
-            if (dataImport.isNotEmpty()) finishIntent.putParcelableArrayListExtra("MoodEntries", dataImport as ArrayList<out Parcelable>)
+            if (dataImport.isNotEmpty()) finishIntent.putParcelableArrayListExtra("MoodEntries", dataImport.filterIsInstanceTo(ArrayList()))
             setResult(RESULT_OK, finishIntent)
             finish()
         }
@@ -173,7 +173,7 @@ class SettingsActivity() : AppCompatActivity() {
                                 MoodEntryModel(
                                     date,
                                     time.toString(),
-                                    Mood(mood["mood"].toString()),
+                                    mood["mood"].toString().toInt(),
                                     moodFeelings,
                                     moodActivities,
                                     key.toString(),

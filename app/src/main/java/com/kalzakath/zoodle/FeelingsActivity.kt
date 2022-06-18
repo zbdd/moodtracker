@@ -4,10 +4,14 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
-import android.widget.*
+import android.widget.Button
+import android.widget.EditText
+import android.widget.ImageButton
+import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.kalzakath.zoodle.model.MoodEntryModel
 
 class FeelingsActivity: AppCompatActivity()  {
 
@@ -32,8 +36,6 @@ class FeelingsActivity: AppCompatActivity()  {
         val etAddActivity: EditText = findViewById(R.id.etFeelingsAddNewTitle)
         val bDeleteActivity: Button = findViewById(R.id.bFeelingsDelete)
         val bRestoreDefaults: Button = findViewById(R.id.bFeelingsRestoreDefaults)
-        val rvSelected: RecyclerView = findViewById(R.id.rvSelected)
-        val rvAvailable: RecyclerView = findViewById(R.id.rvAvailable)
 
         moodEntry = intent.getSerializableExtra("MoodEntry") as MoodEntryModel
 
@@ -80,11 +82,11 @@ class FeelingsActivity: AppCompatActivity()  {
             availableAdaptor.toggleDeleteMode(deleteMode)
 
             if (deleteMode) {
-                rvSelected.background.setTint(Color.RED)
-                rvAvailable.background.setTint(Color.RED)
+                feelingsRecycleView.background.setTint(Color.RED)
+                availableRecycleView.background.setTint(Color.RED)
             } else {
-                rvSelected.background.setTint(resources.getColor(R.color.dark_gray))
-                rvAvailable.background.setTint(resources.getColor(R.color.dark_gray))
+                feelingsRecycleView.background.setTint(resources.getColor(R.color.dark_gray))
+                availableRecycleView.background.setTint(resources.getColor(R.color.dark_gray))
             }
         }
 
@@ -110,11 +112,11 @@ class FeelingsActivity: AppCompatActivity()  {
             availableAdaptor.toggleDeleteMode(deleteMode)
 
             if (deleteMode) {
-                rvSelected.background.setTint(Color.RED)
-                rvAvailable.background.setTint(Color.RED)
+                feelingsRecycleView.background.setTint(Color.RED)
+                availableRecycleView.background.setTint(Color.RED)
             } else {
-                rvSelected.background.setTint(resources.getColor(R.color.dark_gray))
-                rvAvailable.background.setTint(resources.getColor(R.color.dark_gray))
+                feelingsRecycleView.background.setTint(resources.getColor(R.color.dark_gray))
+                availableRecycleView.background.setTint(resources.getColor(R.color.dark_gray))
             }
         }
 

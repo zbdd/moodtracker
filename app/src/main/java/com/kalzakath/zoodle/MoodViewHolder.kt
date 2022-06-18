@@ -12,3 +12,4 @@ class MoodViewHolder(itemView: View) : RowViewHolder(itemView)  {
     val feelingsText: TextView = itemView.findViewById(R.id.tvMainRowFeelings)
     val body: ConstraintLayout = itemView.findViewById(R.id.cMoodEntry)
 }
+

@@ -10,6 +10,9 @@ import com.google.firebase.ktx.Firebase
 import com.kalzakath.zoodle.interfaces.FirebaseAuthentication
 import com.kalzakath.zoodle.interfaces.OnlineDataHandler
 import com.kalzakath.zoodle.interfaces.OnlineDataHandlerEventListener
+import com.kalzakath.zoodle.interfaces.RowEntryModel
+import com.kalzakath.zoodle.model.MoodEntryModel
+import com.kalzakath.zoodle.model.toMap
 import java.util.logging.Logger
 
 class FirebaseConnectionHandler: OnlineDataHandler, FirebaseAuthentication {
@@ -51,7 +54,7 @@ class FirebaseConnectionHandler: OnlineDataHandler, FirebaseAuthentication {
             touch()
             log.info("Attempt to write to online database: PASS")
             for (moodEntry in moods) {
-                val moodHash = moodEntry.toMap()
+                val moodHash = (moodEntry as MoodEntryModel).toMap()
                 val update = hashMapOf<String, Any>("moodEntries/${moodEntry.key}" to moodHash)
                 myRef.child(user?.uid ?: "").updateChildren(update)
             }
@@ -71,7 +74,7 @@ class FirebaseConnectionHandler: OnlineDataHandler, FirebaseAuthentication {
                             MoodEntryModel(
                                 hashmap["date"].toString(),
                                 hashmap["time"].toString(),
-                                Mood(hashmap["mood"] as HashMap<String, Any>),
+                                hashmap["mood"].toString().toInt(),
                                 if (hashmap["feelings"] == null) arrayListOf() else hashmap["feelings"] as MutableList<String>,
                                 if (hashmap["activities"] == null) arrayListOf() else hashmap["activities"] as MutableList<String>,
                                 key
@@ -104,7 +107,6 @@ class FirebaseConnectionHandler: OnlineDataHandler, FirebaseAuthentication {
     }
 
     private fun touch() {
-        if (myRef.child(user?.uid ?: "").child("moodEntries") == null) myRef.child(user?.uid ?: "")
-            .child("moodEntries").setValue("")
+        myRef.child(user?.uid ?: "").child("moodEntries").setValue("")
     }
 }

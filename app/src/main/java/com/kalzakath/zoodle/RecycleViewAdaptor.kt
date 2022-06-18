@@ -6,6 +6,11 @@ import androidx.recyclerview.widget.RecyclerView.Adapter
 import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.kalzakath.zoodle.interfaces.DataController
 import com.kalzakath.zoodle.interfaces.DataControllerEventListener
+import com.kalzakath.zoodle.interfaces.RowEntryModel
+import com.kalzakath.zoodle.model.FilterEntryModel
+import com.kalzakath.zoodle.model.MoodEntryModel
+import com.kalzakath.zoodle.model.bindToViewHolder
+import com.kalzakath.zoodle.model.hideRow
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -133,7 +138,8 @@ class RecyclerViewAdaptor(
                 moodList.add(pos.asInt, FilterEntryModel(
                     title,
                     moodList[pos.asInt].date,
-                    MoodEntryHelper.convertStringToTime(moodList[pos.asInt].time).plusMinutes(1).toString()))
+                    MoodEntryHelper.convertStringToTime(moodList[pos.asInt].time).plusMinutes(1).toString())
+                )
                 notifyItemInserted(pos.asInt)
                 pos = OptionalInt.of(pos.asInt + 1)
 
@@ -144,11 +150,14 @@ class RecyclerViewAdaptor(
 
                     moodList.add(posLast.asInt, FilterEntryModel("",
                         moodList[posLast.asInt].date,
-                        MoodEntryHelper.convertStringToTime(moodList[posLast.asInt].time).plusMinutes(1).toString()))
+                        MoodEntryHelper.convertStringToTime(moodList[posLast.asInt].time).plusMinutes(1).toString())
+                    )
                     notifyItemInserted(posLast.asInt)
-                } else { moodList.add(FilterEntryModel("",
+                } else { moodList.add(
+                    FilterEntryModel("",
                     moodList[moodList.size-1].date,
-                    MoodEntryHelper.convertStringToTime(moodList[moodList.size-1].time).minusMinutes(1).toString()))
+                    MoodEntryHelper.convertStringToTime(moodList[moodList.size-1].time).minusMinutes(1).toString())
+                )
                     notifyItemInserted(moodList.size-1)
                 }
             }
@@ -191,7 +200,7 @@ class RecyclerViewAdaptor(
                 val mood = row as MoodEntryModel
                 mood.isVisible = !mood.isVisible
 
-                val viewHolder = mood.getViewHolder()
+                val viewHolder = mood.viewHolder
                 if (viewHolder != null) {
                     val mVH = viewHolder as MoodViewHolder
                     mood.hideRow(mVH)
@@ -265,7 +274,10 @@ class RecyclerViewAdaptor(
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        moodList[position].bindToViewHolder(holder)
+        when (moodList[position].viewType) {
+            MoodEntryModel().viewType -> (moodList[position] as MoodEntryModel).bindToViewHolder(holder)
+            FilterEntryModel().viewType -> (moodList[position] as FilterEntryModel).bindToViewHolder(holder)
+        }
         initButtons(holder, moodList[position])
     }
 
@@ -273,7 +285,7 @@ class RecyclerViewAdaptor(
         return moodList.size
     }
 
-    override fun onItemMove(fromPosition: Int, toPosition: Int): kotlin.Boolean {
+    override fun onItemMove(fromPosition: Int, toPosition: Int): Boolean {
         return false
     }
 

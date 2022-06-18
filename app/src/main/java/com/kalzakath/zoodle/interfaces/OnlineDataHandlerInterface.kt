@@ -2,7 +2,6 @@ package com.kalzakath.zoodle.interfaces
 
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
 import com.google.firebase.auth.FirebaseUser
-import com.kalzakath.zoodle.RowEntryModel
 
 interface FirebaseAuthentication {
     fun onSignInResult(result: FirebaseAuthUIAuthenticationResult): FirebaseUser?

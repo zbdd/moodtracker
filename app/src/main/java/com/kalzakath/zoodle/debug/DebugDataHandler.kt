@@ -1,7 +1,11 @@
 package com.kalzakath.zoodle.debug
 
 import android.content.Context
-import com.kalzakath.zoodle.*
+import com.kalzakath.zoodle.DataHandler
+import com.kalzakath.zoodle.R
+import com.kalzakath.zoodle.SecureFileHandler
+import com.kalzakath.zoodle.interfaces.RowEntryModel
+import com.kalzakath.zoodle.model.MoodEntryModel
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -31,7 +35,7 @@ class DebugDataHandler (secureFileHandler: SecureFileHandler,
         if (randMonth.toInt() < 10) randMonth = "0$randMonth"
         var randDay = random.nextInt(1, 28).toString()
         if (randDay.toInt() < 10) randDay = "0$randDay"
-        val randMood = random.nextInt(1, 5).toString()
+        val randMood = random.nextInt(1, 5)
 
         val availFeelings = context.resources.getStringArray(R.array.available_feelings)
 
@@ -58,7 +62,7 @@ class DebugDataHandler (secureFileHandler: SecureFileHandler,
         return MoodEntryModel(
             "$randomYear-$randMonth-$randDay",
             "12:34",
-            Mood(randMood),
+            randMood,
             feelings,
             list,
             "test_" + UUID.randomUUID().toString()

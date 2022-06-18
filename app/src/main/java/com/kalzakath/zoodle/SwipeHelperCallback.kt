@@ -4,6 +4,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
+import com.kalzakath.zoodle.model.MoodEntryModel
 
 class SwipeHelperCallback(val adaptor: ItemTouchHelperAdaptor): ItemTouchHelper.Callback() {
     interface ItemTouchHelperAdaptor {
@@ -29,8 +30,6 @@ class SwipeHelperCallback(val adaptor: ItemTouchHelperAdaptor): ItemTouchHelper.
         isCurrentlyActive: Boolean
     ) {
         val itemView = viewHolder.itemView
-
-        val itemHeight = itemView.bottom - itemView.top
 
         if (itemView.left + dX.toInt() >= itemView.right - 5) {
             itemView.setBackgroundColor(0)

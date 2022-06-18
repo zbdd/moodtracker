@@ -2,6 +2,9 @@ package com.kalzakath.zoodle
 
 import com.kalzakath.zoodle.interfaces.DataController
 import com.kalzakath.zoodle.interfaces.DataControllerEventListener
+import com.kalzakath.zoodle.interfaces.RowEntryModel
+import com.kalzakath.zoodle.model.MoodEntryModel
+import com.kalzakath.zoodle.model.toMap
 import java.util.logging.Logger
 
 class RowController: DataController {
@@ -47,7 +50,6 @@ class RowController: DataController {
 
     override fun removeAt(position: Int, callUpdate: Boolean) {
         val toRemove = mainRowEntryList[position]
-        log.info("Removing row at position $position\n${mainRowEntryList[position].toMap()}")
         mainRowEntryList.removeAt(position)
         if (callUpdate) callChangeEvent(arrayListOf(toRemove), RowControllerEvent.REMOVE )
     }
@@ -64,7 +66,6 @@ class RowController: DataController {
     }
 
     override fun update(rowEntryModel: RowEntryModel, callUpdate: Boolean) {
-        log.info("Attempting to update row ${rowEntryModel.toMap()}")
         val index = indexOf(rowEntryModel)
         if (index != -1) updateAt(index, rowEntryModel, callUpdate)
         else add(rowEntryModel)

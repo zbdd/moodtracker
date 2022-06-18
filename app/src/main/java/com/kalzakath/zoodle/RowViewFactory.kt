@@ -3,6 +3,7 @@ package com.kalzakath.zoodle
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.kalzakath.zoodle.model.FilterEntryModel
 
 class RowViewFactory {
 
