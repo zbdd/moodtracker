@@ -233,8 +233,8 @@ class MainActivity : AppCompatActivity(), MainActivityInterface {
         }
 
         getFrontPageActivityResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-            val data = it.data?.getSerializableExtra("MoodEntry") as MoodEntryModel
-            rowController.update(data)
+            val data = it.data?.getSerializableExtra("MoodEntry")
+            if (data != null) rowController.update(data as MoodEntryModel)
         }
 
         getFeelingsActivityResult = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {

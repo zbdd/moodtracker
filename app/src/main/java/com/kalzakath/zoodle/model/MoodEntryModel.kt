@@ -8,8 +8,6 @@ import java.io.Serializable
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.util.*
-import kotlin.reflect.KMutableProperty
-import kotlin.reflect.full.memberProperties
 
 @IgnoreExtraProperties
 data class MoodEntryModel(
@@ -70,16 +68,14 @@ fun MoodEntryModel.toMap(): Map<String, Any?> {
 fun MoodEntryModel.update(moodEntry: MoodEntryModel) {
     lastUpdated = LocalDateTime.now().toString()
 
-    for (prop in MoodEntryModel::class.memberProperties) {
-        val updateValues =
-            moodEntry::class.java.declaredFields.find { it.name == prop.name }
-        if (updateValues != null)
-            if (updateValues.name != "viewHolder")
-                if (prop is KMutableProperty<*>) {
-                    println("INFO INFO: ${updateValues.name}")
-                    prop.setter.call(this, updateValues.get(moodEntry))
-                }
-    }
+    date = moodEntry.date
+    time = moodEntry.time
+    mood = moodEntry.mood
+    activities = moodEntry.activities
+    feelings = moodEntry.feelings
+    sleep = moodEntry.sleep
+    medication = moodEntry.medication
+
 }
 
 fun MoodEntryModel.bindToViewHolder(holder: RecyclerView.ViewHolder) {

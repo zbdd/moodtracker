@@ -87,7 +87,7 @@ class FrontPageActivity : AppCompatActivity() {
         val jsonArray = secureFileHandler.read("feelings.json")
 
         // Get activities that are stored in local json file
-        if (jsonArray.isNotEmpty() == true) {
+        if (jsonArray.isNotEmpty()) {
             val gson = GsonBuilder().create()
             val feelings = gson.fromJson(jsonArray, ArrayList::class.java)
             var data = ArrayList<String>()
