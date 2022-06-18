@@ -71,16 +71,16 @@ class FirebaseConnectionHandler: OnlineDataHandler, FirebaseAuthentication {
                 try {
                 if (it.value?.javaClass == HashMap<String, Any>().javaClass) {
                     for ((key, hashmap) in it.value as HashMap<String, HashMap<String, Any>>) {
-                        moodData.add(
-                            MoodEntryModel(
+                        val moodEntry = MoodEntryModel(
                                 hashmap["date"].toString(),
                                 hashmap["time"].toString(),
                                 hashmap["mood"].toString().toInt(),
                                 if (hashmap["feelings"] == null) arrayListOf() else hashmap["feelings"] as MutableList<String>,
                                 if (hashmap["activities"] == null) arrayListOf() else hashmap["activities"] as MutableList<String>,
-                                key
-                            )
-                        )
+                                key)
+                        if (hashmap["sleep"] != null) moodEntry.sleep = hashmap["sleep"] as Int
+                        if (hashmap["medication"] != null) moodEntry.sleep = hashmap["medication"] as Int
+                        moodData.add(moodEntry)
                     }
                     notifyListenersOfDatabaseUpdate(moodData)
                 }

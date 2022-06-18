@@ -4,16 +4,15 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
-import android.widget.Button
-import android.widget.ImageButton
-import android.widget.LinearLayout
-import android.widget.TextView
+import android.widget.*
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.google.gson.GsonBuilder
 import com.kalzakath.zoodle.model.MoodEntryModel
 import com.kalzakath.zoodle.model.update
+import com.kalzakath.zoodle.model.updateDateTime
+import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -111,6 +110,7 @@ class FrontPageActivity : AppCompatActivity() {
         val feelings: TextView = findViewById(R.id.tvFrontFeelings)
         val activityTitle: TextView = findViewById(R.id.tvFrontActivitiesTitle)
         val feelingsTitle: TextView = findViewById(R.id.tvFrontFeelingsTitle)
+        val medicationCheck: CheckBox = findViewById(R.id.cbFrontMedication)
 
         if (moodEntry.activities.isNotEmpty()) {
             activityTitle.text = resources.getString(R.string.main_row_activities)
@@ -121,6 +121,7 @@ class FrontPageActivity : AppCompatActivity() {
             activities.visibility = View.INVISIBLE
             activityTitle.text = resources.getString(R.string.activities_add_new)
         }
+
         if (moodEntry.feelings.isNotEmpty()) {
             feelingsTitle.text = resources.getString(R.string.main_row_feelings)
             feelings.text = moodEntry.feelings.toString().removeSurrounding("[","]")
@@ -130,6 +131,8 @@ class FrontPageActivity : AppCompatActivity() {
             feelings.visibility = View.INVISIBLE
             feelingsTitle.text = resources.getString(R.string.feelings_add_new)
         }
+
+        medicationCheck.isChecked = moodEntry.medication
     }
 
     private fun initButtons(moodEntry: MoodEntryModel, preset: Boolean = false) {
@@ -145,7 +148,7 @@ class FrontPageActivity : AppCompatActivity() {
         val sleepGood: ImageButton = findViewById(R.id.ibSleepGood)
         val sleepVeryGood: ImageButton = findViewById(R.id.ibSleepVeryGood)
 
-        //val medicationCheck: CheckBox = findViewById(R.id.cbFrontMedication)
+        val medicationCheck: CheckBox = findViewById(R.id.cbFrontMedication)
 
         val activityTitle: LinearLayout = findViewById(R.id.llActivities)
         val feelingsTitle: LinearLayout = findViewById(R.id.llFeelings)
@@ -163,7 +166,26 @@ class FrontPageActivity : AppCompatActivity() {
 
         if (preset) {
             btnMoodArray.indices.forEach { if(it == moodEntry.mood-1) btnMoodArray[it].setBackgroundColor(Color.WHITE) else btnMoodArray[it].setBackgroundColor(Color.DKGRAY) }
+            btnSleepArray.indices.forEach { if(it == moodEntry.sleep-1) btnSleepArray[it].setBackgroundColor(Color.WHITE) else btnSleepArray[it].setBackgroundColor(Color.DKGRAY) }
             updateButtons(moodEntry)
+        }
+
+        val dtPicker = DateTimePicker()
+        dtPicker.onUpdateListener = {
+            val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
+            val timeFormat = SimpleDateFormat("HH:mm", Locale.ENGLISH)
+
+            date.text = dateFormat.format(it.time)
+            time.text = timeFormat.format(it.time)
+            moodEntry.updateDateTime(it)
+        }
+
+        date.setOnClickListener {
+            dtPicker.show(this)
+        }
+
+        time.setOnClickListener {
+            dtPicker.show(this)
         }
 
         btnMoodArray.forEach { btn -> btn.setOnClickListener {
@@ -175,6 +197,7 @@ class FrontPageActivity : AppCompatActivity() {
 
         btnSleepArray.forEach { btn -> btn.setOnClickListener {
             it.setBackgroundColor(Color.WHITE)
+            moodEntry.sleep = btnSleepArray.indexOf(it) + 1
             btnSleepArray.forEach { ib ->
                 if (ib != it) ib.setBackgroundColor(Color.DKGRAY)
             } } }
@@ -192,6 +215,10 @@ class FrontPageActivity : AppCompatActivity() {
             intent.putExtra("MoodEntry", moodEntry)
             setResult(RESULT_OK, intent)
             finish()
+        }
+
+        medicationCheck.setOnClickListener {
+            moodEntry.medication = medicationCheck.isChecked
         }
     }
 }

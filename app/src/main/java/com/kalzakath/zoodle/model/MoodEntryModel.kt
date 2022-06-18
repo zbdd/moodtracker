@@ -5,6 +5,7 @@ import com.google.firebase.database.IgnoreExtraProperties
 import com.kalzakath.zoodle.*
 import com.kalzakath.zoodle.interfaces.RowEntryModel
 import java.io.Serializable
+import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.util.*
 import kotlin.reflect.KMutableProperty
@@ -18,7 +19,9 @@ data class MoodEntryModel(
     var feelings: MutableList<String> = ArrayList(),
     var activities: MutableList<String> = ArrayList(),
     override var key: String = "local_" + UUID.randomUUID().toString(),
-    var lastUpdated: String = LocalDateTime.now().toString()
+    var lastUpdated: String = LocalDateTime.now().toString(),
+    var sleep: Int = 0,
+    var medication: Boolean = false
 ): RowEntryModel,
     Serializable {
 
@@ -26,6 +29,14 @@ data class MoodEntryModel(
     override var viewType: Int = 1
 
     @Transient var viewHolder: RecyclerView.ViewHolder? = null
+}
+
+fun MoodEntryModel.updateDateTime(calendar: Calendar) {
+    val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
+    val timeFormat = SimpleDateFormat("HH:mm", Locale.ENGLISH)
+
+    date = dateFormat.format(calendar.time)
+    time = timeFormat.format(calendar.time)
 }
 
 fun MoodEntryModel.compare(moodEntry: MoodEntryModel): Boolean {

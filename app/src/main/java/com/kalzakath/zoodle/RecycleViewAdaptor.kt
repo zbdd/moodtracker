@@ -7,11 +7,7 @@ import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.kalzakath.zoodle.interfaces.DataController
 import com.kalzakath.zoodle.interfaces.DataControllerEventListener
 import com.kalzakath.zoodle.interfaces.RowEntryModel
-import com.kalzakath.zoodle.model.FilterEntryModel
-import com.kalzakath.zoodle.model.MoodEntryModel
-import com.kalzakath.zoodle.model.bindToViewHolder
-import com.kalzakath.zoodle.model.hideRow
-import java.text.SimpleDateFormat
+import com.kalzakath.zoodle.model.*
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.*
@@ -180,19 +176,6 @@ class RecyclerViewAdaptor(
         return moodList[position].viewType
     }
 
-    private fun updateDateText(calendar: Calendar, holder: MoodViewHolder, mood: MoodEntryModel) {
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH)
-        holder.dateText.text = dateFormat.format(calendar.time)
-
-        val timeFormat = SimpleDateFormat("HH:mm", Locale.ENGLISH)
-        holder.timeText.text = timeFormat.format(calendar.time)
-
-        mood.date = dateFormat.format(calendar.time)
-        mood.time = timeFormat.format(calendar.time)
-
-        rowController.update(mood)
-    }
-
     private fun toggleFilterView(position: Int) {
         for (i in position + 1 until moodList.size) {
             val row = moodList[i]
@@ -225,7 +208,9 @@ class RecyclerViewAdaptor(
 
                 val dtPicker = DateTimePicker()
                 dtPicker.onUpdateListener = {
-                    updateDateText(it, mHolder, moodEntry)
+                    mHolder.updateDateTimeText(it)
+                    moodEntry.updateDateTime(it)
+                    rowController.update(moodEntry)
                 }
 
                 mHolder.moodText.setOnLongClickListener {
