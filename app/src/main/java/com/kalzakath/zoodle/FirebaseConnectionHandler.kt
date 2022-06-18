@@ -68,6 +68,7 @@ class FirebaseConnectionHandler: OnlineDataHandler, FirebaseAuthentication {
 
         myRef.child(user!!.uid).child("moodEntries").get()
             .addOnSuccessListener {
+                try {
                 if (it.value?.javaClass == HashMap<String, Any>().javaClass) {
                     for ((key, hashmap) in it.value as HashMap<String, HashMap<String, Any>>) {
                         moodData.add(
@@ -83,10 +84,13 @@ class FirebaseConnectionHandler: OnlineDataHandler, FirebaseAuthentication {
                     }
                     notifyListenersOfDatabaseUpdate(moodData)
                 }
+                } catch (e: Exception) {
+                    log.info("Failure occurred in processing JSON")
+                }
             }.addOnFailureListener {
-                println("Unable to get data from DB")
+                log.info("Unable to get data from DB")
             }
-        println("Size: " + moodData.size)
+        log.info("Size: " + moodData.size)
         return moodData
     }
 
@@ -107,6 +111,8 @@ class FirebaseConnectionHandler: OnlineDataHandler, FirebaseAuthentication {
     }
 
     private fun touch() {
-        myRef.child(user?.uid ?: "").child("moodEntries").setValue("")
+        myRef.child(user?.uid ?: "").child("moodEntries").get().addOnFailureListener {
+            myRef.child(user?.uid ?: "").child("moodEntries").setValue("")
+        }
     }
 }
