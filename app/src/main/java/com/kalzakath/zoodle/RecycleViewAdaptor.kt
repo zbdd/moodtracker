@@ -134,7 +134,7 @@ class RecyclerViewAdaptor(
                 moodList.add(pos.asInt, FilterEntryModel(
                     title,
                     moodList[pos.asInt].date,
-                    MoodEntryHelper.convertStringToTime(moodList[pos.asInt].time).plusMinutes(1).toString())
+                    convertStringToTime(moodList[pos.asInt].time).plusMinutes(1).toString())
                 )
                 notifyItemInserted(pos.asInt)
                 pos = OptionalInt.of(pos.asInt + 1)
@@ -146,13 +146,13 @@ class RecyclerViewAdaptor(
 
                     moodList.add(posLast.asInt, FilterEntryModel("",
                         moodList[posLast.asInt].date,
-                        MoodEntryHelper.convertStringToTime(moodList[posLast.asInt].time).plusMinutes(1).toString())
+                        convertStringToTime(moodList[posLast.asInt].time).plusMinutes(1).toString())
                     )
                     notifyItemInserted(posLast.asInt)
                 } else { moodList.add(
                     FilterEntryModel("",
                     moodList[moodList.size-1].date,
-                    MoodEntryHelper.convertStringToTime(moodList[moodList.size-1].time).minusMinutes(1).toString())
+                    convertStringToTime(moodList[moodList.size-1].time).minusMinutes(1).toString())
                 )
                     notifyItemInserted(moodList.size-1)
                 }

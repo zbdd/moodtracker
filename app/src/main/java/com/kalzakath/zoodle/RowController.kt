@@ -77,10 +77,10 @@ class RowController: DataController {
 
         when (val toUpdateRow = get(position)) {
             is MoodEntryModel -> {
-                val moodEntryUpdated = MoodEntryHelper.convertStringToDateTime(toUpdateRow.lastUpdated)
+                val moodEntryUpdated = convertStringToDateTime(toUpdateRow.lastUpdated)
 
                 val newEntryModel = rowEntryModel as MoodEntryModel
-                val newMoodEntryUpdated = MoodEntryHelper.convertStringToDateTime(newEntryModel.lastUpdated)
+                val newMoodEntryUpdated = convertStringToDateTime(newEntryModel.lastUpdated)
 
                 if (newMoodEntryUpdated >= moodEntryUpdated) {
                     mainRowEntryList[position] = rowEntryModel
@@ -97,7 +97,7 @@ class RowController: DataController {
 
     private fun sort(arrayList: ArrayList<RowEntryModel>): ArrayList<RowEntryModel> {
         val comparator = compareBy { row: RowEntryModel ->
-            MoodEntryHelper.convertStringToDateTime(
+            convertStringToDateTime(
                 row.date + "T" + row.time,
                 16
             )
