@@ -85,8 +85,8 @@ class FeelingsActivity: AppCompatActivity()  {
                 feelingsRecycleView.background.setTint(Color.RED)
                 availableRecycleView.background.setTint(Color.RED)
             } else {
-                feelingsRecycleView.background.setTint(resources.getColor(R.color.dark_gray))
-                availableRecycleView.background.setTint(resources.getColor(R.color.dark_gray))
+                feelingsRecycleView.background.setTint(resources.getColor(R.color.dark_gray, theme))
+                availableRecycleView.background.setTint(resources.getColor(R.color.dark_gray, theme))
             }
         }
 
@@ -115,8 +115,8 @@ class FeelingsActivity: AppCompatActivity()  {
                 feelingsRecycleView.background.setTint(Color.RED)
                 availableRecycleView.background.setTint(Color.RED)
             } else {
-                feelingsRecycleView.background.setTint(resources.getColor(R.color.dark_gray))
-                availableRecycleView.background.setTint(resources.getColor(R.color.dark_gray))
+                feelingsRecycleView.background.setTint(resources.getColor(R.color.dark_gray, theme))
+                availableRecycleView.background.setTint(resources.getColor(R.color.dark_gray, theme))
             }
         }
 

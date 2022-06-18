@@ -189,17 +189,17 @@ class FrontPageActivity : AppCompatActivity() {
         }
 
         btnMoodArray.forEach { btn -> btn.setOnClickListener {
-            it.setBackgroundColor(Color.WHITE)
+            it.setBackgroundColor(resources.getColor(R.color.white, theme))
             moodEntry.mood = btnMoodArray.indexOf(it) + 1
             btnMoodArray.forEach { ib ->
-                if (ib != it) ib.setBackgroundColor(Color.DKGRAY)
+                if (ib != it) ib.setBackgroundColor(resources.getColor(R.color.dark_gray, theme))
             } } }
 
         btnSleepArray.forEach { btn -> btn.setOnClickListener {
-            it.setBackgroundColor(Color.WHITE)
+            it.setBackgroundColor(resources.getColor(R.color.white, theme))
             moodEntry.sleep = btnSleepArray.indexOf(it) + 1
             btnSleepArray.forEach { ib ->
-                if (ib != it) ib.setBackgroundColor(Color.DKGRAY)
+                if (ib != it) ib.setBackgroundColor(resources.getColor(R.color.dark_gray, theme))
             } } }
 
         activityTitle.setOnClickListener {
