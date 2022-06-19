@@ -19,7 +19,7 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 import java.util.logging.Logger
 
-class FrontPageActivity : AppCompatActivity() {
+class DetailedViewActivity : AppCompatActivity() {
     private lateinit var getActivitiesActivityResult: ActivityResultLauncher<Intent>
     private lateinit var getFeelingsActivityResult: ActivityResultLauncher<Intent>
     private lateinit var secureFileHandler: SecureFileHandler

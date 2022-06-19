@@ -9,7 +9,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Rows">
         <activity
-            android:name=".FrontPageActivity"
+            android:name=".DetailedViewActivity"
             android:exported="false" />
         <activity
             android:name=".FeelingsActivity"

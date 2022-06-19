@@ -143,7 +143,7 @@ class MainActivity : AppCompatActivity(), MainActivityInterface {
     }
 
     override fun startActivityFrontPage(moodEntry: MoodEntryModel?) {
-        val intent = Intent(this, FrontPageActivity::class.java)
+        val intent = Intent(this, DetailedViewActivity::class.java)
         if (moodEntry != null) intent.putExtra("MoodEntry", moodEntry)
         getFrontPageActivityResult.launch(intent)
     }
